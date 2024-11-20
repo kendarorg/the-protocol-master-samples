@@ -7,11 +7,10 @@ ENV TARGETARCH=amd64
 WORKDIR /source
 
 # Copy project file and restore as distinct layers
-COPY  HttpServer/*.csproj .
+COPY  *.csproj .
 RUN dotnet restore -a $TARGETARCH
-
 # Copy source code and publish app
-COPY  HttpServer/. .
+COPY  . .
 RUN dotnet publish -a $TARGETARCH --no-restore -o /app
 
 
@@ -20,6 +19,6 @@ FROM mcr.microsoft.com/dotnet/aspnet:8.0
 EXPOSE 80
 WORKDIR /app
 COPY  --from=build /app .
-COPY  HttpServer/docker.appsettings.json /app/appsettings.json
+COPY  docker.appsettings.json /app/appsettings.json
 USER $APP_UID
 ENTRYPOINT ["./HttpServer"]

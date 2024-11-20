@@ -7,18 +7,19 @@ ENV TARGETARCH=amd64
 WORKDIR /source
 
 # Copy project file and restore as distinct layers
-COPY  aspnetapp/*.csproj .
+COPY  *.csproj .
 RUN dotnet restore -a $TARGETARCH
 
 # Copy source code and publish app
-COPY  aspnetapp/. .
+COPY  . .
 RUN dotnet publish -a $TARGETARCH --no-restore -o /app
 
 
 # Runtime stage
 FROM mcr.microsoft.com/dotnet/aspnet:8.0
-EXPOSE 8080
+EXPOSE 80
 WORKDIR /app
+COPY  docker.appsettings.json /app/appsettings.json
 COPY  --from=build /app .
 USER $APP_UID
-ENTRYPOINT ["./aspnetapp"]
+ENTRYPOINT ["./RestServer"]
