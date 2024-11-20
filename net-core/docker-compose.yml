@@ -3,27 +3,30 @@ services:
   net_core_tpm:
     build:
       context: .
-      dockerfile: Dockerfile.tpm
+      dockerfile: Dockerfiles/Dockerfile.tpm
     image: "net_core_tpm"
     container_name: net_core_tpm
   net_core_http:
     build:
       context: .
-      dockerfile: Dockerfile.HttpServer
+      dockerfile: Dockerfiles/Dockerfile.HttpServer
     image: "net_core_http"
     container_name: net_core_http
   net_core_rest:
     build:
       context: .
-      dockerfile: Dockerfile.RestServer
+      dockerfile: Dockerfiles/Dockerfile.RestServer
     image: "net_core_rest"
     container_name: net_core_rest
     ports:
       - '28081:8081'
       - '29000:9000'
   db_mysql:
+    build:
+      context: .
+      dockerfile: Dockerfiles/Dockerfile.HttpServer
     container_name: db_mysql
-    image: mysql:5.7
+    image: "tpm_mysql"
     restart: always
     environment:
       MYSQL_DATABASE: 'db'
