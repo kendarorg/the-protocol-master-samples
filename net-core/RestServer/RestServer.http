@@ -1,0 +1,6 @@
+@TpmSampleApps_HostAddress = http://localhost:5293
+
+GET {{TpmSampleApps_HostAddress}}/api/task
+Accept: application/json
+
+###

@@ -1,0 +1,75 @@
+body {
+    --c : rgba(250,254,254,0.7);
+    --t : transparent;
+    background: #Fcfcfc;
+}
+
+hr {
+    width: 40%;
+    color: black;
+}
+
+/* removes element from the DOM */
+.hidden {
+    display: none;
+}
+
+/* cursor is a pointer on hover */
+.changeMode {
+    cursor: pointer;
+}
+
+/**** Header ****/
+#header {
+    text-align: center;
+    height: 20vh;
+    position: relative;
+    background-image:
+  /* repeating-linear-gradient(45deg, var(--t) 0, var(--t) 32px, var(--c) 32px, var(--c) 44px, var(--t) 44px, var(--t) 56px, var(--c) 56px, var(--c) 68px, var(--t) 0),
+  repeating-linear-gradient(-45deg, var(--t) 0, var(--t) 32px, var(--c) 32px, var(--c) 44px, var(--t) 44px, var(--t) 56px, var(--c) 56px, var(--c) 68px, var(--t) 0), */
+  linear-gradient(to bottom left, #559E54, #305A30);
+}
+
+#header h1 {
+    position: relative;
+    height: 20%;
+    top: 40%;
+    color: white;
+    text-shadow: whitesmoke 1px 1px;
+    text-shadow: gray 2px 2px;
+    text-shadow: black 3px 3px;
+}
+
+#modes {
+    width: 200px;
+    position: absolute;
+    right: 10px;
+    display: flex;
+    justify-content: space-around;
+    bottom: 0px;
+    color: white;
+}
+
+/**** Form ****/
+
+#form-content {
+    text-align: center;
+    margin-top: 50px;
+    margin-bottom: 25px;
+}
+
+
+.completedTask {
+    color: #305A30;
+    font-weight: bold;
+}
+
+label {
+    margin: 0px 5px 0px 5px;
+}
+
+/**** Tables ****/
+#archived-tasks, #active-tasks {
+    text-align: center;
+    margin-top: 50px;
+}

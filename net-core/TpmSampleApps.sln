@@ -1,0 +1,37 @@
+﻿
+Microsoft Visual Studio Solution File, Format Version 12.00
+# Visual Studio Version 17
+VisualStudioVersion = 17.9.34723.18
+MinimumVisualStudioVersion = 10.0.40219.1
+Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "Solution Items", "Solution Items", "{67A911B5-3531-44CA-8357-7547CAC0FD5A}"
+	ProjectSection(SolutionItems) = preProject
+		Dockerfile.HttpServer = Dockerfile.HttpServer
+		Dockerfile.RestServer = Dockerfile.RestServer
+	EndProjectSection
+EndProject
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "RestServer", "RestServer\RestServer.csproj", "{0AAF776D-FE2B-46E5-BC0D-D43DDB26DADE}"
+EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "HttpServer", "HttpServer\HttpServer.csproj", "{18E0475C-43CB-447E-8A64-B4CDEC4DD314}"
+EndProject
+Global
+	GlobalSection(SolutionConfigurationPlatforms) = preSolution
+		Debug|Any CPU = Debug|Any CPU
+		Release|Any CPU = Release|Any CPU
+	EndGlobalSection
+	GlobalSection(ProjectConfigurationPlatforms) = postSolution
+		{0AAF776D-FE2B-46E5-BC0D-D43DDB26DADE}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{0AAF776D-FE2B-46E5-BC0D-D43DDB26DADE}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{0AAF776D-FE2B-46E5-BC0D-D43DDB26DADE}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{0AAF776D-FE2B-46E5-BC0D-D43DDB26DADE}.Release|Any CPU.Build.0 = Release|Any CPU
+		{18E0475C-43CB-447E-8A64-B4CDEC4DD314}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{18E0475C-43CB-447E-8A64-B4CDEC4DD314}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{18E0475C-43CB-447E-8A64-B4CDEC4DD314}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{18E0475C-43CB-447E-8A64-B4CDEC4DD314}.Release|Any CPU.Build.0 = Release|Any CPU
+	EndGlobalSection
+	GlobalSection(SolutionProperties) = preSolution
+		HideSolutionNode = FALSE
+	EndGlobalSection
+	GlobalSection(ExtensibilityGlobals) = postSolution
+		SolutionGuid = {D57A69AC-0809-4F75-88EE-F284A3080FB5}
+	EndGlobalSection
+EndGlobal
