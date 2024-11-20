@@ -19,7 +19,7 @@ RUN dotnet publish -a $TARGETARCH --no-restore -o /app
 FROM mcr.microsoft.com/dotnet/aspnet:8.0
 EXPOSE 80
 WORKDIR /app
-COPY  docker.appsettings.json /app/appsettings.json
 COPY  --from=build /app .
+COPY  docker.appsettings.json /app/appsettings.json
 USER $APP_UID
 ENTRYPOINT ["./RestServer"]
