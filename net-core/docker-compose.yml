@@ -6,20 +6,22 @@ services:
       dockerfile: Dockerfile
     image: "net_core_tpm"
     container_name: net_core_tpm
+    ports:
+      - '28081:8081'
+      - '29000:9000'
+      - '20080:80'
   net_core_http:
     build:
       context: HttpServer/.
       dockerfile: Dockerfile
     image: "net_core_http"
+    container_name: net_core_http
   net_core_rest:
     build:
       context: RestServer/.
       dockerfile: Dockerfile
     image: "net_core_rest"
     container_name: net_core_rest
-    ports:
-      - '28081:8081'
-      - '29000:9000'
   db_mysql:
     build:
       context: MySQL/.
