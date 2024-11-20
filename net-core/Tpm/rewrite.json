@@ -1,0 +1,12 @@
+[
+  {
+    "toFind": "http://net_core_tpm/http",
+    "toReplace": "http://net_core_http",
+    "regex": false
+  },
+  {
+    "toFind": "http://net_core_tpm/rest",
+    "toReplace": "http://net_core_rest",
+    "regex": false
+  }
+]

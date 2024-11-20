@@ -1,0 +1,11 @@
+FROM adoptopenjdk/openjdk11:jdk-11.0.11_9-alpine-slim
+RUN apk add --no-cache bash wget
+
+WORKDIR /
+RUN wget https://github.com/kendarorg/the-protocol-master/releases/download/v2.0.0/protocol-runner.jar
+
+COPY  Tpm/settings.ini .
+
+ENTRYPOINT ["java",
+    "-jar","/protocol-runner.jar",
+    "-cfg","/settings.ini]

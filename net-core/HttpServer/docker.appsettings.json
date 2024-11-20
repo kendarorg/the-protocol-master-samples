@@ -1,0 +1,19 @@
+{
+  "Logging": {
+    "LogLevel": {
+      "Default": "Information",
+      "Microsoft.AspNetCore": "Warning"
+    }
+  },
+  "CustomSettings": {
+    "ApiServer": "http://net_core_tpm/rest"
+  },
+  "Kestrel": {
+    "EndPoints": {
+      "Http": {
+        "Url": "http://0.0.0.0:80"
+      }
+    }
+  },
+  "AllowedHosts": "*"
+}

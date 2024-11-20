@@ -1,0 +1,34 @@
+version: '3.8'
+services:
+  net_core_tpm:
+    build:
+      context: .
+      dockerfile: Dockerfile.tpm
+    image: "net_core_tpm"
+    container_name: net_core_tpm
+  net_core_http:
+    build:
+      context: .
+      dockerfile: Dockerfile.HttpServer
+    image: "net_core_http"
+    container_name: net_core_http
+  net_core_rest:
+    build:
+      context: .
+      dockerfile: Dockerfile.RestServer
+    image: "net_core_rest"
+    container_name: net_core_rest
+    ports:
+      - '28081:8081'
+      - '29000:9000'
+  db_mysql:
+    container_name: db_mysql
+    image: mysql:5.7
+    restart: always
+    environment:
+      MYSQL_DATABASE: 'db'
+      MYSQL_USER: 'user'
+      MYSQL_PASSWORD: 'password'
+      MYSQL_ROOT_PASSWORD: 'password'
+    ports:
+      - '23306:3306'
