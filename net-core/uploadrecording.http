@@ -1,0 +1,25 @@
+POST http://192.168.56.2:28081/api/storage/upload
+
+< C:\Tmp\1732181129808.zip
+
+#######
+
+GET http://192.168.56.2:28081/api/protocols/mysql-01/plugins/replay-plugin/start
+
+#######
+
+GET http://192.168.56.2:28081/api/protocols/http-01/plugins/replay-plugin/start
+
+#######
+
+GET http://192.168.56.2:28081/api/protocols/*/plugins/replay-plugin/stop
+
+#######
+
+GET http://192.168.56.2:28081/api/protocols/*/plugins/record-plugin/start
+
+#######
+
+GET http://192.168.56.2:28081/api/protocols/*/plugins/record-plugin/stop
+
+#######
