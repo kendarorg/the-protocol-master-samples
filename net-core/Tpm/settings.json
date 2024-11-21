@@ -44,7 +44,11 @@
       "timeout": 30,
       "connectionString": "jdbc:mysql://db_mysql:3306/db",
       "plugins": {
-        "record-plugin": {},
+        "record-plugin": {
+          "recordSites": [
+            "net_core_http","net_core_rest"
+          ]
+        },
         "replay-plugin": {}
       }
     },
