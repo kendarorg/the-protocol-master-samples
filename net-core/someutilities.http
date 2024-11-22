@@ -1,27 +1,38 @@
-POST http://192.168.56.2:28081/api/storage/upload
-
-< C:\Tmp\1732181129808.zip
 
 #######
 
-GET http://192.168.56.2:28081/api/protocols/mysql-01/plugins/replay-plugin/start
+//Start recording on all configured plugins
+GET http://net_core_tpm:8081/api/protocols/*/plugins/record-plugin/start
 
 #######
 
-GET http://192.168.56.2:28081/api/protocols/http-01/plugins/replay-plugin/start
+//Stop recording on all configured plugins
+GET http://net_core_tpm:8081/api/protocols/*/plugins/record-plugin/stop
 
 #######
 
-GET http://192.168.56.2:28081/api/protocols/*/plugins/replay-plugin/stop
+//Download all results
+GET http://net_core_tpm:8081/api/storage/download
 
 #######
 
-GET http://192.168.56.2:28081/api/protocols/*/plugins/record-plugin/start
+//Stop mysql container and call this to replay only mysql
+GET http://net_core_tpm:8081/api/protocols/mysql-01/plugins/replay-plugin/start
 
 #######
 
-GET http://192.168.56.2:28081/api/protocols/*/plugins/record-plugin/stop
+//Stop all replaying
+GET http://net_core_tpm:8081/api/protocols/*/plugins/replay-plugin/stop
 
 #######
 
-GET http://192.168.56.2:28081/api/storage/download
+//Stop rest server container and call this to replay all rest calls
+GET http://net_core_tpm:8081/api/protocols/http-01/plugins/replay-plugin/start
+
+#######
+
+//Stop all replaying
+GET http://net_core_tpm:8081/api/protocols/*/plugins/replay-plugin/stop
+
+#######
+
