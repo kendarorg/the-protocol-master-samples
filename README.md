@@ -18,7 +18,7 @@ and very basic JQuery-based Front-End
 
 ### Machine Dependant Stuffs! Beware
 
-All .NET applications run at the moment only on Intel architecture, that means
+All .NET applications run out of the box only on Intel architecture, that means
 
 * Platform: linux/amd64
 * Target Architecture: amd64
