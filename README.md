@@ -3,7 +3,7 @@
 ![](protocolmaster_s.gif)
 
 This is a simple environment to test [The Protocol Master](https://github.com/kendarorg/the-protocol-master)
-application
+application. We will mock without a line of code the database and a rest api
 
 Just for fun this is a .NET Core application with Entity Framework 
 and very basic JQuery-based Front-End
