@@ -15,7 +15,6 @@ function onReady() {
     }).catch(function (error) {
         console.log('Error in client-side GET request to /api/tasks', error);
     });
-    
 }
 
 // adds ajax requests as event listeners on submit button and delete, archive and update buttons in table tasks
@@ -65,20 +64,20 @@ function appendTasks(array) {
             </tr>
             `)
             $("#listTableBody").children().last().addClass("completedTask");
-            taskRowCount ++;
+            taskRowCount++;
             // if task is archived, adds to archived tasks table
-        } else if (task.status === "Archived") { 
+        } else if (task.status === "Archived") {
             $('#archivedTableBody').append(`
             <tr data-id="${task.id}">
                 <th scope="row">${archivedRowCount}</th>
                 <td>${task.taskName}</td>
                 <td>${task.priority}</td>
                 <td>${task.notes}</td>
-                <td>${task.archiveDate.substring(0,10)}</td>
+                <td>${task.archiveDate.substring(0, 10)}</td>
                 <td><button class="deleteButton btn btn-danger btn-sm">Delete</button></td>
             </tr>
             `)
-            archivedRowCount ++;
+            archivedRowCount++;
             // if task is neither archived nor completed, adds task to task table with update and delete buttons
         } else {
             $('#listTableBody').append(`
@@ -124,19 +123,19 @@ function changeMode() {
 // on Submit button click, adds new task to database, then GETs contents to append to DOM
 function handleNewTask() {
     // requires taskName and Notes inputs to have values
-    if(!$("#taskName").val() || !$("#addPriority").val()) {
+    if (!$("#taskName").val() || !$("#addPriority").val()) {
         return Swal.fire({
             type: 'error',
             title: 'Oops...',
             text: 'Something went wrong!',
             footer: 'Please enter task name and priority.'
-          })
+        })
     }
     // posts new task to database with input values
     $.ajax({
         method: 'POST',
-        url: apiServerAddress+'/api/tasks',
-        data: JSON.stringify( {
+        url: apiServerAddress + '/api/tasks',
+        data: JSON.stringify({
             taskName: $("#taskName").val(),
             priority: $("#addPriority").val(),
             notes: $("#notes").val()
@@ -178,7 +177,7 @@ function handleDeleteTask() {
             // deletes task from database
             $.ajax({
                 method: 'DELETE',
-                url: apiServerAddress + "/api/tasks/"+id,
+                url: apiServerAddress + "/api/tasks/" + id,
                 crossDomain: true
             }).then(function () {
                 getTasks();
@@ -203,9 +202,9 @@ function handleUpdateTask() {
     console.log(`priority to update item ${id} to:`, priority);
     $.ajax({
         method: 'PUT',
-        url: apiServerAddress+"/api/tasks/"+id,
+        url: apiServerAddress + "/api/tasks/" + id,
         data: JSON.stringify({
-            id:id,
+            id: id,
             status: status,
             priority: priority
         }),
@@ -227,7 +226,7 @@ function handleArchiveTask() {
     // updates status of task to "Archived".
     $.ajax({
         method: 'PUT',
-        url: apiServerAddress + "/api/tasks/archive/"+id,
+        url: apiServerAddress + "/api/tasks/archive/" + id,
         crossDomain: true,
         contentType: "application/json"
     }).then(function () {

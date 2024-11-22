@@ -6,7 +6,7 @@ This is a simple environment to test [The Protocol Master](https://github.com/ke
 application. We will mock without a line of code the database and a rest api of a simple TODO web application.
 (PS tanks [patrick-baker](https://github.com/patrick-baker/to-do-list) for the UI!)
 
-Just for fun this is a .NET Core application with Entity Framework 
+Just for fun this is a .NET Core application with Entity Framework
 and very basic JQuery-based Front-End
 
 * The documentation for the protocol master is [here](https://github.com/kendarorg/the-protocol-master)
@@ -33,7 +33,8 @@ further info on the subject)
 
 ## What to do
 
-If you have Intellij or know what are *.http files you can configure [this](net-core/someutilities.http) setting the myhost
+If you have Intellij or know what are *.http files you can configure [this](net-core/someutilities.http) setting the
+myhost
 variable to ```DOCKER_SERVER```
 
 ### Startup
@@ -42,14 +43,15 @@ variable to ```DOCKER_SERVER```
 * Navigate to the "net-core" directory
 * Run ```docker-compose up``` to generate the environment
 * Several containers will be created
-  * net_core_tpm: The Protocol Master server
-  * db_mysql: The mysql database
-  * net_core_http: The web-ui
-  * net_core_rest: The rest back-end
-* Download the SSL certificate from http://DOCKER_SERVER:28081/api/protocols/http-01/plugins/ssl-plugin/der and install it as a trusted root certificate
+    * net_core_tpm: The Protocol Master server
+    * db_mysql: The mysql database
+    * net_core_http: The web-ui
+    * net_core_rest: The rest back-end
+* Download the SSL certificate from http://DOCKER_SERVER:28081/api/protocols/http-01/plugins/ssl-plugin/der and install
+  it as a trusted root certificate
 
-You can check now the application navigating (in the proxied browser) to anything 
-you want, and you will se the calls flowing on the console. 
+You can check now the application navigating (in the proxied browser) to anything
+you want, and you will se the calls flowing on the console.
 
 You can even try the application on [http://net_core_http/index.html](http://net_core_http/index.html)
 but for the sake of simplicity please delete all tasks before continuing the tutorial
@@ -59,10 +61,10 @@ but for the sake of simplicity please delete all tasks before continuing the tut
 * Start the recording on all protocols http://DOCKER_SERVER:28081/api/protocols/*/plugins/record-plugin/start
 * Navigate to [http://net_core_http/index.html](http://net_core_http/index.html)
 * Insert a new task and click Submit
-  * Task Name: Laundry
-  * Priority: High
-  * Notes: Separate Colors
-* Set the status to Completed 
+    * Task Name: Laundry
+    * Priority: High
+    * Notes: Separate Colors
+* Set the status to Completed
 * Click Update
 * Click Archive
 * Go on Archive tab (upper right) and notice the task

@@ -19,11 +19,14 @@
       "plugins": {
         "record-plugin": {
           "recordSites": [
-            "net_core_http","net_core_rest"
+            "net_core_http",
+            "net_core_rest"
           ]
         },
         "replay-plugin": {
-          "matchSites": ["net_core_rest"]
+          "matchSites": [
+            "net_core_rest"
+          ]
         },
         "rewrite-plugin": {
           "rewritesFile": "rewrite.json"
