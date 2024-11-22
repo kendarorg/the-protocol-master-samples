@@ -81,7 +81,7 @@ but for the sake of simplicity please delete all tasks before continuing the tut
 ### Look Ma, NOT EVEN THE API SERVER
 
 * Stop the ```net_core_rest``` container
-* Start the replaying on MySQL [http://net_core_tpm:8081/api/protocols/http-01/plugins/replay-plugin/start](http://net_core_tpm:8081/api/protocols/http-01/plugins/replay-plugin/start)
+* Start the replaying on MySQL http://DOCKER_SERVER:28081/api/protocols/http-01/plugins/replay-plugin/start
 * Refresh the page [http://net_core_http/index.html](http://net_core_http/index.html)
 * Redo exactly all the actions
 * And everything will work!!!! But with a fake Rest API!!
