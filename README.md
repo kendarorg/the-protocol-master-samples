@@ -1,3 +1,5 @@
+![](protocolmaster_s.gif)
+
 This is a simple environment to test [The Protocol Master](https://github.com/kendarorg/the-protocol-master)
 application
 
@@ -5,7 +7,6 @@ Just for fun this is a .NET Core application with amd64 architecture with Entity
 and very basic JQuery-based Front-End
 
 * The documentation for the protocol master is [here](https://github.com/kendarorg/the-protocol-master)
-
 
 ## Prerequisites
 
@@ -78,3 +79,7 @@ but for the sake of simplicity please delete all tasks before continuing the tut
 * Redo exactly all the actions
 * And everything will work!!!! But with a fake Rest API!!
 * Stop all the replayings [http://net_core_tpm:8081/api/protocols/*/plugins/replay-plugin/stop](http://net_core_tpm:8081/api/protocols/*/plugins/replay-plugin/stop)
+
+## If you like it Buy me a coffe :)
+
+[![paypal](https://www.paypalobjects.com/en_US/i/btn/btn_donateCC_LG.gif)](https://www.paypal.com/paypalme/kendarorg/1)
