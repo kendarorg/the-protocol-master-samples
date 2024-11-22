@@ -34,11 +34,11 @@ further info on the subject)
 ## What to do
 
 If you have Intellij or know what are *.http files you can configure [this](net-core/someutilities.http) setting the
-myhost
-variable to ```DOCKER_SERVER```
+myhost variable to ```DOCKER_SERVER```
 
 ### Startup
 
+* Clone the repo ```https://github.com/kendarorg/the-protocol-master-samples.git```
 * Configure your browser to use DOCKER_SERVER:29000 as HTTP/S Proxy
 * Navigate to the "net-core" directory
 * Run ```docker-compose up``` to generate the environment
