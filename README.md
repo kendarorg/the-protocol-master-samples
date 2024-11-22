@@ -5,12 +5,27 @@ Just for fun this is a .NET Core application with amd64 architecture with Entity
 and very basic JQuery-based Front-End
 
 * The documentation for the protocol master is [here](https://github.com/kendarorg/the-protocol-master)
-* The documentation for the applications is [here](net-core/netcore.md)
+
 
 ## Prerequisites
 
 * A Docker environment
 * The Docker environment address (let's use DOCKER_SERVER for now)
+
+### Machine Dependant Stuffs! Beware
+
+All .NET applications run at the moment only on Intel architecture, that means
+
+* Platform: linux/amd64
+* Target Architecture: amd64
+
+For Apple M processors should work the following, change the [HttpServer](HttpServer/Dockerfile)
+and [RestServer](RestServer/Dockerfile) dockerfile according to your needs (see on
+[Microsoft](https://devblogs.microsoft.com/dotnet/improving-multiplatform-container-support/) for
+further info on the subject)
+
+* Platform: linux/arm64
+* Target Architecture: arm64
 
 ## What to do
 
