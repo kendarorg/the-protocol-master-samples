@@ -43,11 +43,11 @@ myhost variable to ```DOCKER_SERVER```
 * Navigate to the "net-core" directory
 * Run ```docker-compose up``` to generate the environment
 * Several containers will be created
-    * net_core_tpm: The Protocol Master server
-    * db_mysql: The mysql database
-    * net_core_http: The web-ui
-    * net_core_rest: The rest back-end
-* Download the SSL certificate from http://DOCKER_SERVER:28081/api/protocols/http-01/plugins/ssl-plugin/der and install
+  * net_core_tpm: The Protocol Master server
+  * db_mysql: The mysql database
+  * net_core_http: The web-ui
+  * net_core_rest: The rest back-end
+* Download the SSL certificate from [http://localhost:8081/api/protocols/http-01/plugins/ssl-plugin/der](http://localhost:8081/api/protocols/http-01/plugins/ssl-plugin/der) and install
   it as a trusted root certificate
 
 You can check now the application navigating (in the proxied browser) to anything
@@ -58,7 +58,7 @@ but for the sake of simplicity please delete all tasks before continuing the tut
 
 ### Recording
 
-* Start the recording on all protocols http://DOCKER_SERVER:28081/api/protocols/*/plugins/record-plugin/start
+* Start the recording on all protocols [http://localhost:8081/api/protocols/*/plugins/record-plugin/start](http://localhost:8081/api/protocols/*/plugins/record-plugin/start)
 * Navigate to [http://net_core_http/index.html](http://net_core_http/index.html)
 * Insert a new task and click Submit
     * Task Name: Laundry
@@ -68,26 +68,26 @@ but for the sake of simplicity please delete all tasks before continuing the tut
 * Click Update
 * Click Archive
 * Go on Archive tab (upper right) and notice the task
-* Stop the recording on all protocols http://DOCKER_SERVER:28081/api/protocols/*/plugins/record-plugin/stop
-* You can download all the recordings! http://DOCKER_SERVER:28081/api/storage/download as a zip file
+* Stop the recording on all protocols [http://localhost:8081/api/protocols/*/plugins/record-plugin/stop](http://localhost:8081/api/protocols/*/plugins/record-plugin/stop)
+* You can download all the recordings! [http://localhost:8081/api/storage/download](http://localhost:8081/api/storage/download) as a zip file
 
 ### Look Ma, NO DATABASE
 
 * Stop the ```db_mysql``` container
-* Start the replaying on MySQL http://DOCKER_SERVER:28081/api/protocols/mysql-01/plugins/replay-plugin/start
+* Start the replaying on MySQL [http://localhost:8081/api/protocols/mysql-01/plugins/replay-plugin/start](http://localhost:8081/api/protocols/mysql-01/plugins/replay-plugin/start)
 * Refresh the page [http://net_core_http/index.html](http://net_core_http/index.html)
 * Redo exactly all the actions
 * And everything will work!!!! But with a fake DB
-* Stop all the replayings http://DOCKER_SERVER:28081/api/protocols/*/plugins/replay-plugin/stop
+* Stop all the replayings [http://localhost:8081/api/protocols/*/plugins/replay-plugin/stop](http://localhost:8081/api/protocols/*/plugins/replay-plugin/stop)
 
 ### Look Ma, NOT EVEN THE API SERVER
 
 * Stop the ```net_core_rest``` container
-* Start the replaying on MySQL http://DOCKER_SERVER:28081/api/protocols/http-01/plugins/replay-plugin/start
+* Start the replaying on MySQL [http://localhost:8081/api/protocols/http-01/plugins/replay-plugin/start](http://localhost:8081/api/protocols/http-01/plugins/replay-plugin/start)
 * Refresh the page [http://net_core_http/index.html](http://net_core_http/index.html)
 * Redo exactly all the actions
 * And everything will work!!!! But with a fake Rest API!!
-* Stop all the replayings http://DOCKER_SERVER:28081/api/protocols/*/plugins/replay-plugin/stop
+* Stop all the replayings [http://localhost:8081/api/protocols/*/plugins/replay-plugin/stop](http://localhost:8081/api/protocols/*/plugins/replay-plugin/stop)
 
 ## If you like it Buy me a coffe :)
 
