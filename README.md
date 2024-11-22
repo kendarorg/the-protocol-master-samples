@@ -3,7 +3,8 @@
 ![](protocolmaster_s.gif)
 
 This is a simple environment to test [The Protocol Master](https://github.com/kendarorg/the-protocol-master)
-application. We will mock without a line of code the database and a rest api
+application. We will mock without a line of code the database and a rest api of a simple TODO web application.
+(PS tanks [patrick-baker](https://github.com/patrick-baker/to-do-list) for the UI!)
 
 Just for fun this is a .NET Core application with Entity Framework 
 and very basic JQuery-based Front-End
