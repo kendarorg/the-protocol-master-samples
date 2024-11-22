@@ -5,7 +5,7 @@
 This is a simple environment to test [The Protocol Master](https://github.com/kendarorg/the-protocol-master)
 application
 
-Just for fun this is a .NET Core application with amd64 architecture with Entity Framework 
+Just for fun this is a .NET Core application with Entity Framework 
 and very basic JQuery-based Front-End
 
 * The documentation for the protocol master is [here](https://github.com/kendarorg/the-protocol-master)
