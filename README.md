@@ -23,8 +23,8 @@ All .NET applications run out of the box only on Intel architecture, that means
 * Platform: linux/amd64
 * Target Architecture: amd64
 
-For Apple M processors should work the following, change the [HttpServer](HttpServer/Dockerfile)
-and [RestServer](RestServer/Dockerfile) dockerfile according to your needs (see on
+For Apple M processors should work the following, change the [HttpServer](net-core/HttpServer/Dockerfile)
+and [RestServer](net-core/RestServer/Dockerfile) dockerfile according to your needs (see on
 [Microsoft](https://devblogs.microsoft.com/dotnet/improving-multiplatform-container-support/) for
 further info on the subject)
 
