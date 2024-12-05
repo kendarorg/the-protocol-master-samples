@@ -7,6 +7,8 @@ services:
     image: "java-tpm"
     container_name: java-tpm
     ports:
+      - '31883:1883'
+      - '33306:3306'
       - '28081:8081'
       - '29000:9000'
       - '20080:80'

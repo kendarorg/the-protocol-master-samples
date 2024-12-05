@@ -67,8 +67,8 @@ public class QuotationSender {
             var quotationMessage = new QuotationMessage();
             quotationMessage.setSymbol(quotation.getSymbol());
             quotationMessage.setVolume((int)volume);
-            quotationMessage.setBuy(value+0.02);
-            quotationMessage.setSell(value-0.02);
+            quotationMessage.setBuy(Math.abs(value+0.02));
+            quotationMessage.setSell(Math.min(Math.abs(value+0.02),Math.abs(value-0.02)));
             quotationMessage.setDate(Calendar.getInstance());
 
             try {

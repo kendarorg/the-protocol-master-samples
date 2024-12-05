@@ -17,16 +17,19 @@ public class MqttConfiguration {
     @ConfigurationProperties(prefix = "mqtt")
     public MqttConnectOptions mqttConnectOptions() {
         return new MqttConnectOptions();
+
     }
 
     @Bean
     public IMqttClient mqttClient(@Value("${mqtt.clientId}") String clientId,
                                   @Value("${mqtt.hostname}") String hostname,
                                   @Value("${mqtt.port}") int port) throws MqttException, MqttException {
-
-        IMqttClient mqttClient = new MqttClient("tcp://" + hostname + ":" + port, clientId);
-        mqttClient.connect(mqttConnectOptions());
-        return mqttClient;
-        //return new NullMqtt();
+        var val = true;
+        if(val) {
+            IMqttClient mqttClient = new MqttClient("tcp://" + hostname + ":" + port, clientId);
+            mqttClient.connect(mqttConnectOptions());
+            return mqttClient;
+        }
+        return new NullMqtt();
     }
 }
