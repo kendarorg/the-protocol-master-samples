@@ -3,12 +3,12 @@
 
 -- noinspection SqlDialectInspectionForFile
 
-CREATE TABLE IF NOT EXISTS task  (
+CREATE TABLE IF NOT EXISTS quotations  (
     id INT(11)  NOT NULL AUTO_INCREMENT,
-    task_name VARCHAR(255) NOT NULL,
-    priority VARCHAR(255) NOT NULL,
-    status VARCHAR(255),
-    notes TEXT,
-    archive_date DATETIME,
+    symbol VARCHAR(255) NOT NULL,
+    volume INT(11) NOT NULL,
+    buy DOUBLE NOT NULL,
+    sell DOUBLE NOT NULL,
+    date DATETIME,
     PRIMARY KEY (`id`)
 );

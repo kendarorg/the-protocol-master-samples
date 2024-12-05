@@ -10,24 +10,38 @@ services:
       - '28081:8081'
       - '29000:9000'
       - '20080:80'
+    depends_on:
+      db_mysql:
+        condition: service_healthy
+      mosquitto_tpm:
+        condition: service_healthy
   java_rest:
     build:
       context: RestServer/.
       dockerfile: Dockerfile
     image: "java_rest"
     container_name: java_rest
+    depends_on:
+      java_tpm:
+        condition: service_healthy
   java_quote_generator:
     build:
       context: QuoteGenerator/.
       dockerfile: Dockerfile
     image: "java_quote_generator"
     container_name: java_quote_generator
+    depends_on:
+      java_rest:
+        condition: service_healthy
   net_core_http:
     build:
       context: HttpServer/.
       dockerfile: Dockerfile
     image: "net_core_http"
     container_name: net_core_http
+    depends_on:
+      java_rest:
+        condition: service_healthy
   db_mysql:
     build:
       context: MySQL/.

@@ -6,3 +6,5 @@ COPY  rewrite.json /rewrite.json
 COPY  ./start.sh /tpmrunner.sh
 RUN chmod +x /tpmrunner.sh
 ENTRYPOINT ["/tpmrunner.sh"]
+
+HEALTHCHECK --interval=3s CMD curl --fail http://localhost:8081/api/status || exit 1

@@ -13,3 +13,5 @@ COPY --from=build /app/target/rest-server-1.0.0.jar .
 COPY application.properties /app/application.properties
 
 CMD ["java", "-jar", "rest-server-1.0.0.jar"]
+
+HEALTHCHECK --interval=3s CMD curl --fail http://localhost:80/index.html || exit 1

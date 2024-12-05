@@ -6,7 +6,7 @@ import javax.persistence.Id;
 import java.io.Serializable;
 import java.util.Calendar;
 
-@Entity
+@Entity(name = "quotations")
 public class Quotation implements Serializable {
     @Id
     @GeneratedValue

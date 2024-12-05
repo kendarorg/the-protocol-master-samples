@@ -1,36 +1,47 @@
 version: '3.8'
 services:
-  net_core_tpm:
+  java_tpm:
     build:
       context: Tpm/.
       dockerfile: Dockerfile.test
-    image: "net_core_tpm"
-    container_name: net_core_tpm
+    image: "java_tpm"
+    container_name: java_tpm
     ports:
       - '28081:8081'
       - '29000:9000'
       - '20080:80'
+    depends_on:
+      db_mysql:
+        condition: service_healthy
+      mosquitto_tpm:
+        condition: service_healthy
+  java_rest:
+    build:
+      context: RestServer/.
+      dockerfile: Dockerfile
+    image: "java_rest"
+    container_name: java_rest
+    depends_on:
+      java_tpm:
+        condition: service_healthy
+  java_quote_generator:
+    build:
+      context: QuoteGenerator/.
+      dockerfile: Dockerfile
+    image: "java_quote_generator"
+    container_name: java_quote_generator
+    depends_on:
+      java_rest:
+        condition: service_healthy
   net_core_http:
     build:
       context: HttpServer/.
       dockerfile: Dockerfile
     image: "net_core_http"
     container_name: net_core_http
-  net_core_rest:
-    build:
-      context: RestServer/.
-      dockerfile: Dockerfile
-    image: "net_core_rest"
-    container_name: net_core_rest
-  mosquitto:
-    container_name: mosquitto
-    image: eclipse-mosquitto
-    volumes:
-      - "/srv/mosquitto/config:/mosquitto/config"
-      - "/srv/mosquitto/log:/mosquitto/log"
-      - "/srv/mosquitto/data/:/mosquitto/data"
-    ports:
-      - "1883:1883"
+    depends_on:
+      java_rest:
+        condition: service_healthy
   db_mysql:
     build:
       context: MySQL/.
@@ -45,3 +56,11 @@ services:
       MYSQL_ROOT_PASSWORD: 'password'
     ports:
       - '23306:3306'
+  mosquitto_tpm:
+    build:
+      context: Mosquitto/.
+      dockerfile: Dockerfile
+    image: "mosquitto_tpm"
+    container_name: mosquitto_tpm
+    ports:
+      - '1883:1883'

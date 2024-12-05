@@ -13,3 +13,5 @@ COPY --from=build /app/target/quote-generator-1.0.0.jar .
 COPY application.properties /app/application.properties
 
 CMD ["java", "-jar", "quote-generator-1.0.0.jar"]
+
+HEALTHCHECK --interval=3s CMD curl --fail http://localhost:80/api/status || exit 1

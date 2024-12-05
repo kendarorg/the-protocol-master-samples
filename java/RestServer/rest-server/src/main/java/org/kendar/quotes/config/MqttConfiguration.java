@@ -15,11 +15,7 @@ public class MqttConfiguration {
     @Bean
     @ConfigurationProperties(prefix = "mqtt")
     public MqttConnectOptions mqttConnectOptions() {
-        var options = new MqttConnectOptions();
-        options.setAutomaticReconnect(true);
-        options.setCleanSession(true);
-        options.setConnectionTimeout(10);
-        return options;
+        return new MqttConnectOptions();
     }
 
     @Bean

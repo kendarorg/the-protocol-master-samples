@@ -10,18 +10,27 @@ services:
       - '28081:8081'
       - '29000:9000'
       - '20080:80'
+    depends_on:
+      db_mysql:
+        condition: service_healthy
   net_core_http:
     build:
       context: HttpServer/.
       dockerfile: Dockerfile
     image: "net_core_http"
     container_name: net_core_http
+    depends_on:
+      net_core_tpm:
+        condition: service_healthy
   net_core_rest:
     build:
       context: RestServer/.
       dockerfile: Dockerfile
     image: "net_core_rest"
     container_name: net_core_rest
+    depends_on:
+      net_core_tpm:
+        condition: service_healthy
   db_mysql:
     build:
       context: MySQL/.

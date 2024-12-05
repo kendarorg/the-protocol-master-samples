@@ -23,3 +23,6 @@ COPY  --from=build /app .
 COPY  docker.appsettings.json /app/appsettings.json
 USER $APP_UID
 ENTRYPOINT ["./RestServer"]
+
+
+HEALTHCHECK --interval=3s CMD curl --fail http://localhost:80/api/status || exit 1
