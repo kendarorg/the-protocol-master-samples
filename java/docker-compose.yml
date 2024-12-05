@@ -1,53 +1,53 @@
 version: '3.8'
 services:
-  java_tpm:
+  java-tpm:
     build:
       context: Tpm/.
       dockerfile: Dockerfile
-    image: "java_tpm"
-    container_name: java_tpm
+    image: "java-tpm"
+    container_name: java-tpm
     ports:
       - '28081:8081'
       - '29000:9000'
       - '20080:80'
     depends_on:
-      db_mysql_java:
+      java-mysql:
         condition: service_started
-      mosquitto_java:
+      java-mosquitto:
         condition: service_started
-  java_rest:
+  java-rest:
     build:
       context: RestServer/.
       dockerfile: Dockerfile
-    image: "java_rest"
-    container_name: java_rest
+    image: "java-rest"
+    container_name: java-rest
     depends_on:
-      java_tpm:
+      java-tpm:
         condition: service_healthy
-  java_quote_generator:
+  java-quote-generator:
     build:
       context: QuoteGenerator/.
       dockerfile: Dockerfile
-    image: "java_quote_generator"
-    container_name: java_quote_generator
+    image: "java-quote-generator"
+    container_name: java-quote-generator
     depends_on:
-      java_rest:
+      java-rest:
         condition: service_healthy
-  java_http:
+  java-http:
     build:
       context: HttpServer/.
       dockerfile: Dockerfile
-    image: "java_http"
-    container_name: java_http
+    image: "java-http"
+    container_name: java-http
     depends_on:
-      java_rest:
+      java-rest:
         condition: service_healthy
-  db_mysql_java:
+  java-mysql:
     build:
       context: MySQL/.
       dockerfile: Dockerfile
-    container_name: db_mysql_java
-    image: "db_mysql_java"
+    container_name: java-mysql
+    image: "java-mysql"
     restart: always
     environment:
       MYSQL_DATABASE: 'db'
@@ -56,11 +56,11 @@ services:
       MYSQL_ROOT_PASSWORD: 'password'
     ports:
       - '23306:3306'
-  mosquitto_java:
+  java-mosquitto:
     build:
       context: Mosquitto/.
       dockerfile: Dockerfile
-    image: "mosquitto_java"
-    container_name: mosquitto_java
+    image: "java-mosquitto"
+    container_name: java-mosquitto
     ports:
       - '1883:1883'

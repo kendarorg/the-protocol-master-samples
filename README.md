@@ -43,23 +43,23 @@ myhost variable to ```DOCKER_SERVER```
 * Navigate to the "net-core" directory
 * Run ```docker-compose up``` to generate the environment
 * Several containers will be created
-  * net_core_tpm: The Protocol Master server
+  * net-core-tpm: The Protocol Master server
   * db_mysql: The mysql database
-  * net_core_http: The web-ui
-  * net_core_rest: The rest back-end
+  * net-core-http: The web-ui
+  * net-core-rest: The rest back-end
 * Download the SSL certificate from [http://localhost:8081/api/protocols/http-01/plugins/ssl-plugin/der](http://localhost:8081/api/protocols/http-01/plugins/ssl-plugin/der) and install
   it as a trusted root certificate
 
 You can check now the application navigating (in the proxied browser) to anything
 you want, and you will se the calls flowing on the console.
 
-You can even try the application on [http://net_core_http/index.html](http://net_core_http/index.html)
+You can even try the application on [http://net-core-http/index.html](http://net-core-http/index.html)
 but for the sake of simplicity please delete all tasks before continuing the tutorial
 
 ### Recording
 
 * Start the recording on all protocols [http://localhost:8081/api/protocols/*/plugins/record-plugin/start](http://localhost:8081/api/protocols/*/plugins/record-plugin/start)
-* Navigate to [http://net_core_http/index.html](http://net_core_http/index.html)
+* Navigate to [http://net-core-http/index.html](http://net-core-http/index.html)
 * Insert a new task and click Submit
     * Task Name: Laundry
     * Priority: High
@@ -75,16 +75,16 @@ but for the sake of simplicity please delete all tasks before continuing the tut
 
 * Stop the ```db_mysql``` container
 * Start the replaying on MySQL [http://localhost:8081/api/protocols/mysql-01/plugins/replay-plugin/start](http://localhost:8081/api/protocols/mysql-01/plugins/replay-plugin/start)
-* Refresh the page [http://net_core_http/index.html](http://net_core_http/index.html)
+* Refresh the page [http://net-core-http/index.html](http://net-core-http/index.html)
 * Redo exactly all the actions
 * And everything will work!!!! But with a fake DB
 * Stop all the replayings [http://localhost:8081/api/protocols/*/plugins/replay-plugin/stop](http://localhost:8081/api/protocols/*/plugins/replay-plugin/stop)
 
 ### Look Ma, NOT EVEN THE API SERVER
 
-* Stop the ```net_core_rest``` container
+* Stop the ```net-core-rest``` container
 * Start the replaying on MySQL [http://localhost:8081/api/protocols/http-01/plugins/replay-plugin/start](http://localhost:8081/api/protocols/http-01/plugins/replay-plugin/start)
-* Refresh the page [http://net_core_http/index.html](http://net_core_http/index.html)
+* Refresh the page [http://net-core-http/index.html](http://net-core-http/index.html)
 * Redo exactly all the actions
 * And everything will work!!!! But with a fake Rest API!!
 * Stop all the replayings [http://localhost:8081/api/protocols/*/plugins/replay-plugin/stop](http://localhost:8081/api/protocols/*/plugins/replay-plugin/stop)

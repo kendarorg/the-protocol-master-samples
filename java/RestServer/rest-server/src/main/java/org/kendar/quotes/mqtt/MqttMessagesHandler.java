@@ -20,8 +20,8 @@ public class MqttMessagesHandler {
 
     public MqttMessagesHandler(QuotationsRepository repository,
                                IMqttClient queueClient,
-                               @Value("{messages.qos}") int qos,
-                               @Value("{messages.topic}") String topic) {
+                               @Value("${messages.qos}") int qos,
+                               @Value("${messages.topic}") String topic) {
         this.repository = repository;
         this.queueClient = queueClient;
         this.qos = qos;

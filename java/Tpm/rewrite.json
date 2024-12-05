@@ -1,12 +1,12 @@
 [
   {
-    "toFind": "http://java_tpm/http",
-    "toReplace": "http://java_http",
+    "toFind": "http://java-tpm/http",
+    "toReplace": "http://java-http",
     "regex": false
   },
   {
-    "toFind": "http://java_tpm/rest",
-    "toReplace": "http://java_rest",
+    "toFind": "http://java-tpm/rest",
+    "toReplace": "http://java-rest",
     "regex": false
   }
 ]

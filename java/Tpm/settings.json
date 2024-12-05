@@ -19,13 +19,13 @@
       "plugins": {
         "record-plugin": {
           "recordSites": [
-            "java_http",
-            "java_rest"
+            "java-http",
+            "java-rest"
           ]
         },
         "replay-plugin": {
           "matchSites": [
-            "java_rest"
+            "java-rest"
           ]
         },
         "rewrite-plugin": {
@@ -39,7 +39,7 @@
       "login": "",
       "password": "",
       "timeout": 30,
-      "connectionString": "tcp://mosquitto_java:1883",
+      "connectionString": "tcp://java-mosquitto:1883",
       "plugins": {
         "record-plugin": {},
         "replay-plugin": {}
@@ -51,7 +51,7 @@
       "login": "root",
       "password": "password",
       "timeout": 30,
-      "connectionString": "jdbc:mysql://db_mysql_java:3306",
+      "connectionString": "jdbc:mysql://java-mysql:3306",
       "plugins": {
         "record-plugin": {},
         "replay-plugin": {}
