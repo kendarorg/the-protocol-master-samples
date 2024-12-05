@@ -16,5 +16,5 @@ public interface QuotationsRepository extends JpaRepository<Quotation,Long> {
     List<Quotation> findQuotesForSymbol(@Param("symbol")String symbol);
 
     @Query("SELECT lr FROM Quotation lr WHERE lr.symbol=:symbol ORDER BY lr.date DESC")
-    List<Quotation> findLastQuoteForSymbol(String identifier);
+    List<Quotation> findLastQuoteForSymbol(String symbol);
 }
