@@ -11,8 +11,10 @@ import java.net.InetSocketAddress;
 import java.nio.file.Path;
 import java.util.List;
 import java.util.Properties;
+import java.util.concurrent.atomic.AtomicBoolean;
 
 public class Main {
+    public static AtomicBoolean running  = new AtomicBoolean(true);
     public static void main(String[] args) throws Exception {
         var properties = loadProperties();
         var httpPort = Integer.parseInt(properties.getProperty("http.port"));
@@ -27,10 +29,10 @@ public class Main {
                 new QuotationStatus("MRVL",qs.randomValue(0,100),(int)qs.randomValue(10,1000)),
                 new QuotationStatus("META",qs.randomValue(0,100),(int)qs.randomValue(10,1000))
         );
-        //qs.initialize(quotations);
+        qs.initialize(quotations);
         startStatusServer(httpPort);
-        while(true){
-            //qs.sendData();
+        while(running.get()){
+            qs.sendData();
             Thread.sleep(1000);
         }
     }
