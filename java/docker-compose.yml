@@ -7,7 +7,6 @@ services:
     image: "java-tpm"
     container_name: java-tpm
     ports:
-      - '33306:3306'
       - '28081:8081'
       - '29000:9000'
       - '20080:80'
@@ -23,8 +22,12 @@ services:
     image: "java-rest"
     container_name: java-rest
     depends_on:
+      java-mysql:
+        condition: service_started
       java-tpm:
         condition: service_healthy
+      java-mosquitto:
+        condition: service_started
   java-quote-generator:
     build:
       context: QuoteGenerator/.
@@ -34,6 +37,8 @@ services:
     depends_on:
       java-rest:
         condition: service_healthy
+      java-mosquitto:
+        condition: service_started
   java-http:
     build:
       context: HttpServer/.
