@@ -12,9 +12,9 @@ services:
       - '20080:80'
     depends_on:
       db_mysql:
-        condition: service_healthy
+        condition: service_started
       mosquitto_tpm:
-        condition: service_healthy
+        condition: service_started
   java_rest:
     build:
       context: RestServer/.

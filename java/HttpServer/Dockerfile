@@ -16,6 +16,9 @@ RUN dotnet publish -a $TARGETARCH --no-restore -o /app
 
 # Runtime stage
 FROM mcr.microsoft.com/dotnet/aspnet:8.0
+RUN apt update
+RUN apt-get -y upgrade
+RUN apt-get install -y curl
 EXPOSE 80
 WORKDIR /app
 COPY  --from=build /app .

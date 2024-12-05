@@ -12,7 +12,7 @@ services:
       - '20080:80'
     depends_on:
       db_mysql:
-        condition: service_healthy
+        condition: service_started
   net_core_http:
     build:
       context: HttpServer/.

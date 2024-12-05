@@ -5,7 +5,7 @@ COPY quote-generator/src ./src
 RUN mvn clean package -DskipTests
 
 FROM adoptopenjdk/openjdk11:jdk-11.0.11_9-alpine-slim
-RUN apk add --no-cache bash wget
+RUN apk add --no-cache bash wget curl
 
 WORKDIR /app
 
