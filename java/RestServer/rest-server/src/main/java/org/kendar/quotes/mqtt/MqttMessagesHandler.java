@@ -36,7 +36,7 @@ public class MqttMessagesHandler {
                 try {
                     var quotationMessage = objectMapper.readValue(messageText,QuotationMessage.class);
                     var quotation = new Quotation();
-                    quotation.setBuy(quotationMessage.getBuy());
+                    quotation.setPrice(quotationMessage.getPrice());
                     quotation.setSell(quotationMessage.getSell());
                     quotation.setDate(quotationMessage.getDate());
                     quotation.setSymbol(quotationMessage.getSymbol());

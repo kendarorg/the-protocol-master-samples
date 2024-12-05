@@ -1,10 +1,8 @@
 package org.kendar.quotes.mqtt;
 
-import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import org.eclipse.paho.client.mqttv3.MqttClient;
 import org.eclipse.paho.client.mqttv3.MqttConnectOptions;
-import org.eclipse.paho.client.mqttv3.MqttException;
 import org.eclipse.paho.client.mqttv3.MqttMessage;
 
 import java.util.Calendar;
@@ -56,19 +54,25 @@ public class QuotationSender {
     }
 
     public void sendData() {
+        var volatility = 0.2;
         for(var quotation : quotations) {
-            var volume = randomValue(0, (int) limit(quotation.getVolume()));
-            volume = randomValue(0,100)>50?-Math.abs(volume):Math.abs(volume);
-            quotation.setVolume((int) Math.abs(volume+quotation.getVolume()));
-            var value = randomValue(0, (int) limit(quotation.getPrice()));
-            value = randomValue(0,100)>50?-Math.abs(value):Math.abs(value);
-            quotation.setPrice(Math.abs(value+quotation.getPrice()));
+
+            var old_price = quotation.getPrice();
+            double rnd = randomValue(0,100)/100; // generate number, 0 <= x < 1.0
+            // fmt.Printf("rnd %v ", rnd)
+            var change_percent = 2 * volatility * rnd;
+            // fmt.Printf("change_percent %v\n", change_percent)
+            if (change_percent > volatility) {
+                change_percent = change_percent - (2 * volatility);
+            }
+            var change_amount = quotation.getPrice() * change_percent;
+            quotation.setPrice(old_price + change_amount);
+            quotation.setVolume((int)randomValue(1,10000));
 
             var quotationMessage = new QuotationMessage();
             quotationMessage.setSymbol(quotation.getSymbol());
-            quotationMessage.setVolume((int)volume);
-            quotationMessage.setBuy(Math.abs(value+0.02));
-            quotationMessage.setSell(Math.min(Math.abs(value+0.02),Math.abs(value-0.02)));
+            quotationMessage.setVolume(quotation.getVolume());
+            quotationMessage.setPrice(quotation.getPrice());
             quotationMessage.setDate(Calendar.getInstance());
 
             try {

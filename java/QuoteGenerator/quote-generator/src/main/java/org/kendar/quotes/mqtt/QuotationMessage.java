@@ -24,20 +24,12 @@ public class QuotationMessage implements Serializable {
         this.date = date;
     }
 
-    public Double getBuy() {
-        return buy;
+    public Double getPrice() {
+        return price;
     }
 
-    public void setBuy(Double buy) {
-        this.buy = buy;
-    }
-
-    public Double getSell() {
-        return sell;
-    }
-
-    public void setSell(Double sell) {
-        this.sell = sell;
+    public void setPrice(Double price) {
+        this.price = price;
     }
 
     public int getVolume() {
@@ -49,7 +41,6 @@ public class QuotationMessage implements Serializable {
     }
 
     private Calendar date;
-    private Double buy;
-    private Double sell;
+    private Double price;
     private int volume;
 }
