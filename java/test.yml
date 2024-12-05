@@ -13,7 +13,7 @@ services:
     depends_on:
       db_mysql_java:
         condition: service_started
-      mosquitto_tpm:
+      mosquitto_java:
         condition: service_started
   java_rest:
     build:
@@ -47,7 +47,7 @@ services:
       context: MySQL/.
       dockerfile: Dockerfile
     container_name: db_mysql_java
-    image: "tpm_mysql"
+    image: "db_mysql_java"
     restart: always
     environment:
       MYSQL_DATABASE: 'db'
@@ -56,11 +56,11 @@ services:
       MYSQL_ROOT_PASSWORD: 'password'
     ports:
       - '23306:3306'
-  mosquitto_tpm:
+  mosquitto_java:
     build:
       context: Mosquitto/.
       dockerfile: Dockerfile
-    image: "mosquitto_tpm"
-    container_name: mosquitto_tpm
+    image: "mosquitto_java"
+    container_name: mosquitto_java
     ports:
       - '1883:1883'

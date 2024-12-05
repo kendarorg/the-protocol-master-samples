@@ -36,7 +36,7 @@ services:
       context: MySQL/.
       dockerfile: Dockerfile
     container_name: db_mysql_core
-    image: "tpm_mysql"
+    image: "db_mysql_core"
     restart: always
     environment:
       MYSQL_DATABASE: 'db'

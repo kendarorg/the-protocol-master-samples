@@ -3,10 +3,12 @@ package org.kendar.quotes.data;
 import javax.persistence.Entity;
 import javax.persistence.GeneratedValue;
 import javax.persistence.Id;
+import javax.persistence.Table;
 import java.io.Serializable;
 import java.util.Calendar;
 
-@Entity(name = "quotations")
+@Entity
+@Table(name = "quotations")
 public class Quotation implements Serializable {
     @Id
     @GeneratedValue

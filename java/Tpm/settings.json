@@ -39,7 +39,7 @@
       "login": "",
       "password": "",
       "timeout": 30,
-      "connectionString": "tcp://mosquitto_tpm:1883",
+      "connectionString": "tcp://mosquitto_java:1883",
       "plugins": {
         "record-plugin": {},
         "replay-plugin": {}
