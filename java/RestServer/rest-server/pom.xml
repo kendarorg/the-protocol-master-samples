@@ -61,14 +61,13 @@
             <plugin>
                 <groupId>org.springframework.boot</groupId>
                 <artifactId>spring-boot-maven-plugin</artifactId>
-                <version>2.5.4</version>
+                <version>2.6.3</version>
                 <executions>
                     <execution>
                         <goals>
                             <goal>repackage</goal>
                         </goals>
                         <configuration>
-                            <finalName>protocol-runner</finalName>
                             <mainClass>
                                 org.kendar.quotes.Main
                             </mainClass>

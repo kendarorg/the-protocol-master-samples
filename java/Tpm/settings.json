@@ -51,7 +51,7 @@
       "login": "root",
       "password": "password",
       "timeout": 30,
-      "connectionString": "jdbc:mysql://db_mysql_java:3306/db",
+      "connectionString": "jdbc:mysql://db_mysql_java:3306",
       "plugins": {
         "record-plugin": {},
         "replay-plugin": {}
