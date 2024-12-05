@@ -1,0 +1,19 @@
+{
+  "Logging": {
+    "LogLevel": {
+      "Default": "Information",
+      "Microsoft.AspNetCore": "Warning"
+    }
+  },
+  "CustomSettings": {
+    "ApiServer": "http://java_rest"
+  },
+  "Kestrel": {
+    "EndPoints": {
+      "Http": {
+        "Url": "http://0.0.0.0:80"
+      }
+    }
+  },
+  "AllowedHosts": "*"
+}

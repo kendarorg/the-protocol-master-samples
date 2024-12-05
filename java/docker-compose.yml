@@ -1,0 +1,52 @@
+version: '3.8'
+services:
+  java_tpm:
+    build:
+      context: Tpm/.
+      dockerfile: Dockerfile
+    image: "java_tpm"
+    container_name: java_tpm
+    ports:
+      - '28081:8081'
+      - '29000:9000'
+      - '20080:80'
+  java_rest:
+    build:
+      context: RestServer/.
+      dockerfile: Dockerfile
+    image: "java_rest"
+    container_name: java_rest
+  java_quote_generator:
+    build:
+      context: QuoteGenerator/.
+      dockerfile: Dockerfile
+    image: "java_quote_generator"
+    container_name: java_quote_generator
+  net_core_http:
+    build:
+      context: HttpServer/.
+      dockerfile: Dockerfile
+    image: "net_core_http"
+    container_name: net_core_http
+  db_mysql:
+    build:
+      context: MySQL/.
+      dockerfile: Dockerfile
+    container_name: db_mysql
+    image: "tpm_mysql"
+    restart: always
+    environment:
+      MYSQL_DATABASE: 'db'
+      MYSQL_USER: 'user'
+      MYSQL_PASSWORD: 'password'
+      MYSQL_ROOT_PASSWORD: 'password'
+    ports:
+      - '23306:3306'
+  mosquitto_tpm:
+    build:
+      context: Mosquitto/.
+      dockerfile: Dockerfile
+    image: "mosquitto_tpm"
+    container_name: mosquitto_tpm
+    ports:
+      - '1883:1883'
