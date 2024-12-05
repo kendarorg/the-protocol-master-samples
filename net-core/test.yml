@@ -11,7 +11,7 @@ services:
       - '29000:9000'
       - '20080:80'
     depends_on:
-      db_mysql:
+      db_mysql_core:
         condition: service_started
   net_core_http:
     build:
@@ -31,11 +31,11 @@ services:
     depends_on:
       net_core_tpm:
         condition: service_healthy
-  db_mysql:
+  db_mysql_core:
     build:
       context: MySQL/.
       dockerfile: Dockerfile
-    container_name: db_mysql
+    container_name: db_mysql_core
     image: "tpm_mysql"
     restart: always
     environment:

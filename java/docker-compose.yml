@@ -11,7 +11,7 @@ services:
       - '29000:9000'
       - '20080:80'
     depends_on:
-      db_mysql:
+      db_mysql_java:
         condition: service_started
       mosquitto_tpm:
         condition: service_started
@@ -33,20 +33,20 @@ services:
     depends_on:
       java_rest:
         condition: service_healthy
-  net_core_http:
+  java_http:
     build:
       context: HttpServer/.
       dockerfile: Dockerfile
-    image: "net_core_http"
-    container_name: net_core_http
+    image: "java_http"
+    container_name: java_http
     depends_on:
       java_rest:
         condition: service_healthy
-  db_mysql:
+  db_mysql_java:
     build:
       context: MySQL/.
       dockerfile: Dockerfile
-    container_name: db_mysql
+    container_name: db_mysql_java
     image: "tpm_mysql"
     restart: always
     environment:

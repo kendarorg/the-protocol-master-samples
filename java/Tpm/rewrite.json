@@ -1,12 +1,12 @@
 [
   {
-    "toFind": "http://net_core_tpm/http",
-    "toReplace": "http://net_core_http",
+    "toFind": "http://java_tpm/http",
+    "toReplace": "http://java_http",
     "regex": false
   },
   {
-    "toFind": "http://net_core_tpm/rest",
-    "toReplace": "http://net_core_rest",
+    "toFind": "http://java_tpm/rest",
+    "toReplace": "http://java_rest",
     "regex": false
   }
 ]

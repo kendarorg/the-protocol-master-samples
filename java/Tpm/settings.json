@@ -19,13 +19,13 @@
       "plugins": {
         "record-plugin": {
           "recordSites": [
-            "net_core_http",
-            "net_core_rest"
+            "java_http",
+            "java_rest"
           ]
         },
         "replay-plugin": {
           "matchSites": [
-            "net_core_rest"
+            "java_rest"
           ]
         },
         "rewrite-plugin": {
@@ -51,7 +51,7 @@
       "login": "root",
       "password": "password",
       "timeout": 30,
-      "connectionString": "jdbc:mysql://db_mysql:3306/db",
+      "connectionString": "jdbc:mysql://db_mysql_java:3306/db",
       "plugins": {
         "record-plugin": {},
         "replay-plugin": {}
