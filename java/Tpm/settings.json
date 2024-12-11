@@ -41,8 +41,11 @@
       "timeout": 30,
       "connectionString": "tcp://java-mosquitto:1883",
       "plugins": {
-        "record-plugin": {},
-        "replay-plugin": {}
+        "record-plugin": {
+          "resetConnectionsOnStart": false
+        },
+        "replay-plugin": {
+          "resetConnectionsOnStart": false}
       }
     },
     "mysql-01": {

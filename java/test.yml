@@ -41,15 +41,6 @@ services:
         condition: service_healthy
       java-mosquitto:
         condition: service_started
-  java-http:
-    build:
-      context: HttpServer/.
-      dockerfile: Dockerfile
-    image: "java-http"
-    container_name: java-http
-    depends_on:
-      java-rest:
-        condition: service_healthy
   java-mysql:
     build:
       context: MySQL/.
@@ -71,4 +62,4 @@ services:
     image: "java-mosquitto"
     container_name: java-mosquitto
     ports:
-      - '1883:1883'
+      - '21883:1883'

@@ -33,7 +33,7 @@ public class Main {
         startStatusServer(httpPort);
         while(running.get()){
             qs.sendData();
-            Thread.sleep(1000);
+            Thread.sleep(10000);
         }
     }
 

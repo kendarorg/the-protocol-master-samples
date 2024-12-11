@@ -33,6 +33,7 @@ public class MqttMessagesHandler {
         queueClient.setCallback(new MqttCallback() {
             public void messageArrived(String topic, MqttMessage message) {
                 var messageText = new String(message.getPayload());
+                System.out.println("MESSAGE ARRIVED: " + messageText);
                 try {
                     var quotationMessage = objectMapper.readValue(messageText,QuotationMessage.class);
                     var quotation = new Quotation();
@@ -56,6 +57,7 @@ public class MqttMessagesHandler {
         });
         try {
             queueClient.subscribe(topic, qos);
+            System.err.println("SUBSCRIBED");
         } catch (MqttException cause) {
             System.err.println("unable to subscribe: " + cause.getMessage());
             throw new RuntimeException(cause);

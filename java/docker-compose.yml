@@ -39,15 +39,6 @@ services:
         condition: service_healthy
       java-mosquitto:
         condition: service_started
-  java-http:
-    build:
-      context: HttpServer/.
-      dockerfile: Dockerfile
-    image: "java-http"
-    container_name: java-http
-    depends_on:
-      java-rest:
-        condition: service_healthy
   java-mysql:
     build:
       context: MySQL/.
