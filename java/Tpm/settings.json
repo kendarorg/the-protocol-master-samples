@@ -42,10 +42,10 @@
       "connectionString": "tcp://java-mosquitto:1883",
       "plugins": {
         "record-plugin": {
-          "resetConnectionsOnStart": false
+          "resetConnectionsOnStart": true
         },
         "replay-plugin": {
-          "resetConnectionsOnStart": false}
+          "resetConnectionsOnStart": true}
       }
     },
     "mysql-01": {
@@ -55,18 +55,6 @@
       "password": "password",
       "timeout": 30,
       "connectionString": "jdbc:mysql://java-mysql:3306/db",
-      "plugins": {
-        "record-plugin": {},
-        "replay-plugin": {}
-      }
-    },
-    "mongodb-01": {
-      "protocol": "mongodb",
-      "port": 27017,
-      "login": "remotelogin",
-      "password": "remotepassword",
-      "timeout": 30,
-      "connectionString": "tcp://localhost:1885",
       "plugins": {
         "record-plugin": {},
         "replay-plugin": {}

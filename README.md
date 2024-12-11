@@ -109,10 +109,6 @@ myhost variable to ```DOCKER_SERVER```
 * Download the SSL certificate from [http://localhost:8081/api/protocols/http-01/plugins/ssl-plugin/der](http://localhost:8081/api/protocols/http-01/plugins/ssl-plugin/der) and install
   it as a trusted root certificate
 * Connect your mysql ui to ```DOCKER_HOST:23306``` and use the database ```db```
-* Stop the ```java-quote-generator```
-* Wait 10 seconds to let all quotes arrives
-* Delete all records in ```quotations``` table
-* Stop the ```java-rest```
 
 Now your environment is ready for a real test!
 
@@ -120,23 +116,20 @@ Now your environment is ready for a real test!
 ### Recording
 
 * Start the recording on mqtt-01 protocol [http://localhost:8081/api/protocols/mqtt-01/plugins/record-plugin/start](http://localhost:8081/api/protocols/mqtt-01/plugins/record-plugin/start)
-* Start the ```java-rest``` application
-* Start the ```java-quote-generation``` application
+* Delete all records on ```db.quotations``` table
 * Wait for some data on ```quotations``` table (at least 10 seconds, this is the "run-time")
-* Stop the ```java-quote-generation``` application
 * Stop the recording on all protocols [http://localhost:8081/api/protocols/all/plugins/record-plugin/stop](http://localhost:8081/api/protocols/all/plugins/record-plugin/stop)
-* Stop the ```java-rest``` application
 * You can download all the recordings! [http://localhost:8081/api/storage/download](http://localhost:8081/api/storage/download) as a zip file
 
 
 ### Look Ma, NO BROKER
 
 * Stop the ```java-mosquitto``` container
+* Stop the ```java-quote-generation``` container
+* Stop the ```java-rest``` container
 * Delete all data on ```quotations``` table
 * Start the replaying on MQTT [http://localhost:8081/api/protocols/mqtt-01/plugins/replay-plugin/start](http://localhost:8081/api/protocols/mqtt-01/plugins/replay-plugin/start)
-* Start ```java-rest```
-* Wait for at least "run-time" seconds
-* Stop the ```java-rest```
+* Start the ```java-rest``` container
 * Check the new data on ```quotations``` table
 * Mqtt simulation... done!
 
