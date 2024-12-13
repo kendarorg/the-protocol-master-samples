@@ -51,12 +51,12 @@ public class MqttMessagesHandler {
             public void connectionLost(Throwable cause) {
 
                 System.err.println("connectionLost: " + cause.getMessage());
-//                try {
-////                    queueClient.connect();
-////                    queueClient.subscribe(topic, qos);
-//                } catch (MqttException e) {
-//                    throw new RuntimeException(e);
-//                }
+                try {
+                    queueClient.connect();
+                    queueClient.subscribe(topic, qos);
+                } catch (MqttException e) {
+                    throw new RuntimeException(e);
+                }
             }
 
             public void deliveryComplete(IMqttDeliveryToken token) {
