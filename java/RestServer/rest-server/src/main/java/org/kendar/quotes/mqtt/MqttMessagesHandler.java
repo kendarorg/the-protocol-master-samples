@@ -3,6 +3,7 @@ package org.kendar.quotes.mqtt;
 import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import org.eclipse.paho.client.mqttv3.*;
+import org.eclipse.paho.client.mqttv3.internal.CommsReceiver;
 import org.kendar.quotes.data.Quotation;
 import org.kendar.quotes.data.QuotationsRepository;
 import org.springframework.beans.factory.annotation.Value;
@@ -48,7 +49,14 @@ public class MqttMessagesHandler {
             }
 
             public void connectionLost(Throwable cause) {
+
                 System.err.println("connectionLost: " + cause.getMessage());
+//                try {
+////                    queueClient.connect();
+////                    queueClient.subscribe(topic, qos);
+//                } catch (MqttException e) {
+//                    throw new RuntimeException(e);
+//                }
             }
 
             public void deliveryComplete(IMqttDeliveryToken token) {

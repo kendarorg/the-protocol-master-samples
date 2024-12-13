@@ -45,7 +45,8 @@
           "resetConnectionsOnStart": true
         },
         "replay-plugin": {
-          "resetConnectionsOnStart": true}
+          "resetConnectionsOnStart": true,
+        "respectCallDuration": true}
       }
     },
     "mysql-01": {

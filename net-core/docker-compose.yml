@@ -7,9 +7,11 @@ services:
     image: "net-core-tpm"
     container_name: net-core-tpm
     ports:
-      - '28081:8081'
-      - '29000:9000'
-      - '20080:80'
+      - '31044:5005'  # debug port
+      - '33306:3306'  # mysql-01 proxy port
+      - '28081:8081'  # admin api port
+      - '29000:9000'  # proxy port
+      - '20080:80'  # tpm port
     depends_on:
       net-core-mysql:
         condition: service_started

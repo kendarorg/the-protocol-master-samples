@@ -56,18 +56,6 @@
         "record-plugin": {},
         "replay-plugin": {}
       }
-    },
-    "mongodb-01": {
-      "protocol": "mongodb",
-      "port": 27017,
-      "login": "remotelogin",
-      "password": "remotepassword",
-      "timeout": 30,
-      "connectionString": "tcp://localhost:1885",
-      "plugins": {
-        "record-plugin": {},
-        "replay-plugin": {}
-      }
     }
   }
 }

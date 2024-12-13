@@ -7,9 +7,12 @@ services:
     image: "java-tpm"
     container_name: java-tpm
     ports:
-      - '28081:8081'
-      - '29000:9000'
-      - '20080:80'
+      - '31044:5005'  # debug port
+      - '31883:1883'  # mqtt-01 proxy port
+      - '33306:3306'  # mysql-01 proxy port
+      - '28081:8081'  # admin api port
+      - '29000:9000'  # proxy port
+      - '20080:80'  # tpm port
     depends_on:
       java-mysql:
         condition: service_started
@@ -60,4 +63,4 @@ services:
     image: "java-mosquitto"
     container_name: java-mosquitto
     ports:
-      - '1883:1883'
+      - '21883:1883'

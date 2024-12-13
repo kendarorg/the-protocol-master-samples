@@ -20,13 +20,13 @@ public class Main {
         var httpPort = Integer.parseInt(properties.getProperty("http.port"));
         var qs = new QuotationSender(properties);
         var quotations = List.of(
-                new QuotationStatus("MSFT",qs.randomValue(0,100),(int)qs.randomValue(10,1000)),
+                /*new QuotationStatus("MSFT",qs.randomValue(0,100),(int)qs.randomValue(10,1000)),
                 new QuotationStatus("NVDA",qs.randomValue(0,100),(int)qs.randomValue(10,1000)),
                 new QuotationStatus("GOOGL",qs.randomValue(0,100),(int)qs.randomValue(10,1000)),
                 new QuotationStatus("MSTR",qs.randomValue(0,100),(int)qs.randomValue(10,1000)),
                 new QuotationStatus("PLTR",qs.randomValue(0,100),(int)qs.randomValue(10,1000)),
                 new QuotationStatus("AMZN",qs.randomValue(0,100),(int)qs.randomValue(10,1000)),
-                new QuotationStatus("MRVL",qs.randomValue(0,100),(int)qs.randomValue(10,1000)),
+                new QuotationStatus("MRVL",qs.randomValue(0,100),(int)qs.randomValue(10,1000)),*/
                 new QuotationStatus("META",qs.randomValue(0,100),(int)qs.randomValue(10,1000))
         );
         qs.initialize(quotations);

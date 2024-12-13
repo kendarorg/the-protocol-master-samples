@@ -5,6 +5,8 @@ import org.eclipse.paho.client.mqttv3.MqttClient;
 import org.eclipse.paho.client.mqttv3.MqttConnectOptions;
 import org.eclipse.paho.client.mqttv3.MqttMessage;
 
+import java.math.BigDecimal;
+import java.math.RoundingMode;
 import java.util.Calendar;
 import java.util.List;
 import java.util.Properties;
@@ -53,6 +55,14 @@ public class QuotationSender {
         publisher.connect(options);
     }
 
+    public static double round(double value, int places) {
+        if (places < 0) throw new IllegalArgumentException();
+
+        var bd = BigDecimal.valueOf(value);
+        bd = bd.setScale(places, RoundingMode.HALF_UP);
+        return bd.doubleValue();
+    }
+
     public void sendData() {
         var volatility = 0.2;
         System.err.println("Sending");
@@ -74,7 +84,7 @@ public class QuotationSender {
                 var quotationMessage = new QuotationMessage();
                 quotationMessage.setSymbol(quotation.getSymbol());
                 quotationMessage.setVolume(quotation.getVolume());
-                quotationMessage.setPrice(quotation.getPrice());
+                quotationMessage.setPrice(round(quotation.getPrice(),3));
                 quotationMessage.setDate(Calendar.getInstance());
 
                 var messageContent = mapper.writeValueAsBytes(quotationMessage);
