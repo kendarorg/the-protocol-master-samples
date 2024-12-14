@@ -136,15 +136,16 @@ Now your environment is ready for a real test!
 
 ### Look Ma, NO BROKER
 
-* Stop the ```java-mosquitto``` container
 * Stop the ```java-quote-generation``` container
 * Stop the ```java-rest``` container
 * Delete all data on ```quotations``` table
 * Start the replaying on
   MQTT [http://localhost:8081/api/protocols/mqtt-01/plugins/replay-plugin/start](http://localhost:8081/api/protocols/mqtt-01/plugins/replay-plugin/start)
-* Start the ```java-rest``` container
 * Check the new data on ```quotations``` table
 * Mqtt simulation... done!
+* Stop the recording on all
+    protocols [http://localhost:8081/api/protocols/all/plugins/replay-plugin/stop](http://localhost:8081/api/protocols/all/plugins/record-plugin/stop)
+
 
 ## If you like it Buy me a coffe :)
 
