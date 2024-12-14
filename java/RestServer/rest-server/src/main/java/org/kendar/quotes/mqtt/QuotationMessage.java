@@ -7,6 +7,9 @@ public class QuotationMessage implements Serializable {
 
 
     private String symbol;
+    private Calendar date;
+    private Double price;
+    private int volume;
 
     public String getSymbol() {
         return symbol;
@@ -31,6 +34,7 @@ public class QuotationMessage implements Serializable {
     public void setPrice(Double price) {
         this.price = price;
     }
+
     public int getVolume() {
         return volume;
     }
@@ -38,8 +42,4 @@ public class QuotationMessage implements Serializable {
     public void setVolume(int volume) {
         this.volume = volume;
     }
-
-    private Calendar date;
-    private Double price;
-    private int volume;
 }

@@ -22,9 +22,9 @@ public class QuotationSender {
     private final Random random;
     private final String topic;
     private final int qos;
+    private final ObjectMapper mapper = new ObjectMapper();
     private List<QuotationStatus> quotations;
     private MqttClient publisher;
-    private final ObjectMapper mapper = new ObjectMapper();
 
     public QuotationSender(Properties properties) {
         port = Integer.parseInt(properties.getProperty("mqtt.port"));
@@ -36,6 +36,14 @@ public class QuotationSender {
         topic = properties.getProperty("messages.topic");
         qos = Integer.parseInt(properties.getProperty("messages.qos"));
         random = new Random();
+    }
+
+    public static double round(double value, int places) {
+        if (places < 0) throw new IllegalArgumentException();
+
+        var bd = BigDecimal.valueOf(value);
+        bd = bd.setScale(places, RoundingMode.HALF_UP);
+        return bd.doubleValue();
     }
 
     public double randomValue(int min, int max) {
@@ -53,14 +61,6 @@ public class QuotationSender {
         options.setCleanSession(cleanSession);
         options.setConnectionTimeout(connectionTimeout);
         publisher.connect(options);
-    }
-
-    public static double round(double value, int places) {
-        if (places < 0) throw new IllegalArgumentException();
-
-        var bd = BigDecimal.valueOf(value);
-        bd = bd.setScale(places, RoundingMode.HALF_UP);
-        return bd.doubleValue();
     }
 
     public void sendData() {
@@ -84,7 +84,7 @@ public class QuotationSender {
                 var quotationMessage = new QuotationMessage();
                 quotationMessage.setSymbol(quotation.getSymbol());
                 quotationMessage.setVolume(quotation.getVolume());
-                quotationMessage.setPrice(round(quotation.getPrice(),3));
+                quotationMessage.setPrice(round(quotation.getPrice(), 3));
                 quotationMessage.setDate(Calendar.getInstance());
 
                 var messageContent = mapper.writeValueAsBytes(quotationMessage);

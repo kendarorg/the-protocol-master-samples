@@ -14,7 +14,8 @@ import java.util.Properties;
 import java.util.concurrent.atomic.AtomicBoolean;
 
 public class Main {
-    public static AtomicBoolean running  = new AtomicBoolean(true);
+    public static AtomicBoolean running = new AtomicBoolean(true);
+
     public static void main(String[] args) throws Exception {
         var properties = loadProperties();
         var httpPort = Integer.parseInt(properties.getProperty("http.port"));
@@ -27,17 +28,17 @@ public class Main {
                 new QuotationStatus("PLTR",qs.randomValue(0,100),(int)qs.randomValue(10,1000)),
                 new QuotationStatus("AMZN",qs.randomValue(0,100),(int)qs.randomValue(10,1000)),
                 new QuotationStatus("MRVL",qs.randomValue(0,100),(int)qs.randomValue(10,1000)),*/
-                new QuotationStatus("META",qs.randomValue(0,100),(int)qs.randomValue(10,1000))
+                new QuotationStatus("META", qs.randomValue(0, 100), (int) qs.randomValue(10, 1000))
         );
         qs.initialize(quotations);
         startStatusServer(httpPort);
-        while(running.get()){
+        while (running.get()) {
             qs.sendData();
             Thread.sleep(10000);
         }
     }
 
-    private static void startStatusServer(int httpPort) throws Exception{
+    private static void startStatusServer(int httpPort) throws Exception {
         var address = new InetSocketAddress(httpPort);
         var httpServer = HttpServer.create(address, 10);
         httpServer.createContext("/api/status", new HttpHandler() {
@@ -52,7 +53,7 @@ public class Main {
                     outputStream.flush();
                     outputStream.close();
                 } catch (Exception ex) {
-                    System.err.println("Error responding "+ex.getMessage());
+                    System.err.println("Error responding " + ex.getMessage());
                     throw new RuntimeException(ex);
                 }
             }

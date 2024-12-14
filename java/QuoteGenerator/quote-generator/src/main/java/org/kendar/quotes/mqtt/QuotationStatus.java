@@ -5,6 +5,12 @@ public class QuotationStatus {
     private double price;
     private int volume;
 
+    public QuotationStatus(String symbol, double price, int volume) {
+        this.symbol = symbol;
+        this.price = price;
+        this.volume = volume;
+    }
+
     @Override
     public String toString() {
         return "QuotationStatus{" +
@@ -12,12 +18,6 @@ public class QuotationStatus {
                 ", price=" + price +
                 ", volume=" + volume +
                 '}';
-    }
-
-    public QuotationStatus(String symbol, double price, int volume) {
-        this.symbol = symbol;
-        this.price = price;
-        this.volume = volume;
     }
 
     public String getSymbol() {

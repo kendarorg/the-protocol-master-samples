@@ -12,6 +12,9 @@ public class Quotation implements Serializable {
     private Long id;
 
     private String symbol;
+    private Calendar date;
+    private Double price;
+    private int volume;
 
     public String getSymbol() {
         return symbol;
@@ -52,8 +55,4 @@ public class Quotation implements Serializable {
     public void setVolume(int volume) {
         this.volume = volume;
     }
-
-    private Calendar date;
-    private Double price;
-    private int volume;
 }

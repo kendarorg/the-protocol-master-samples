@@ -14,7 +14,7 @@ import java.util.List;
 public class StatusController {
 
 
-    @GetMapping(value ="",produces = "text/plain")
+    @GetMapping(value = "", produces = "text/plain")
     String findAllSymbols() {
         return "OK";
     }

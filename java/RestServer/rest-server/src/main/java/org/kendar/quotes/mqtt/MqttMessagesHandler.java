@@ -17,7 +17,7 @@ public class MqttMessagesHandler {
     private final IMqttClient queueClient;
     private final int qos;
     private final String topic;
-    private final ObjectMapper objectMapper=new ObjectMapper();
+    private final ObjectMapper objectMapper = new ObjectMapper();
 
     public MqttMessagesHandler(QuotationsRepository repository,
                                IMqttClient queueClient,
@@ -36,7 +36,7 @@ public class MqttMessagesHandler {
                 var messageText = new String(message.getPayload());
                 System.out.println("MESSAGE ARRIVED: " + messageText);
                 try {
-                    var quotationMessage = objectMapper.readValue(messageText,QuotationMessage.class);
+                    var quotationMessage = objectMapper.readValue(messageText, QuotationMessage.class);
                     var quotation = new Quotation();
                     quotation.setPrice(quotationMessage.getPrice());
                     quotation.setDate(quotationMessage.getDate());

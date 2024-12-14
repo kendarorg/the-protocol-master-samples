@@ -16,20 +16,20 @@ public class QuotationController {
     }
 
 
-    @GetMapping(value ="/symbols",produces = "application/json")
+    @GetMapping(value = "/symbols", produces = "application/json")
     List<String> findAllSymbols() {
         return repository.findAllSymbols();
     }
 
-    @GetMapping(value ="/quotes/{identifier}",produces = "application/json")
+    @GetMapping(value = "/quotes/{identifier}", produces = "application/json")
     List<Quotation> findQuotesForSymbol(@PathVariable String identifier) {
         return repository.findQuotesForSymbol(identifier);
     }
 
-    @GetMapping(value ="/quote/{identifier}",produces = "application/json")
+    @GetMapping(value = "/quote/{identifier}", produces = "application/json")
     Quotation findQuoteForSymbol(@PathVariable String identifier) {
         var res = repository.findLastQuoteForSymbol(identifier);
-        if(res.size()==0) return null;
+        if (res.size() == 0) return null;
         return res.get(0);
     }
 }

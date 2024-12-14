@@ -1,6 +1,5 @@
 https://github.com/ptabasso2/springboot-mqtt
 
-
 @Autowired
 private MessagingService messagingService;
 final String topic = "pejman/topic/event";

@@ -43,11 +43,13 @@ myhost variable to ```DOCKER_SERVER```
 * Navigate to the "net-core" directory
 * Run ```docker-compose up``` to generate the environment
 * Several containers will be created
-  * net-core-tpm: The Protocol Master server
-  * net-core-mysql: The mysql database
-  * net-core-http: The web-ui
-  * net-core-rest: The rest back-end
-* Download the SSL certificate from [http://localhost:8081/api/protocols/http-01/plugins/ssl-plugin/der](http://localhost:8081/api/protocols/http-01/plugins/ssl-plugin/der) and install
+    * net-core-tpm: The Protocol Master server
+    * net-core-mysql: The mysql database
+    * net-core-http: The web-ui
+    * net-core-rest: The rest back-end
+* Download the SSL certificate
+  from [http://localhost:8081/api/protocols/http-01/plugins/ssl-plugin/der](http://localhost:8081/api/protocols/http-01/plugins/ssl-plugin/der)
+  and install
   it as a trusted root certificate
 
 You can check now the application navigating (in the proxied browser) to anything
@@ -58,7 +60,8 @@ but for the sake of simplicity please delete all tasks before continuing the tut
 
 ### Recording
 
-* Start the recording on all protocols [http://localhost:8081/api/protocols/all/plugins/record-plugin/start](http://localhost:8081/api/protocols/all/plugins/record-plugin/start)
+* Start the recording on all
+  protocols [http://localhost:8081/api/protocols/all/plugins/record-plugin/start](http://localhost:8081/api/protocols/all/plugins/record-plugin/start)
 * Navigate to [http://net-core-http/index.html](http://net-core-http/index.html)
 * Insert a new task and click Submit
     * Task Name: Laundry
@@ -68,26 +71,32 @@ but for the sake of simplicity please delete all tasks before continuing the tut
 * Click Update
 * Click Archive
 * Go on Archive tab (upper right) and notice the task
-* Stop the recording on all protocols [http://localhost:8081/api/protocols/all/plugins/record-plugin/stop](http://localhost:8081/api/protocols/all/plugins/record-plugin/stop)
-* You can download all the recordings! [http://localhost:8081/api/storage/download](http://localhost:8081/api/storage/download) as a zip file
+* Stop the recording on all
+  protocols [http://localhost:8081/api/protocols/all/plugins/record-plugin/stop](http://localhost:8081/api/protocols/all/plugins/record-plugin/stop)
+* You can download all the
+  recordings! [http://localhost:8081/api/storage/download](http://localhost:8081/api/storage/download) as a zip file
 
 ### Look Ma, NO DATABASE
 
 * Stop the ```db_mysql``` container
-* Start the replaying on MySQL [http://localhost:8081/api/protocols/mysql-01/plugins/replay-plugin/start](http://localhost:8081/api/protocols/mysql-01/plugins/replay-plugin/start)
+* Start the replaying on
+  MySQL [http://localhost:8081/api/protocols/mysql-01/plugins/replay-plugin/start](http://localhost:8081/api/protocols/mysql-01/plugins/replay-plugin/start)
 * Refresh the page [http://net-core-http/index.html](http://net-core-http/index.html)
 * Redo exactly all the actions
 * And everything will work!!!! But with a fake DB
-* Stop all the replayings [http://localhost:8081/api/protocols/all/plugins/replay-plugin/stop](http://localhost:8081/api/protocols/all/plugins/replay-plugin/stop)
+* Stop all the
+  replayings [http://localhost:8081/api/protocols/all/plugins/replay-plugin/stop](http://localhost:8081/api/protocols/all/plugins/replay-plugin/stop)
 
 ### Look Ma, NOT EVEN THE API SERVER
 
 * Stop the ```net-core-rest``` container
-* Start the replaying on MySQL [http://localhost:8081/api/protocols/http-01/plugins/replay-plugin/start](http://localhost:8081/api/protocols/http-01/plugins/replay-plugin/start)
+* Start the replaying on
+  MySQL [http://localhost:8081/api/protocols/http-01/plugins/replay-plugin/start](http://localhost:8081/api/protocols/http-01/plugins/replay-plugin/start)
 * Refresh the page [http://net-core-http/index.html](http://net-core-http/index.html)
 * Redo exactly all the actions
 * And everything will work!!!! But with a fake Rest API!!
-* Stop all the replayings [http://localhost:8081/api/protocols/all/plugins/replay-plugin/stop](http://localhost:8081/api/protocols/all/plugins/replay-plugin/stop)
+* Stop all the
+  replayings [http://localhost:8081/api/protocols/all/plugins/replay-plugin/stop](http://localhost:8081/api/protocols/all/plugins/replay-plugin/stop)
 
 ## Simple qoutes app (mysql,mqtt)
 
@@ -101,26 +110,29 @@ myhost variable to ```DOCKER_SERVER```
 * Navigate to the "java" directory
 * Run ```docker-compose up``` to generate the environment
 * Several containers will be created
-  * java-tpm: The Protocol Master server
-  * java-mysql: The mysql database
-  * java-mosquitto: The mqtt broker
-  * java-rest: The application reading mqtt messages (and showing on [APIs](java-rest/swagger-ui/index.html))
-  * java-quote-generator: The quote generation (every 10 seconds random stock quotes)
-* Download the SSL certificate from [http://localhost:8081/api/protocols/http-01/plugins/ssl-plugin/der](http://localhost:8081/api/protocols/http-01/plugins/ssl-plugin/der) and install
+    * java-tpm: The Protocol Master server
+    * java-mysql: The mysql database
+    * java-mosquitto: The mqtt broker
+    * java-rest: The application reading mqtt messages (and showing on [APIs](java-rest/swagger-ui/index.html))
+    * java-quote-generator: The quote generation (every 10 seconds random stock quotes)
+* Download the SSL certificate
+  from [http://localhost:8081/api/protocols/http-01/plugins/ssl-plugin/der](http://localhost:8081/api/protocols/http-01/plugins/ssl-plugin/der)
+  and install
   it as a trusted root certificate
 * Connect your mysql ui to ```DOCKER_HOST:23306``` and use the database ```db```
 
 Now your environment is ready for a real test!
 
-
 ### Recording
 
-* Start the recording on mqtt-01 protocol [http://localhost:8081/api/protocols/mqtt-01/plugins/record-plugin/start](http://localhost:8081/api/protocols/mqtt-01/plugins/record-plugin/start)
+* Start the recording on mqtt-01
+  protocol [http://localhost:8081/api/protocols/mqtt-01/plugins/record-plugin/start](http://localhost:8081/api/protocols/mqtt-01/plugins/record-plugin/start)
 * Delete all records on ```db.quotations``` table
 * Wait for some data on ```quotations``` table (at least 10 seconds, this is the "run-time")
-* Stop the recording on all protocols [http://localhost:8081/api/protocols/all/plugins/record-plugin/stop](http://localhost:8081/api/protocols/all/plugins/record-plugin/stop)
-* You can download all the recordings! [http://localhost:8081/api/storage/download](http://localhost:8081/api/storage/download) as a zip file
-
+* Stop the recording on all
+  protocols [http://localhost:8081/api/protocols/all/plugins/record-plugin/stop](http://localhost:8081/api/protocols/all/plugins/record-plugin/stop)
+* You can download all the
+  recordings! [http://localhost:8081/api/storage/download](http://localhost:8081/api/storage/download) as a zip file
 
 ### Look Ma, NO BROKER
 
@@ -128,7 +140,8 @@ Now your environment is ready for a real test!
 * Stop the ```java-quote-generation``` container
 * Stop the ```java-rest``` container
 * Delete all data on ```quotations``` table
-* Start the replaying on MQTT [http://localhost:8081/api/protocols/mqtt-01/plugins/replay-plugin/start](http://localhost:8081/api/protocols/mqtt-01/plugins/replay-plugin/start)
+* Start the replaying on
+  MQTT [http://localhost:8081/api/protocols/mqtt-01/plugins/replay-plugin/start](http://localhost:8081/api/protocols/mqtt-01/plugins/replay-plugin/start)
 * Start the ```java-rest``` container
 * Check the new data on ```quotations``` table
 * Mqtt simulation... done!
