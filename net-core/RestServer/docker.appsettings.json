@@ -6,7 +6,7 @@
     }
   },
   "ConnectionStrings": {
-    "Main": "Server=net_core_tpm;Port=3306;Database=db;Uid=root;Pwd=password;"
+    "Main": "Server=net-core-tpm;Port=3306;Database=db;Uid=root;Pwd=password;"
   },
   "Kestrel": {
     "EndPoints": {

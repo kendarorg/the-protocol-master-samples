@@ -1,0 +1,12 @@
+[
+  {
+    "toFind": "http://java-tpm/http",
+    "toReplace": "http://java-http",
+    "regex": false
+  },
+  {
+    "toFind": "http://java-tpm/rest",
+    "toReplace": "http://java-rest",
+    "regex": false
+  }
+]

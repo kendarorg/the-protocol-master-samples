@@ -6,7 +6,7 @@
     }
   },
   "CustomSettings": {
-    "ApiServer": "http://net_core_rest"
+    "ApiServer": "http://net-core-rest"
   },
   "Kestrel": {
     "EndPoints": {

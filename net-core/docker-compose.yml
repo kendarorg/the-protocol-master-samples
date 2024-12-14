@@ -1,33 +1,44 @@
 version: '3.8'
 services:
-  net_core_tpm:
+  net-core-tpm:
     build:
       context: Tpm/.
       dockerfile: Dockerfile
-    image: "net_core_tpm"
-    container_name: net_core_tpm
+    image: "net-core-tpm"
+    container_name: net-core-tpm
     ports:
-      - '28081:8081'
-      - '29000:9000'
-      - '20080:80'
-  net_core_http:
+      - '31044:5005'  # debug port
+      - '33306:3306'  # mysql-01 proxy port
+      - '28081:8081'  # admin api port
+      - '29000:9000'  # proxy port
+      - '20080:80'  # tpm port
+    depends_on:
+      net-core-mysql:
+        condition: service_started
+  net-core-http:
     build:
       context: HttpServer/.
       dockerfile: Dockerfile
-    image: "net_core_http"
-    container_name: net_core_http
-  net_core_rest:
+    image: "net-core-http"
+    container_name: net-core-http
+    depends_on:
+      net-core-tpm:
+        condition: service_healthy
+  net-core-rest:
     build:
       context: RestServer/.
       dockerfile: Dockerfile
-    image: "net_core_rest"
-    container_name: net_core_rest
-  db_mysql:
+    image: "net-core-rest"
+    container_name: net-core-rest
+    depends_on:
+      net-core-tpm:
+        condition: service_healthy
+  net-core-mysql:
     build:
       context: MySQL/.
       dockerfile: Dockerfile
-    container_name: db_mysql
-    image: "tpm_mysql"
+    container_name: net-core-mysql
+    image: "net-core-mysql"
     restart: always
     environment:
       MYSQL_DATABASE: 'db'

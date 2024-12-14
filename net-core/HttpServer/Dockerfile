@@ -16,9 +16,14 @@ RUN dotnet publish -a $TARGETARCH --no-restore -o /app
 
 # Runtime stage
 FROM mcr.microsoft.com/dotnet/aspnet:8.0
+RUN apt update
+RUN apt-get -y upgrade
+RUN apt-get install -y curl
 EXPOSE 80
 WORKDIR /app
 COPY  --from=build /app .
 COPY  docker.appsettings.json /app/appsettings.json
 USER $APP_UID
 ENTRYPOINT ["./HttpServer"]
+
+HEALTHCHECK --interval=3s CMD curl --fail http://localhost:80/index.html || exit 1
