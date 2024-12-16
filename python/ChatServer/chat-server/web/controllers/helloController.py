@@ -9,23 +9,23 @@ from web.lib.decorators import qroute, qauth
 class HelloController(Controller):
     @qroute("/api/hello")
     def hello(self):
-        return ("Hello")
+        return "Hello"
 
     @qroute("/api/hello/<name>")
-    def helloName(self, name):
-        return ("Hello " + name)
+    def hello_name(self, name):
+        return "Hello " + name
 
     @qroute("/api/auth/<name>")
     @qauth(AuthProvider)
-    def helloAuth(self, name):
-        return ("Hello " + name)
+    def hello_auth(self, name):
+        return "Hello " + name
 
     @qroute("/api/auth/prova")
     @qauth(AuthProvider, ["prova"])
-    def helloAuthProvaOk(self):
-        return ("Hello Prova")
+    def hello_auth_prova_ok(self):
+        return "Hello Prova"
 
     @qroute("/api/auth/fault")
     @qauth(AuthProvider, ["fault"])
-    def helloAuthProvaKo(self):
-        return ("Hello Fault")
+    def hello_auth_prova_ko(self):
+        return "Hello Fault"

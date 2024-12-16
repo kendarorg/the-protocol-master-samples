@@ -11,11 +11,11 @@ class BottleBuilder:
         self.auth_provider = None
         self.permissions = None
 
-    def withAuth(self, auth_provider: AuthProvider):
+    def with_auth(self, auth_provider: AuthProvider):
         self.auth_provider = auth_provider
         return self
 
-    def withPermissions(self, permissions: list[str]):
+    def with_permissions(self, permissions: list[str]):
         self.permissions = permissions
         return self
 
@@ -23,8 +23,8 @@ class BottleBuilder:
         cb = self.callback
         if self.auth_provider is not None:
             if self.permissions is not None:
-                permissionDecorator = AuthProvider.permission(self.auth_provider.checkPermission, self.permissions)
-                cb = permissionDecorator(cb)
-            decorator = AuthProvider.auth_basic(self.auth_provider.checkAuth)
+                permission_decorator = AuthProvider.permission(self.auth_provider.check_permission, self.permissions)
+                cb = permission_decorator(cb)
+            decorator = AuthProvider.auth_basic(self.auth_provider.check_auth)
             cb = decorator(cb)
         bottle.route(self.path, callback=cb, method=self.verb)

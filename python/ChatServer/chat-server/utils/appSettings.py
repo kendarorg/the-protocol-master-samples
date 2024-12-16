@@ -18,3 +18,8 @@ class AppSettings:
         self.port = int(config.get('HTTP', 'port'))
         self.debug = bool(config.get('HTTP', 'debug'))
         self.host = config.get('HTTP', 'host')
+        self.db_host = config.get('MYSQL', 'host')
+        self.db_port = int(config.get('MYSQL', 'port'))
+        self.db_user = config.get('MYSQL', 'user')
+        self.db_password = config.get('MYSQL', 'password')
+        self.db_database = config.get('MYSQL', 'database')

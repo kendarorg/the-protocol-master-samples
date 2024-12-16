@@ -33,14 +33,15 @@ def qauth(provider, permissions: [str] = []):
 
 
 def find_decorators(clazz):
-    methodNames = dir(clazz)
+    method_names = dir(clazz)
     result = {}
-    for methodName in methodNames:
-        if methodName.startswith("_"):
+    for method_name in method_names:
+        if method_name.startswith("_"):
             continue
-        method = getattr(clazz, methodName)
+        method = getattr(clazz, method_name)
         if not hasattr(method, "_decorators"):
             continue
-        result[methodName + str(signature(method))] = {'decorators': method._decorators, 'method': method,
-                                                       'name': methodName}
+        result[method_name + str(signature(method))] = {'decorators': method._decorators,
+                                                        'method': method,
+                                                        'name': method_name}
     return result

@@ -6,17 +6,17 @@ from bottle import request, HTTPError
 
 class AuthProvider(ABC):
     @abstractmethod
-    def checkAuth(self, login, password):
+    def check_auth(self, login, password):
         pass
 
     @abstractmethod
-    def checkPermission(self, login, permissions: [str]):
+    def check_permission(self, login, permissions: [str]):
         pass
 
     @staticmethod
     def auth_basic(check, realm="private", text="Access denied"):
-        ''' Callback decorator to require HTTP auth (basic).
-            TODO: Add route(check_auth=...) parameter. '''
+        """ Callback decorator to require HTTP auth (basic).
+            TODO: Add route(check_auth=...) parameter. """
 
         def decorator(func):
             @functools.wraps(func)
@@ -34,8 +34,8 @@ class AuthProvider(ABC):
 
     @staticmethod
     def permission(check, permissions, realm="private", text="Access denied"):
-        ''' Callback decorator to require HTTP auth (basic).
-            TODO: Add route(check_auth=...) parameter. '''
+        """ Callback decorator to require HTTP auth (basic).
+            TODO: Add route(check_auth=...) parameter. """
 
         def decorator(func):
             @functools.wraps(func)

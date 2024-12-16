@@ -5,7 +5,7 @@ from web.lib.decorators import qroute
 
 
 @component
-class HelloController(Controller):
+class StatusController(Controller):
     @qroute("/api/status")
     def hello(self):
-        return ("OK")
+        return "OK"

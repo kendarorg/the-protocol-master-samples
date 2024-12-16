@@ -10,11 +10,11 @@ from web.lib.decorators import find_decorators
 
 @component
 class BottleService:
-    def __init__(self, controllers: list[Controller], authProvider: AuthProvider,appSettings: AppSettings):
+    def __init__(self, controllers: list[Controller], auth_provider: AuthProvider, app_settings: AppSettings):
         self.controllers = controllers
-        self.appSettings = appSettings
+        self.app_settings = app_settings
         for controller in self.controllers:
-            controller.mapRoutes(self)
+            controller.map_routes(self)
             t = type(controller)
             decorators = find_decorators(t)
             for key, value in decorators.items():
@@ -27,26 +27,31 @@ class BottleService:
                     if len(auth) == 1:
                         auth = auth[0]
                         if auth["permissions"] is not None and len(auth["permissions"]) > 0:
-                            permissionDecorator = AuthProvider.permission(authProvider.checkPermission,
-                                                                          auth["permissions"])
-                            instance_method = permissionDecorator(instance_method)
-                        authDecorator = AuthProvider.auth_basic(authProvider.checkAuth)
-                        instance_method = authDecorator(instance_method)
+                            permission_decorator = AuthProvider.permission(auth_provider.check_permission,
+                                                                           auth["permissions"])
+                            instance_method = permission_decorator(instance_method)
+                        auth_decorator = AuthProvider.auth_basic(auth_provider.check_auth)
+                        instance_method = auth_decorator(instance_method)
                     bottle.route(route["path"], callback=instance_method, method=route["verb"])
 
-    def get(self, path, callback):
+    @staticmethod
+    def get(path, callback):
         return BottleBuilder(path, callback, "GET")
 
-    def post(self, path, callback):
+    @staticmethod
+    def post(path, callback):
         return BottleBuilder(path, callback, "POST")
 
+    @staticmethod
     def put(self, path, callback):
         return BottleBuilder(path, callback, "PUT")
 
+    @staticmethod
     def delete(self, path, callback):
         return BottleBuilder(path, callback, "DELETE")
 
     def run(self, app=None, server='wsgiref',
             interval=1, reloader=False, quiet=False, plugins=None,
-             **kargs):
-        bottle.run(app, server, self.appSettings.host, self.appSettings.port, interval, reloader, quiet, plugins, self.appSettings.debug, **kargs)
+            **kargs):
+        bottle.run(app, server, self.app_settings.host, self.app_settings.port, interval, reloader, quiet, plugins,
+                   self.app_settings.debug, **kargs)

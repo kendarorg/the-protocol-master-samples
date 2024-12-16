@@ -1,0 +1,17 @@
+database:
+  image: mysql:8.0.40
+  restart: always
+  environment:
+      MYSQL_DATABASE: 'db'
+      MYSQL_USER: 'user'
+      MYSQL_PASSWORD: 'password'
+      MYSQL_ROOT_PASSWORD: 'password'
+  ports:
+    - "33061:3306"
+
+
+when single fetch
+user = User.select().where(User.id == 1).get()
+model_to_dict(user)  #to Dict
+when Multiple fetch
+users = list(User.select().where(User.name ** 'a%').dicts())

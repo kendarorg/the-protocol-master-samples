@@ -2,5 +2,5 @@ from abc import ABC
 
 
 class Controller(ABC):
-    def mapRoutes(self, controllerMapper):
+    def map_routes(self, controller_mapper):
         pass

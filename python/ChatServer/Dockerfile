@@ -2,7 +2,7 @@ FROM python:3.9.13
 
 WORKDIR /app
 
-RUN pip install autowired bottle configparser
+RUN pip install autowired bottle configparser mysql-connector-python mysql pymysql pewee
 ADD chat-server /app
 COPY application.properties /app/properties.ini
 
