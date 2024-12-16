@@ -7,3 +7,5 @@ ADD chat-server /app
 
 
 CMD ["python", "main.py"]
+
+HEALTHCHECK --interval=10s --retries=30 CMD curl --fail http://localhost:80/api/status || exit 1
