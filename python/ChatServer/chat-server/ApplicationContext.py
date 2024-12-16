@@ -14,9 +14,8 @@ class ApplicationContext(Context):
     def __init__(self, *args: Module):
         for val in args:
             package_dir_name = str(os.path.basename(val.__path__[0]))
-            print("Loading " + package_dir_name)
             module = import_module(f"{package_dir_name}")
-            print("Loaded " + package_dir_name)
+            print("Loaded module " + package_dir_name)
             self.container.component_scan(module)
 
         self.singletons = {}

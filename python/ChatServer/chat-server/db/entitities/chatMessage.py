@@ -1,14 +1,17 @@
+from datetime import datetime
+
 from autowired import component
-from peewee import CharField, IntegerField
+from peewee import CharField, DateTimeField, BooleanField
 
 from db.lib.entity import Entity, EntityFactory
 
 
 class ChatMessage(Entity):
-    name = CharField(max_length=255)
-    special_move = CharField(max_length=255, null=True)
-    ss_level = IntegerField(null=True)
-    eye_color = CharField(max_length=255, null=True)
+    creator = CharField(max_length=255)
+    destination = CharField(max_length=255)
+    content = CharField(max_length=255)
+    read = BooleanField()
+    timestamp = DateTimeField(default=datetime.now)
 
 
 @component

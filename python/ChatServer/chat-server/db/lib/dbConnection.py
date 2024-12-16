@@ -15,4 +15,5 @@ class DbConnection:
         for entity in entities:
             basic_entity = entity.build_entity()
             basic_entity.get_meta().set_database(db_connection)
-            db_connection.create_tables([basic_entity])
+            if app_settings.db_create_tables:
+                db_connection.create_tables([basic_entity])
