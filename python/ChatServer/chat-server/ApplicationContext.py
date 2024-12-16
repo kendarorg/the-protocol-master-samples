@@ -6,6 +6,8 @@ from typing import Type, TypeVar
 
 from autowired import Context
 
+from utils.appSettings import AppSettings
+
 _T = TypeVar("_T")
 Module = type(sys)
 
@@ -29,8 +31,9 @@ class ApplicationContext(Context):
             if not subdir.endswith("_"):
                 self.load_modules_in_dir(subdir)
 
-    def __init__(self, root_module: Module):
-        self.load_submodules(str(os.path.basename(root_module.__path__[0])))
+    def __init__(self, *args: Module):
+        for val in args:
+            self.load_submodules(str(os.path.basename(val.__path__[0])))
 
         self.singletons = {}
 

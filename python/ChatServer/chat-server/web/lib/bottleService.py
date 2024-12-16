@@ -1,6 +1,7 @@
 import bottle
 from autowired import component
 
+from utils.appSettings import AppSettings
 from web.lib.authProvider import AuthProvider
 from web.lib.bottleBuilder import BottleBuilder
 from web.lib.controller import Controller
@@ -9,8 +10,9 @@ from web.lib.decorators import find_decorators
 
 @component
 class BottleService:
-    def __init__(self, controllers: list[Controller], authProvider: AuthProvider):
+    def __init__(self, controllers: list[Controller], authProvider: AuthProvider,appSettings: AppSettings):
         self.controllers = controllers
+        self.appSettings = appSettings
         for controller in self.controllers:
             controller.mapRoutes(self)
             t = type(controller)
@@ -44,7 +46,7 @@ class BottleService:
     def delete(self, path, callback):
         return BottleBuilder(path, callback, "DELETE")
 
-    def run(self, app=None, server='wsgiref', host='127.0.0.1', port=8080,
+    def run(self, app=None, server='wsgiref',
             interval=1, reloader=False, quiet=False, plugins=None,
-            debug=None, **kargs):
-        bottle.run(app, server, host, port, interval, reloader, quiet, plugins, debug, **kargs)
+             **kargs):
+        bottle.run(app, server, self.appSettings.host, self.appSettings.port, interval, reloader, quiet, plugins, self.appSettings.debug, **kargs)
