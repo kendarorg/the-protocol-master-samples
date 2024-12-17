@@ -1,0 +1,3 @@
+
+class Autostart:
+    pass

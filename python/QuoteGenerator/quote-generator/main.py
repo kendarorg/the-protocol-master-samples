@@ -1,4 +1,4 @@
-import db
+import app
 import rabbit
 import utils
 import web
@@ -11,9 +11,9 @@ ctx = None
 def main():
     global ctx
     ctx = ApplicationContext(utils,
-                             db,
                              web,
-                             rabbit)
+                             rabbit,
+                             app)
     bottle_service: BottleService = ctx.resolve(BottleService)
     bottle_service.run()
 
