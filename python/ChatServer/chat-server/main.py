@@ -1,7 +1,7 @@
 import db
 import utils
 import web
-from applicationContext import ApplicationContext
+from utils.applicationContext import ApplicationContext
 from db.lib.dbConnection import DbConnection
 from web.lib.bottleService import BottleService
 

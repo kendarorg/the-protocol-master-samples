@@ -1,17 +1,22 @@
 import bottle
 from autowired import component
 
+from utils.applicationContext import ApplicationContext
 from utils.appSettings import AppSettings
 from web.lib.authProvider import AuthProvider
 from web.lib.bottleBuilder import BottleBuilder
 from web.lib.controller import Controller
 from web.lib.decorators import find_decorators
+from web.lib.nullAuthProvider import NullAuthProvider
 
 
 @component
 class BottleService:
-    def __init__(self, controllers: list[Controller], auth_provider: AuthProvider, app_settings: AppSettings):
+    def __init__(self, controllers: list[Controller], application_context: ApplicationContext, app_settings: AppSettings):
 
+        auth_provider = application_context.try_resolve(AuthProvider)
+        if auth_provider is None:
+            auth_provider = NullAuthProvider()
         self.controllers = controllers
         self.app_settings = app_settings
         for controller in self.controllers:
