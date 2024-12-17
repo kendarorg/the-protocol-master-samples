@@ -19,7 +19,7 @@ def static_controller_render(file_name, root):
 class StaticController(Controller):
 
     def map_routes(self, controller_mapper):
-        static_path_string = str(Path(__file__).resolve().parent.parent) + os.sep + "static"
+        static_path_string = str(Path(__file__).resolve().parent.parent.parent) + os.sep + "static"
 
         for currentpath, folders, files in os.walk(static_path_string):
             for file in files:

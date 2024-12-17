@@ -11,6 +11,7 @@ from web.lib.decorators import find_decorators
 @component
 class BottleService:
     def __init__(self, controllers: list[Controller], auth_provider: AuthProvider, app_settings: AppSettings):
+
         self.controllers = controllers
         self.app_settings = app_settings
         for controller in self.controllers:
