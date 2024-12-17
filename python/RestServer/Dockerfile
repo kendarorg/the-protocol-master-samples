@@ -4,7 +4,7 @@ WORKDIR /app
 
 RUN pip install autowired bottle configparser mysql-connector-python mysql pymysql peewee pika
 ADD chat-server /app
-COPY application.properties /app/properties.ini
+COPY properties.ini /app/properties.ini
 
 
 CMD ["python", "main.py"]
