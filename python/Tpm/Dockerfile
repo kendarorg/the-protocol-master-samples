@@ -9,4 +9,4 @@ RUN dos2unix /tpmrunner.sh
 RUN chmod +x /tpmrunner.sh
 ENTRYPOINT ["/tpmrunner.sh"]
 
-HEALTHCHECK --interval=3s CMD curl --fail http://localhost:8081/api/status || exit 1
+HEALTHCHECK --interval=3s --retries=30  CMD curl --fail http://localhost:8081/api/status || exit 1
