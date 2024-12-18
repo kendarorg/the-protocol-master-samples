@@ -3,7 +3,7 @@ FROM python:3.9.13
 WORKDIR /app
 
 RUN pip install autowired bottle configparser mysql-connector-python mysql pymysql peewee pika
-ADD chat-server /app
+ADD rest-server /app
 COPY properties.ini /app/properties.ini
 
 
