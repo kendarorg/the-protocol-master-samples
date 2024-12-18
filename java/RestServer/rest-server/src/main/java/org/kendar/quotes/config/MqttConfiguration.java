@@ -21,7 +21,7 @@ public class MqttConfiguration {
     public IMqttClient mqttClient(@Value("${mqtt.clientId}") String clientId,
                                   @Value("${mqtt.hostname}") String hostname,
                                   @Value("${mqtt.port}") int port) throws MqttException, MqttException {
-        var val = false;
+        var val = true;
         if (val) {
             IMqttClient mqttClient = new MqttClient("tcp://" + hostname + ":" + port, clientId);
             mqttClient.connect(mqttConnectOptions());
