@@ -57,7 +57,7 @@ services:
     ports:
       - '23306:3306'
   py-rabbit:
-    image: rabbitmq:3-management
+    image: "rabbitmq:3-management"
     container_name: py-rabbit
     ports:
       - '25672:5672'
