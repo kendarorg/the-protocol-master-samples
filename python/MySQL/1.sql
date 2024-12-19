@@ -8,12 +8,12 @@ DATABASE IF NOT EXISTS db;
 USE
 db;
 
-CREATE TABLE IF NOT EXISTS  `chatmessage` (
-                               `id` int NOT NULL AUTO_INCREMENT,
-                               `creator` varchar(255) NOT NULL,
-                               `destination` varchar(255) NOT NULL,
-                               `content` varchar(255) NOT NULL,
-                               `read` tinyint(1) NOT NULL,
-                               `timestamp` datetime NOT NULL,
-                               PRIMARY KEY (`id`)
+CREATE TABLE IF NOT EXISTS `quotation` (
+                             `id` int NOT NULL AUTO_INCREMENT,
+                             `symbol` varchar(5) NOT NULL,
+                             `date` datetime NOT NULL,
+                             `price` double NOT NULL,
+                             `volume` int NOT NULL,
+                             PRIMARY KEY (`id`)
 );
+

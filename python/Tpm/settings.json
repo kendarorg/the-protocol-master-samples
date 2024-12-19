@@ -34,10 +34,10 @@
       }
     },
     "amqp-01": {
-      "protocol": "amqp-091",
+      "protocol": "amqp091",
       "port": 5672,
-      "login": "guest",
-      "password": "guest",
+      "login": "root",
+      "password": "password",
       "timeout": 30,
       "connectionString": "tcp://py-rabbit:5672",
       "plugins": {

@@ -1,7 +1,9 @@
-from datetime import time, datetime
+from datetime import datetime
 from random import uniform
+from threading import Thread
 from time import sleep
 
+import jsons
 from autowired import component
 
 from app.quotationMessage import QuotationMessage
@@ -9,21 +11,29 @@ from app.quotationStatus import QuotationStatus
 from rabbit.lib.rabbitMq import RabbitMQ
 from utils.appSettings import AppSettings
 from utils.autostart import Autostart
-from utils.jsonMapper import to_json_with_iso_dates
 
 
-def random_value(param, param1):
-    pass
 
 
-@component
-class AmqpSender(Autostart):
-    def __init__(self, rabbit_mq: RabbitMQ, app_settings: AppSettings):
+class AmqpSenderThread(Thread):
+    def __init__(self, thread_name, thread_id):
+        Thread.__init__(self)
+        self.app_settings = None
+        self.rabbit_mq = None
+        self.thread_name = thread_name
+        self.thread_ID = thread_id
+
+    def setup(self, rabbit_mq: RabbitMQ, app_settings: AppSettings):
+        self.rabbit_mq = rabbit_mq
+        self.app_settings = app_settings
+
+    def run(self):
         volatility = 0.2
         quotations = [QuotationStatus(symbol="META",
                                       price=self.random_value(0, 100),
                                       volume=int(self.random_value(10, 1000)))]
         while True:
+            print("SENDING")
             for quotation in quotations:
                 old_price = quotation.price
                 rnd = self.random_value(0, 100) / 100;
@@ -33,19 +43,31 @@ class AmqpSender(Autostart):
 
                 change_amount = quotation.price * change_percent
                 quotation.price = (old_price + change_amount)
-                quotation.volume = (int(random_value(1, 10000)))
+                quotation.volume = (int(self.random_value(1, 10000)))
                 quotation_message = QuotationMessage(symbol=quotation.symbol,
                                                      price=round(quotation.price, 3),
-                                                     volume=quotation.volume)
-                quotation_message.date = datetime.now()
-                message_string = to_json_with_iso_dates(quotation_message)
-                rabbit_mq.publish(queue_name=app_settings.rabbit_queue,
-                                  message=message_string,
-                                  exchange=app_settings.rabbit_exchange)
-            sleep(10)
+                                                     volume=quotation.volume,
+                                                     date=datetime.now())
+                message_string = jsons.dumps(quotation_message)
+                self.rabbit_mq.publish(queue_name=self.app_settings.rabbit_queue,
+                                       message=message_string,
+                                       exchange=self.app_settings.rabbit_exchange)
+
+            print("SENT")
+            for i in range(10):
+                sleep(1)
+                self.rabbit_mq.send_heartbeat()
 
     @staticmethod
     def random_value(minimum, maximum):
         if abs(minimum - maximum) < 2:
             maximum = minimum + 2
         return uniform(abs(minimum - maximum), abs(minimum))
+
+
+@component
+class AmqpSender(Autostart):
+    def __init__(self, rabbit_mq: RabbitMQ, app_settings: AppSettings):
+        sender = AmqpSenderThread("sender", 1000)
+        sender.setup(rabbit_mq,app_settings)
+        sender.start()

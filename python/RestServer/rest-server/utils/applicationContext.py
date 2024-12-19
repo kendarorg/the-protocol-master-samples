@@ -22,7 +22,7 @@ class ApplicationContext(Context):
             print("Loaded module " + package_dir_name)
             self.container.component_scan(module)
 
-        self.try_resolve(AutostartResolver)
+        autorunnable = self.try_resolve(AutostartResolver)
         self.singletons = {}
 
     def try_resolve(
@@ -31,7 +31,8 @@ class ApplicationContext(Context):
     ) -> _T:
         try:
             return self.container.resolve(t)
-        except:
+        except Exception as ex:
+            print(ex)
             return None
 
     def resolve(

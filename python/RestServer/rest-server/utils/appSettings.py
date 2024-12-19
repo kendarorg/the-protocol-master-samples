@@ -19,6 +19,13 @@ class AppSettings:
         self.debug = bool(config.get('HTTP', 'debug'))
         self.host = config.get('HTTP', 'host')
 
+        self.rabbit_host = config.get('RABBIT', 'host')
+        self.rabbit_port = int(config.get('RABBIT', 'port'))
+        self.rabbit_user = config.get('RABBIT', 'user')
+        self.rabbit_password = config.get('RABBIT', 'password')
+        self.rabbit_queue = config.get('RABBIT', 'queue')
+        self.rabbit_exchange = config.get('RABBIT', 'exchange')
+
         self.db_host = config.get('MYSQL', 'host')
         self.db_port = int(config.get('MYSQL', 'port'))
         self.db_user = config.get('MYSQL', 'user')
@@ -26,8 +33,3 @@ class AppSettings:
         self.db_database = config.get('MYSQL', 'database')
         self.db_create_tables = bool(config.get('MYSQL', 'create_tables'))
 
-        self.rabbit_host = config.get('RABBIT', 'host')
-        self.rabbit_port = int(config.get('RABBIT', 'port'))
-        self.rabbit_user = config.get('RABBIT', 'user')
-        self.rabbit_password = config.get('RABBIT', 'password')
-        self.rabbit_queue = config.get('RABBIT', 'queue')

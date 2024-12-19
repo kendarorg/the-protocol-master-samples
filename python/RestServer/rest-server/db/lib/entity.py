@@ -1,3 +1,4 @@
+from autowired import component
 from peewee import Model
 
 global ctx
@@ -8,9 +9,15 @@ class EntityFactory:
         pass
 
 
+@component
+class EmptyEntityFactory(EntityFactory):
+    def build_entity(self):
+        return None
+
+
 class Entity(Model):
 
-    def __init__(self, dictionary = None):
+    def __init__(self, dictionary=None):
         Model.__init__(self)
         if not dictionary is None:
             for key in dictionary:

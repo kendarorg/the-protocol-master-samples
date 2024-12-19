@@ -62,5 +62,5 @@ services:
     ports:
       - '25672:5672'
     environment:
-      RABBITMQ_DEFAULT_USER: guest
-      RABBITMQ_DEFAULT_PASS: guest
+      RABBITMQ_DEFAULT_USER: root
+      RABBITMQ_DEFAULT_PASS: password
