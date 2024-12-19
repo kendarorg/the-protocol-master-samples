@@ -2,7 +2,7 @@ FROM python:3.9.13
 
 WORKDIR /app
 
-RUN pip install autowired bottle configparser pika cryptography
+RUN pip install autowired bottle configparser pika cryptography jsons
 ADD quote-generator /app
 COPY properties.ini /app/properties.ini
 
