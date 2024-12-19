@@ -13,8 +13,6 @@ from utils.appSettings import AppSettings
 from utils.autostart import Autostart
 
 
-
-
 class AmqpSenderThread(Thread):
     def __init__(self, thread_name, thread_id):
         Thread.__init__(self)
@@ -69,5 +67,5 @@ class AmqpSenderThread(Thread):
 class AmqpSender(Autostart):
     def __init__(self, rabbit_mq: RabbitMQ, app_settings: AppSettings):
         sender = AmqpSenderThread("sender", 1000)
-        sender.setup(rabbit_mq,app_settings)
+        sender.setup(rabbit_mq, app_settings)
         sender.start()

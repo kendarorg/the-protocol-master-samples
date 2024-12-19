@@ -22,7 +22,7 @@ class RabbitMQ(Autostart):
                 if consumer.callback is not None:
                     self.consume(consumer.queue, consumer.callback, app_settings.rabbit_exchange)
         except Exception as e:
-            print("Unable to initialize RabbitMq ",e)
+            print("Unable to initialize RabbitMq ", e)
 
     def connect(self):
         credentials = pika.PlainCredentials(self.user, self.password)
@@ -38,8 +38,8 @@ class RabbitMQ(Autostart):
         if not self.channel:
             raise Exception("Connection is not established.")
         self.channel.exchange_declare(exchange=exchange)
-        self.channel.queue_declare(queue=queue_name,durable=True)
-        self.channel.queue_bind(queue=queue_name, exchange=exchange,routing_key=queue_name)
+        self.channel.queue_declare(queue=queue_name, durable=True)
+        self.channel.queue_bind(queue=queue_name, exchange=exchange, routing_key=queue_name)
         self.channel.basic_consume(queue=queue_name, on_message_callback=callback, auto_ack=True)
         self.channel.start_consuming()
 

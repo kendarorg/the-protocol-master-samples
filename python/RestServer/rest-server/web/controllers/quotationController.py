@@ -1,11 +1,8 @@
-
-from json import dumps
-
 import jsons
 from autowired import component
-from bottle import request, abort
+from bottle import abort
 from bottle import response
-from playhouse.shortcuts import  model_to_dict
+from playhouse.shortcuts import model_to_dict
 
 from db.entitities.quotation import Quotation
 from web.lib.controller import Controller
@@ -22,9 +19,9 @@ class MessagesController(Controller):
         return jsons.dump(data)
 
     @qroute("/api/quotation/quotes/<identifier>")
-    def get_by_id(self, identifier:str):
+    def get_by_id(self, identifier: str):
         data = list(Quotation.select().
-                    where(Quotation.symbol==identifier).
+                    where(Quotation.symbol == identifier).
                     order_by(Quotation.date.desc()).dicts())
         response.content_type = 'application/json'
         return jsons.dump(data)

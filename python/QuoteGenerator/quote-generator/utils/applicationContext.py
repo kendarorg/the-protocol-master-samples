@@ -5,7 +5,6 @@ from typing import Type, TypeVar
 
 from autowired import Context
 
-from utils.autostart import Autostart
 from utils.autostartResolver import AutostartResolver
 
 _T = TypeVar("_T")

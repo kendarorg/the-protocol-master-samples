@@ -13,7 +13,8 @@ class DbConnection(Autostart):
         try:
             if entities is None:
                 return
-            db_connection = MySQLDatabase(app_settings.db_database, host=app_settings.db_host, port=app_settings.db_port,
+            db_connection = MySQLDatabase(app_settings.db_database, host=app_settings.db_host,
+                                          port=app_settings.db_port,
                                           user=app_settings.db_user, password=app_settings.db_password)
             db_connection.connect()
             for entity in entities:
@@ -25,4 +26,4 @@ class DbConnection(Autostart):
                     db_connection.create_tables([basic_entity])
 
         except Exception as e:
-            print("Unable to initialize DbConnection ",e)
+            print("Unable to initialize DbConnection ", e)

@@ -1,7 +1,5 @@
-from datetime import datetime
-
 from autowired import component
-from peewee import CharField, DateTimeField, BooleanField, TextField, IntegerField, DoubleField
+from peewee import CharField, DateTimeField, IntegerField, DoubleField
 
 from db.lib.entity import Entity, EntityFactory
 

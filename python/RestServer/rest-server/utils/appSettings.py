@@ -32,4 +32,3 @@ class AppSettings:
         self.db_password = config.get('MYSQL', 'password')
         self.db_database = config.get('MYSQL', 'database')
         self.db_create_tables = bool(config.get('MYSQL', 'create_tables'))
-
