@@ -1,4 +1,5 @@
 from threading import Thread
+from time import sleep
 
 import pika
 from autowired import component
@@ -50,7 +51,10 @@ class RabbitMQ(Autostart):
                 self.channel.basic_consume(queue=queue_name, on_message_callback=callback, auto_ack=True)
                 self.channel.start_consuming()
             except Exception as e:
-                self.connect()
+                try:
+                    self.connect()
+                except:
+                    sleep(1)
     def send_heartbeat(self):
         self.connection.process_data_events()
 
