@@ -5,6 +5,7 @@ import org.kendar.quotes.data.QuotationsRepository;
 import org.springframework.web.bind.annotation.*;
 
 import java.util.List;
+import java.util.stream.Collectors;
 
 @RestController()
 @RequestMapping("/api/quotation")
@@ -17,8 +18,14 @@ public class QuotationController {
 
 
     @GetMapping(value = "/symbols", produces = "application/json")
-    List<String> findAllSymbols() {
-        return repository.findAllSymbols();
+    List<QuotationSymbol> findAllSymbols() {
+
+        return repository.findAllSymbols().stream()
+                .map(s->{
+                    var res =new QuotationSymbol();
+                    res.setSymbol(s);
+                    return res;
+                }).collect(Collectors.toList());
     }
 
     @GetMapping(value = "/quotes/{identifier}", produces = "application/json")
