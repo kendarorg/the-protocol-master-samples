@@ -98,10 +98,12 @@ but for the sake of simplicity please delete all tasks before continuing the tut
 * Stop all the
   replayings [http://localhost:8081/api/protocols/all/plugins/replay-plugin/stop](http://localhost:8081/api/protocols/all/plugins/replay-plugin/stop)
 
-## Simple qoutes app (mysql,mqtt)
+## Simple quotes app (java,mysql,mqtt)
 
 If you have Intellij or know what are *.http files you can configure [this](net-core/someutilities.http) setting the
 myhost variable to ```DOCKER_SERVER```
+
+You can check the quotations going to ```http:\\java-rest\index.html```
 
 ### Startup
 
@@ -145,6 +147,58 @@ Now your environment is ready for a real test!
 * Mqtt simulation... done!
 * Stop the recording on all
     protocols [http://localhost:8081/api/protocols/all/plugins/replay-plugin/stop](http://localhost:8081/api/protocols/all/plugins/record-plugin/stop)
+
+
+
+## Simple quotes app (python,mysql,amqp)
+
+If you have Intellij or know what are *.http files you can configure [this](net-core/someutilities.http) setting the
+myhost variable to ```DOCKER_SERVER```
+
+You can check the quotations going to ```http:\\py-rest\index.html```
+
+### Startup
+
+* Clone the repo ```https://github.com/kendarorg/the-protocol-master-samples.git```
+* Configure your browser to use DOCKER_SERVER:29000 as HTTP/S Proxy
+* Navigate to the "python" directory
+* Run ```docker-compose up``` to generate the environment
+* Several containers will be created
+  * py-tpm: The Protocol Master server
+  * py-mysql: The mysql database
+  * py-rabbit: The amqp broker
+  * py-rest: The application reading mqtt messages (and showing on [APIs](java-rest/swagger-ui/index.html))
+  * py-quote-generator: The quote generation (every 10 seconds random stock quotes)
+* Download the SSL certificate
+  from [http://localhost:8081/api/protocols/http-01/plugins/ssl-plugin/der](http://localhost:8081/api/protocols/http-01/plugins/ssl-plugin/der)
+  and install
+  it as a trusted root certificate
+* Connect your mysql ui to ```DOCKER_HOST:23306``` and use the database ```db```
+
+Now your environment is ready for a real test!
+
+### Recording
+
+* Start the recording on mqtt-01
+  protocol [http://localhost:8081/api/protocols/amqp-01/plugins/record-plugin/start](http://localhost:8081/api/protocols/mqtt-01/plugins/record-plugin/start)
+* Delete all records on ```db.quotations``` table
+* Wait for some data on ```quotations``` table (at least 10 seconds, this is the "run-time")
+* Stop the recording on all
+  protocols [http://localhost:8081/api/protocols/all/plugins/record-plugin/stop](http://localhost:8081/api/protocols/all/plugins/record-plugin/stop)
+* You can download all the
+  recordings! [http://localhost:8081/api/storage/download](http://localhost:8081/api/storage/download) as a zip file
+
+### Look Ma, NO BROKER
+
+* Stop the ```py-quote-generation``` container
+* Stop the ```py-rest``` container
+* Delete all data on ```quotations``` table
+* Start the replaying on
+  MQTT [http://localhost:8081/api/protocols/amqp-01/plugins/replay-plugin/start](http://localhost:8081/api/protocols/mqtt-01/plugins/replay-plugin/start)
+* Check the new data on ```quotations``` table
+* Mqtt simulation... done!
+* Stop the recording on all
+  protocols [http://localhost:8081/api/protocols/all/plugins/replay-plugin/stop](http://localhost:8081/api/protocols/all/plugins/record-plugin/stop)
 
 
 ## If you like it Buy me a coffe :)
