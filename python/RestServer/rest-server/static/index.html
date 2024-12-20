@@ -1,13 +1,30 @@
 <html>
+<head>
+    <style>
+        /*td {
+            border: 1px solid black;
+            border-radius: 10px;
+        }*/
+        /*th {
+            border: 1px solid black;
+        }*/
+    </style>
+</head>
 <body>
-<div>
-  <canvas id="myChart"></canvas>
-</div>
 
-<script src="lib/chart.js"></script>
+
 <script src="lib/app.js"></script>
+<table id="quotations" name="quotations">
+    <tr>
+        <th>Symbol</th>
+        <th>Last price</th>
+        <th>Last volume</th>
+        <th>Last update</th>
+    </tr>
+</table>
+
 <script>
-initializeChart("myChart")
+    initializeQuotations("quotations");
 </script>
 </body>
 </html>
