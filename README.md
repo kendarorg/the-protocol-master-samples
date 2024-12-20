@@ -180,7 +180,7 @@ Now your environment is ready for a real test!
 ### Recording
 
 * Start the recording on mqtt-01
-  protocol [http://localhost:8081/api/protocols/amqp-01/plugins/record-plugin/start](http://localhost:8081/api/protocols/mqtt-01/plugins/record-plugin/start)
+  protocol [http://localhost:8081/api/protocols/amqp-01/plugins/record-plugin/start](http://localhost:8081/api/protocols/amqp-01/plugins/record-plugin/start)
 * Delete all records on ```db.quotations``` table
 * Wait for some data on ```quotations``` table (at least 10 seconds, this is the "run-time")
 * Stop the recording on all
@@ -194,7 +194,7 @@ Now your environment is ready for a real test!
 * Stop the ```py-rest``` container
 * Delete all data on ```quotations``` table
 * Start the replaying on
-  MQTT [http://localhost:8081/api/protocols/amqp-01/plugins/replay-plugin/start](http://localhost:8081/api/protocols/mqtt-01/plugins/replay-plugin/start)
+  MQTT [http://localhost:8081/api/protocols/amqp-01/plugins/replay-plugin/start](http://localhost:8081/api/protocols/amqp-01/plugins/replay-plugin/start)
 * Check the new data on ```quotations``` table
 * Mqtt simulation... done!
 * Stop the recording on all
