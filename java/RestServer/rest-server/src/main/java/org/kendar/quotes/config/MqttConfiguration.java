@@ -1,7 +1,7 @@
 package org.kendar.quotes.config;
 
-import org.eclipse.paho.client.mqttv3.*;
-import org.kendar.quotes.mqtt.NullMqtt;
+import org.eclipse.paho.client.mqttv3.MqttConnectOptions;
+import org.eclipse.paho.client.mqttv3.MqttException;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.boot.context.properties.ConfigurationProperties;
 import org.springframework.context.annotation.Bean;
@@ -18,15 +18,10 @@ public class MqttConfiguration {
     }
 
     @Bean
-    public IMqttClient mqttClient(@Value("${mqtt.clientId}") String clientId,
-                                  @Value("${mqtt.hostname}") String hostname,
-                                  @Value("${mqtt.port}") int port) throws MqttException, MqttException {
-        var val = true;
-        if (val) {
-            IMqttClient mqttClient = new MqttClient("tcp://" + hostname + ":" + port, clientId);
-            mqttClient.connect(mqttConnectOptions());
-            return mqttClient;
-        }
-        return new NullMqtt();
+    public MqttClientFactory mqttClient(@Value("${mqtt.clientId}") String clientId,
+                                        @Value("${mqtt.hostname}") String hostname,
+                                        @Value("${mqtt.port}") int port,
+                                        MqttConnectOptions options) {
+        return new MqttClientFactory("tcp://" + hostname + ":" + port, clientId, options);
     }
 }

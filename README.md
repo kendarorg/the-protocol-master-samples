@@ -2,9 +2,15 @@
 
 ![](protocolmaster_s.gif)
 
-This is a simple environment to test [The Protocol Master](https://github.com/kendarorg/the-protocol-master)
+### Table of Contents
+
+* <a href="#nme">Simple to-do app</a> (.net-core, mysql, EF)
+* <a href="#jmm">Java Quotations app</a> (java, mysql, mqtt)
+* <a href="#pma">Python Quotations app</a> (python, mysql, amqp-091)
+
+These are simple environments to test [The Protocol Master](https://github.com/kendarorg/the-protocol-master)
 application. We will mock without a line of code the database and a rest api of a simple TODO web application.
-(PS tanks [patrick-baker](https://github.com/patrick-baker/to-do-list) for the UI!)
+
 
 Just for fun this is a .NET Core application with Entity Framework
 and very basic JQuery-based Front-End
@@ -31,7 +37,10 @@ further info on the subject)
 * Platform: linux/arm64
 * Target Architecture: arm64
 
+<a id="nme"></a>
 ## Simple TODO app (mysql,http,.NET)
+
+(Thanks [patrick-baker](https://github.com/patrick-baker/to-do-list) for the UI!)
 
 If you have Intellij or know what are *.http files you can configure [this](net-core/someutilities.http) setting the
 myhost variable to ```DOCKER_SERVER```
@@ -98,6 +107,7 @@ but for the sake of simplicity please delete all tasks before continuing the tut
 * Stop all the
   replayings [http://localhost:8081/api/protocols/all/plugins/replay-plugin/stop](http://localhost:8081/api/protocols/all/plugins/replay-plugin/stop)
 
+<a id="jmm"></a>
 ## Simple quotes app (java,mysql,mqtt)
 
 If you have Intellij or know what are *.http files you can configure [this](net-core/someutilities.http) setting the
@@ -148,8 +158,7 @@ Now your environment is ready for a real test!
 * Stop the recording on all
     protocols [http://localhost:8081/api/protocols/all/plugins/replay-plugin/stop](http://localhost:8081/api/protocols/all/plugins/record-plugin/stop)
 
-
-
+<a id="pma"></a>
 ## Simple quotes app (python,mysql,amqp)
 
 If you have Intellij or know what are *.http files you can configure [this](net-core/someutilities.http) setting the
