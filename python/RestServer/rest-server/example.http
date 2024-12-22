@@ -1,0 +1,39 @@
+GET http://localhost:8080/api/status
+
+######
+
+POST http://127.0.0.1:8080/api/todo
+Content-Type: application/json
+
+{
+  "shortDescription": "short",
+  "description": "long",
+  "priority": 1,
+  "done": false,
+  "before": "2025-12-31"
+}
+
+######
+
+GET http://localhost:8080/api/todo
+
+######
+
+GET http://localhost:8080/api/todo/1
+
+######
+
+PUT http://127.0.0.1:8080/api/todo/1
+Content-Type: application/json
+
+{
+  "shortDescription": "baaaaa",
+  "description": "blaaaa",
+  "priority": 77,
+  "done": true,
+  "before": "2025-12-31"
+}
+
+######
+
+DELETE http://localhost:8080/api/todo/1

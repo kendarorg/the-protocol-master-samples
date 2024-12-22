@@ -8,7 +8,7 @@ services:
     container_name: py-tpm
     ports:
       - '31044:5005'  # debug port
-      - '31883:1883'  # mqtt-01 proxy port
+      - '31883:5672'  # amqp-01 proxy port
       - '33306:3306'  # mysql-01 proxy port
       - '28081:8081'  # admin api port
       - '29000:9000'  # proxy port
@@ -16,7 +16,7 @@ services:
     depends_on:
       py-mysql:
         condition: service_started
-      py-mosquitto:
+      py-rabbit:
         condition: service_started
   py-rest:
     build:
@@ -29,7 +29,7 @@ services:
         condition: service_started
       py-tpm:
         condition: service_healthy
-      py-mosquitto:
+      py-rabbit:
         condition: service_started
   py-quote-generator:
     build:
@@ -40,7 +40,7 @@ services:
     depends_on:
       py-rest:
         condition: service_healthy
-      py-mosquitto:
+      py-rabbit:
         condition: service_started
   py-mysql:
     build:
@@ -56,11 +56,11 @@ services:
       MYSQL_ROOT_PASSWORD: 'password'
     ports:
       - '23306:3306'
-  py-mosquitto:
-    build:
-      context: Mosquitto/.
-      dockerfile: Dockerfile
-    image: "py-mosquitto"
-    container_name: py-mosquitto
+  py-rabbit:
+    image: "rabbitmq:3-management"
+    container_name: py-rabbit
     ports:
-      - '21883:1883'
+      - '25672:5672'
+    environment:
+      RABBITMQ_DEFAULT_USER: root
+      RABBITMQ_DEFAULT_PASS: password

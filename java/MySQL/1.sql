@@ -5,10 +5,9 @@
 CREATE
 DATABASE IF NOT EXISTS db;
 
-USE
-db;
+USE db;
 
-CREATE TABLE IF NOT EXISTS quotations
+CREATE TABLE IF NOT EXISTS quotation
 (
     id
     INT

@@ -5,7 +5,7 @@ import java.io.Serializable;
 import java.util.Calendar;
 
 @Entity
-@Table(name = "quotations")
+@Table(name = "quotation")
 public class Quotation implements Serializable {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
