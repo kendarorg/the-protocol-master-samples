@@ -43,11 +43,21 @@ func main() {
 		handleInit(w, r, dbSection)
 	})
 
+	r.HandleFunc("/api/status", func(w http.ResponseWriter, r *http.Request) {
+		handleStatus(w, r)
+	})
+
 	fs := http.FileServer(http.Dir("./web"))
 	r.PathPrefix("/").Handler(fs)
 
 	log.Println("Server started on :" + mainSection.Key("port").String())
 	log.Fatal(http.ListenAndServe(":"+mainSection.Key("port").String(), r))
+}
+
+func handleStatus(w http.ResponseWriter, r *http.Request) {
+	w.Write([]byte("OK"))
+	w.WriteHeader(200)
+	w.Header().Add("Content-Type", "text/plain")
 }
 
 func handleInit(w http.ResponseWriter, r *http.Request, dbSection *ini.Section) {
