@@ -13,6 +13,7 @@ import (
 	"github.com/go-redis/redis/v8"
 	"github.com/gorilla/mux"
 	"github.com/gorilla/websocket"
+	_ "github.com/lib/pq"
 )
 
 var (
@@ -155,7 +156,7 @@ func handleWebSocket(w http.ResponseWriter, r *http.Request, dbSection *ini.Sect
 	}()
 
 	for msg := range ch {
-		arrayString := strings.SplitN(msg.Payload, ",", 2)
+		arrayString := strings.SplitN(msg.Payload, ":", 2)
 		sqlStatement := `INSERT INTO messages (channel,sender, message)
 						VALUES ($1, $2, $3)`
 		_, err = db.Exec(sqlStatement, channel, arrayString[0], arrayString[1])
