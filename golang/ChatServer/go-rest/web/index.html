@@ -1,0 +1,41 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Real-Time Chat</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+        }
+        #messages {
+            height: 300px;
+            border: 1px solid #ccc;
+            overflow-y: scroll;
+            padding: 10px;
+        }
+        #form {
+            margin-top: 10px;
+        }
+    </style>
+</head>
+<body>
+<h1>Real-Time Chat</h1>
+<div id="usernameInput">
+    <label for="username">Enter Your Username:</label>
+    <input type="text" id="username" placeholder="Username" autocomplete="off"/>
+    <label for="chatName">Enter the chat to join:</label>
+    <input type="text" id="chatName" placeholder="general" autocomplete="off"/>
+    <button onclick="submitUsername()">Submit</button>
+</div>
+<div id="chat" style="display:none;">
+    <div id="messages"></div>
+    <form id="form">
+        <label for="input">Chat content:</label>
+        <input type="text" id="input" placeholder="Type a message..." autocomplete="off"/>
+        <button>Send</button>
+    </form>
+</div>
+<script src="main.js"></script>
+</body>
+</html>
