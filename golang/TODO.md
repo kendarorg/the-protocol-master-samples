@@ -8,3 +8,5 @@ https://bulutbatuhan.medium.com/how-to-parse-command-line-arguments-in-go-cf78f3
 
 
 https://go.dev/doc/database/querying
+
+Chat working but duplicating the messages stored
