@@ -4,16 +4,15 @@ import (
 	"context"
 	"database/sql"
 	"fmt"
+	"github.com/go-redis/redis/v8"
+	"github.com/gorilla/mux"
+	"github.com/gorilla/websocket"
+	_ "github.com/lib/pq"
 	"gopkg.in/ini.v1"
 	"log"
 	"net/http"
 	"os"
 	"strings"
-
-	"github.com/go-redis/redis/v8"
-	"github.com/gorilla/mux"
-	"github.com/gorilla/websocket"
-	_ "github.com/lib/pq"
 )
 
 var (
@@ -40,7 +39,7 @@ func main() {
 		handleWebSocket(w, r, dbSection, redisSection)
 	})
 
-	r.HandleFunc("/ws/{channel}/{user}", func(w http.ResponseWriter, r *http.Request) {
+	r.HandleFunc("/api/{channel}", func(w http.ResponseWriter, r *http.Request) {
 		handleInit(w, r, dbSection)
 	})
 
@@ -117,6 +116,7 @@ func handleWebSocket(w http.ResponseWriter, r *http.Request, dbSection *ini.Sect
 	vars := mux.Vars(r)
 	channel := vars["channel"]
 
+	//Upgrade to websocket
 	conn, err := upgrader.Upgrade(w, r, nil)
 	if err != nil {
 		log.Println(err)
@@ -129,6 +129,8 @@ func handleWebSocket(w http.ResponseWriter, r *http.Request, dbSection *ini.Sect
 		dbSection.Key("user").String(),
 		dbSection.Key("password").String(),
 		dbSection.Key("db").String())
+
+	//Open db connection
 	db, err := sql.Open("postgres", psqlInfo)
 	if err != nil {
 		panic(err)
@@ -136,33 +138,40 @@ func handleWebSocket(w http.ResponseWriter, r *http.Request, dbSection *ini.Sect
 	defer db.Close()
 	defer conn.Close()
 
+	//Subscribe to channel
 	sub := rdb.Subscribe(ctx, channel)
 	defer sub.Close()
 	ch := sub.Channel()
 
 	go func() {
 		for {
+			//Read all messages
 			_, msg, err := conn.ReadMessage()
 			if err != nil {
 				log.Println("Read error:", err)
 				return
 			}
 
-			if err := rdb.Publish(ctx, channel, string(msg)).Err(); err != nil {
+			//And publish them
+			strMsg := string(msg)
+			if err := rdb.Publish(ctx, channel, strMsg).Err(); err != nil {
 				log.Println("Publish error:", err)
 				return
+			}
+
+			//Save the data after publishing
+			arrayString := strings.SplitN(strMsg, ":", 2)
+			sqlStatement := `INSERT INTO messages (channel,sender, message)
+						VALUES ($1, $2, $3)`
+			_, err = db.Exec(sqlStatement, channel, arrayString[0], arrayString[1])
+			if err != nil {
+				panic(err)
 			}
 		}
 	}()
 
 	for msg := range ch {
-		arrayString := strings.SplitN(msg.Payload, ":", 2)
-		sqlStatement := `INSERT INTO messages (channel,sender, message)
-						VALUES ($1, $2, $3)`
-		_, err = db.Exec(sqlStatement, channel, arrayString[0], arrayString[1])
-		if err != nil {
-			panic(err)
-		}
+
 		if err := conn.WriteMessage(websocket.TextMessage, []byte(msg.Payload)); err != nil {
 			log.Println("Write error:", err)
 			return
