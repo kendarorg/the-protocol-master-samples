@@ -34,12 +34,13 @@ function getData(path, verb, callback) {
 function submitUsername(event) {
     if (event) event.preventDefault();
     username = document.getElementById('username').value.trim();
-    chat = document.getElementById('chat');
+    let chatName = document.getElementById('chatName').value.trim();
+    let chat = document.getElementById('chat');
     if (username) {
         document.getElementById('usernameInput').style.display = 'none';
         document.getElementById('chat').style.display = 'block';
-        getData("/api/"+chat,"GET",(code, response) => {
-            console.log("Loading messages for chat "+chat)
+        getData("/api/"+chatName,"GET",(code, response) => {
+            console.log("Loading messages for chat "+chatName)
             if(code===200){
                 const messages = document.getElementById('messages');
                 let messagesToAppend = JSON.parse(response);
@@ -64,7 +65,10 @@ function startWebSocket() {
     const input = document.getElementById('input');
     const chatName = document.getElementById('chatName');
 
-    const ws = new WebSocket('ws://localhost:8080/ws/'+chatName.value.trim());
+    var domain = window.location.hostname;
+    var port = window.location.port;
+
+    const ws = new WebSocket('ws://'+domain+':'+port+'/ws/'+chatName.value.trim());
 
     ws.onmessage = (event) => {
         const message = document.createElement('div');

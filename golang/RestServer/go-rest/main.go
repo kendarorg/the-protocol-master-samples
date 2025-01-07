@@ -12,6 +12,7 @@ import (
 	"log"
 	"net/http"
 	"os"
+	"strconv"
 	"strings"
 )
 
@@ -34,33 +35,36 @@ func main() {
 	redisSection := iniData.Section("redis")
 	mainSection := iniData.Section("main")
 
-	r := mux.NewRouter()
-	r.HandleFunc("/ws/{channel}", func(w http.ResponseWriter, r *http.Request) {
-		handleWebSocket(w, r, dbSection, redisSection)
+	router := mux.NewRouter()
+
+	router.HandleFunc("/api/{channel}", func(response http.ResponseWriter, request *http.Request) {
+		handleInit(response, request, dbSection)
 	})
 
-	r.HandleFunc("/api/{channel}", func(w http.ResponseWriter, r *http.Request) {
-		handleInit(w, r, dbSection)
+	router.HandleFunc("/api/status", func(response http.ResponseWriter, request *http.Request) {
+		handleStatus(response, request)
 	})
 
-	r.HandleFunc("/api/status", func(w http.ResponseWriter, r *http.Request) {
-		handleStatus(w, r)
+	router.HandleFunc("/ws/{channel}", func(response http.ResponseWriter, request *http.Request) {
+		handleWebSocket(response, request, dbSection, redisSection)
 	})
 
-	fs := http.FileServer(http.Dir("./web"))
-	r.PathPrefix("/").Handler(fs)
+	fileServer := http.FileServer(http.Dir("./web"))
+	router.PathPrefix("/").Handler(fileServer)
 
-	log.Println("Server started on :" + mainSection.Key("port").String())
-	log.Fatal(http.ListenAndServe(":"+mainSection.Key("port").String(), r))
+	port, err := strconv.Atoi(mainSection.Key("port").String())
+
+	log.Println("Server started on :" + strconv.Itoa(port))
+	http.ListenAndServe(":"+strconv.Itoa(port), router)
 }
 
-func handleStatus(w http.ResponseWriter, r *http.Request) {
-	w.Write([]byte("OK"))
-	w.WriteHeader(200)
-	w.Header().Add("Content-Type", "text/plain")
+func handleStatus(response http.ResponseWriter, request *http.Request) {
+	response.Header().Add("Content-Type", "text/plain")
+	response.WriteHeader(200)
+	response.Write([]byte("OK"))
 }
 
-func handleInit(w http.ResponseWriter, r *http.Request, dbSection *ini.Section) {
+func handleInit(response http.ResponseWriter, request *http.Request, dbSection *ini.Section) {
 	psqlInfo := fmt.Sprintf("host=%s port=%s user=%s "+
 		"password=%s dbname=%s sslmode=disable",
 		dbSection.Key("host").String(),
@@ -72,7 +76,7 @@ func handleInit(w http.ResponseWriter, r *http.Request, dbSection *ini.Section) 
 	if err != nil {
 		panic(err)
 	}
-	vars := mux.Vars(r)
+	vars := mux.Vars(request)
 	channelToQuery := vars["channel"]
 
 	defer db.Close()
@@ -80,11 +84,13 @@ func handleInit(w http.ResponseWriter, r *http.Request, dbSection *ini.Section) 
 						CHANNEL=$1 ORDER BY id DESC`
 	rows, err := db.Query(sqlStatement, channelToQuery)
 
-	w.Write([]byte("["))
+	response.Header().Set("Content-Type", "application/json")
+	response.WriteHeader(200)
+	var toSend = `[`
 	counter := 0
 	// Loop through rows, using Scan to assign column data to struct fields.
 	for rows.Next() {
-		var id int64
+		var id int
 		var channel string
 		var sender string
 		var message string
@@ -92,32 +98,30 @@ func handleInit(w http.ResponseWriter, r *http.Request, dbSection *ini.Section) 
 			&message); err != nil {
 		}
 		if counter > 0 {
-			w.Write([]byte(","))
+			toSend = toSend + `,`
 		}
-		w.Write([]byte(
-			"{\"id\":\"" +
-				string(id) +
-				"\",\"sender\":\"" +
-				sender +
-				"\",\"message\":\"" +
-				message + "\"}"))
+		toSend = toSend +
+			`{"id":"` +
+			strconv.Itoa(id) +
+			`","sender":"` +
+			sender +
+			`","message":"` +
+			message + `"}`
 		counter++
 	}
-
-	w.Write([]byte("]"))
-	w.WriteHeader(200)
-	w.Header().Add("Content-Type", "application/json")
+	toSend = toSend + `]`
+	response.Write([]byte(toSend))
 }
 
-func handleWebSocket(w http.ResponseWriter, r *http.Request, dbSection *ini.Section, redisSection *ini.Section) {
+func handleWebSocket(response http.ResponseWriter, request *http.Request, dbSection *ini.Section, redisSection *ini.Section) {
 	rdb := redis.NewClient(&redis.Options{
 		Addr: redisSection.Key("host").String() + ":" + redisSection.Key("port").String(),
 	})
-	vars := mux.Vars(r)
+	vars := mux.Vars(request)
 	channel := vars["channel"]
 
 	//Upgrade to websocket
-	conn, err := upgrader.Upgrade(w, r, nil)
+	conn, err := upgrader.Upgrade(response, request, nil)
 	if err != nil {
 		log.Println(err)
 		return
@@ -159,6 +163,8 @@ func handleWebSocket(w http.ResponseWriter, r *http.Request, dbSection *ini.Sect
 				return
 			}
 
+			log.Println("Read Message :" + strMsg)
+
 			//Save the data after publishing
 			arrayString := strings.SplitN(strMsg, ":", 2)
 			sqlStatement := `INSERT INTO messages (channel,sender, message)
@@ -176,5 +182,7 @@ func handleWebSocket(w http.ResponseWriter, r *http.Request, dbSection *ini.Sect
 			log.Println("Write error:", err)
 			return
 		}
+
+		log.Println("Write Message :" + msg.Payload)
 	}
 }

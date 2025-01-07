@@ -1,36 +1,36 @@
 version: '3.8'
 services:
-#  go-tpm:
-#    build:
-#      context: Tpm/.
-#      dockerfile: Dockerfile
-#    image: "go-tpm"
-#    container_name: go-tpm
-#    ports:
-#      - '31044:5005'  # debug port
-#      - '36379:6379'  # redis-01 proxy port
-#      - '35432:5432'  # postgres-01 proxy port
-#      - '28081:8081'  # admin api port
-#      - '29000:9000'  # proxy port
-#      - '20080:80'  # tpm port
-#    depends_on:
-#      go-postgres:
-#        condition: service_started
-#      go-redis:
-#        condition: service_started
-#  go-rest:
-#    build:
-#      context: RestServer/.
-#      dockerfile: Dockerfile
-#    image: "go-rest"
-#    container_name: go-rest
-#    depends_on:
-#      go-postgres:
-#        condition: service_started
-#      go-tpm:
-#        condition: service_healthy
-#      go-redis:
-#        condition: service_started
+  go-tpm:
+    build:
+      context: Tpm/.
+      dockerfile: Dockerfile
+    image: "go-tpm"
+    container_name: go-tpm
+    ports:
+      - '31044:5005'  # debug port
+      - '36379:6379'  # redis-01 proxy port
+      - '35432:5432'  # postgres-01 proxy port
+      - '28081:8081'  # admin api port
+      - '29000:9000'  # proxy port
+      - '20080:80'  # tpm port
+    depends_on:
+      go-postgres:
+        condition: service_started
+      go-redis:
+        condition: service_started
+  go-rest:
+    build:
+      context: RestServer/.
+      dockerfile: Dockerfile
+    image: "go-rest"
+    container_name: go-rest
+    depends_on:
+      go-postgres:
+        condition: service_started
+      go-tpm:
+        condition: service_healthy
+      go-redis:
+        condition: service_started
   go-postgres:
     build:
       context: Postgres/.
