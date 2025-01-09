@@ -4,7 +4,7 @@ import (
 	"context"
 	"database/sql"
 	"fmt"
-	"github.com/go-redis/redis/v8"
+	"github.com/gomodule/redigo/redis"
 	"github.com/gorilla/mux"
 	"github.com/gorilla/websocket"
 	_ "github.com/lib/pq"
@@ -14,6 +14,7 @@ import (
 	"os"
 	"strconv"
 	"strings"
+	"time"
 )
 
 var (
@@ -87,36 +88,39 @@ func handleInit(response http.ResponseWriter, request *http.Request, dbSection *
 	response.Header().Set("Content-Type", "application/json")
 	response.WriteHeader(200)
 	var toSend = `[`
-	counter := 0
-	// Loop through rows, using Scan to assign column data to struct fields.
-	for rows.Next() {
-		var id int
-		var channel string
-		var sender string
-		var message string
-		if err := rows.Scan(&id, &channel, &sender,
-			&message); err != nil {
+	if rows == nil {
+		toSend = toSend + `]`
+	} else {
+
+		counter := 0
+		// Loop through rows, using Scan to assign column data to struct fields.
+		for rows.Next() {
+			var id int
+			var channel string
+			var sender string
+			var message string
+			if err := rows.Scan(&id, &channel, &sender,
+				&message); err != nil {
+			}
+			if counter > 0 {
+				toSend = toSend + `,`
+			}
+			toSend = toSend +
+				`{"id":"` +
+				strconv.Itoa(id) +
+				`","sender":"` +
+				sender +
+				`","message":"` +
+				message + `"}`
+			counter++
 		}
-		if counter > 0 {
-			toSend = toSend + `,`
-		}
-		toSend = toSend +
-			`{"id":"` +
-			strconv.Itoa(id) +
-			`","sender":"` +
-			sender +
-			`","message":"` +
-			message + `"}`
-		counter++
+		toSend = toSend + `]`
 	}
-	toSend = toSend + `]`
 	response.Write([]byte(toSend))
 }
 
 func handleWebSocket(response http.ResponseWriter, request *http.Request, dbSection *ini.Section, redisSection *ini.Section) {
-	rdb := redis.NewClient(&redis.Options{
-		Addr: redisSection.Key("host").String() + ":" + redisSection.Key("port").String(),
-	})
+
 	vars := mux.Vars(request)
 	channel := vars["channel"]
 
@@ -143,12 +147,11 @@ func handleWebSocket(response http.ResponseWriter, request *http.Request, dbSect
 	defer conn.Close()
 
 	//Subscribe to channel
-	sub := rdb.Subscribe(ctx, channel)
-	defer sub.Close()
-	ch := sub.Channel()
 
 	go func() {
+		rdb, _ := redis.Dial("tcp", redisSection.Key("host").String()+":"+redisSection.Key("port").String())
 		for {
+
 			//Read all messages
 			_, msg, err := conn.ReadMessage()
 			if err != nil {
@@ -158,31 +161,80 @@ func handleWebSocket(response http.ResponseWriter, request *http.Request, dbSect
 
 			//And publish them
 			strMsg := string(msg)
-			if err := rdb.Publish(ctx, channel, strMsg).Err(); err != nil {
-				log.Println("Publish error:", err)
-				return
+
+			counter := 20
+
+			for {
+				counter = counter - 1
+				err = rdb.Send("PUBLISH", channel, strMsg)
+				if counter == 0 {
+					break
+				}
+				if err != nil {
+					rdb.Close()
+					time.Sleep(500 * time.Millisecond)
+					rdb, _ = redis.Dial("tcp", redisSection.Key("host").String()+":"+redisSection.Key("port").String())
+					log.Println("Send error:", err)
+					continue
+				}
+				err = rdb.Flush()
+				if err != nil {
+					rdb.Close()
+					time.Sleep(500 * time.Millisecond)
+					rdb, _ = redis.Dial("tcp", redisSection.Key("host").String()+":"+redisSection.Key("port").String())
+					log.Println("Flush error:", err)
+					continue
+				}
+				break
 			}
 
-			log.Println("Read Message :" + strMsg)
-
+			log.Println("Sent:", strMsg)
 			//Save the data after publishing
 			arrayString := strings.SplitN(strMsg, ":", 2)
 			sqlStatement := `INSERT INTO messages (channel,sender, message)
 						VALUES ($1, $2, $3)`
 			_, err = db.Exec(sqlStatement, channel, arrayString[0], arrayString[1])
 			if err != nil {
-				panic(err)
+				break
 			}
 		}
 	}()
 
-	for msg := range ch {
+	for {
+		// Get a connection from a pool
+		c, _ := redis.Dial("tcp", redisSection.Key("host").String()+":"+redisSection.Key("port").String())
+		psc := redis.PubSubConn{c}
 
-		if err := conn.WriteMessage(websocket.TextMessage, []byte(msg.Payload)); err != nil {
-			log.Println("Write error:", err)
-			return
+		// Set up subscriptions
+		err = psc.Subscribe(channel)
+		if err != nil {
+			log.Println("Subs error:", err)
+			psc.Close()
+			c.Close()
+			time.Sleep(500 * time.Millisecond)
+			continue
 		}
 
-		log.Println("Write Message :" + msg.Payload)
+		// While not a permanent error on the connection.
+		for c.Err() == nil {
+			switch v := psc.Receive().(type) {
+			case redis.Message:
+				log.Println("Receiving Message :" + string(v.Data))
+				if err := conn.WriteMessage(websocket.TextMessage, v.Data); err != nil {
+					log.Println("Write error:", err)
+					break
+				}
+
+				log.Println("Write Message :" + string(v.Data))
+			case redis.Subscription:
+				fmt.Printf("%s: %s %d\n", v.Channel, v.Kind, v.Count)
+				continue
+			case error:
+				break
+			}
+		}
+		psc.Close()
+		c.Close()
+		time.Sleep(500 * time.Millisecond)
 	}
 }
