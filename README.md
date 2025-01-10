@@ -7,7 +7,7 @@
 * <a href="#nme">Simple to-do app</a> (.net-core, mysql, EF)
 * <a href="#jmm">Java Quotations app</a> (java, mysql, mqtt)
 * <a href="#pma">Python Quotations app</a> (python, mysql, amqp-091)
-* <a href="#gca">Golang Chat app</a> (golang, postgres, redis)
+<!-- * <a href="#gca">Golang Chat app</a> (golang, postgres, redis) -->
 
 These are simple environments to test [The Protocol Master](https://github.com/kendarorg/the-protocol-master)
 application. We will mock without a line of code the database and a rest api of a simple TODO web application.
@@ -213,6 +213,7 @@ Now your environment is ready for a real test!
 * Stop the recording on all
   protocols [http://localhost:8081/api/protocols/all/plugins/replay-plugin/stop](http://localhost:8081/api/protocols/all/plugins/record-plugin/stop)
 
+<!--
 <a id="gca"></a>
 ## Golang Chat app (golang, postgres, redis)
 
@@ -259,5 +260,6 @@ Now your environment is ready for a real test!
 * Mqtt simulation... done!
 * Stop the recording on all
   protocols [http://localhost:8081/api/protocols/all/plugins/replay-plugin/stop](http://localhost:8081/api/protocols/all/plugins/record-plugin/stop)
+-->
 
 

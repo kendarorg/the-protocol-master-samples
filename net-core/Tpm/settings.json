@@ -17,6 +17,26 @@
         ]
       },
       "plugins": {
+        "mock-plugin": {
+          "dataDir": "mocks"
+        },
+        "rate-limit-plugin": {
+          "limitSites": [
+            "net-core-rest"
+          ],
+          "rateLimit": 120,
+          "warningThresholdPercent": 80,
+          "resetTimeWindowSeconds": 20
+        },
+        "latency-plugin": {
+          "minMs": 50,
+          "maxMs": 5000
+        },
+        "error-plugin": {
+          "showError": 500,
+          "errorMessage": "Random Generated Error",
+          "errorPercent": 5
+        },
         "record-plugin": {
           "recordSites": [
             "net-core-http",

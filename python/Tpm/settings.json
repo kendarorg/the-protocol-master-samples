@@ -17,6 +17,26 @@
         ]
       },
       "plugins": {
+        "mock-plugin": {
+          "dataDir": "mocks"
+        },
+        "rate-limit-plugin": {
+          "limitSites": [
+            "python-rest"
+          ],
+          "rateLimit": 120,
+          "warningThresholdPercent": 80,
+          "resetTimeWindowSeconds": 20
+        },
+        "latency-plugin": {
+          "minMs": 50,
+          "maxMs": 5000
+        },
+        "error-plugin": {
+          "showError": 500,
+          "errorMessage": "Random Generated Error",
+          "errorPercent": 5
+        },
         "record-plugin": {
           "recordSites": [
             "py-http",
@@ -41,6 +61,8 @@
       "timeout": 30,
       "connectionString": "tcp://py-rabbit:5672",
       "plugins": {
+        "publish-plugin": {
+        },
         "record-plugin": {
           "resetConnectionsOnStart": true
         },
