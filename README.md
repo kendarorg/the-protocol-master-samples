@@ -7,15 +7,19 @@
 * <a href="#nme">Simple to-do app</a> (.net-core, mysql, EF)
 * <a href="#jmm">Java Quotations app</a> (java, mysql, mqtt)
 * <a href="#pma">Python Quotations app</a> (python, mysql, amqp-091)
+<!-- * <a href="#gca">Golang Chat app</a> (golang, postgres, redis) -->
 
 These are simple environments to test [The Protocol Master](https://github.com/kendarorg/the-protocol-master)
 application. We will mock without a line of code the database and a rest api of a simple TODO web application.
 
-
-Just for fun this is a .NET Core application with Entity Framework
-and very basic JQuery-based Front-End
-
 * The documentation for the protocol master is [here](https://github.com/kendarorg/the-protocol-master)
+
+
+### If you like it Buy me a coffe :)
+
+[![paypal](https://www.paypalobjects.com/en_US/i/btn/btn_donateCC_LG.gif)](https://www.paypal.com/paypalme/kendarorg/1)
+
+<br>
 
 ## Prerequisites
 
@@ -209,9 +213,53 @@ Now your environment is ready for a real test!
 * Stop the recording on all
   protocols [http://localhost:8081/api/protocols/all/plugins/replay-plugin/stop](http://localhost:8081/api/protocols/all/plugins/record-plugin/stop)
 
+<!--
+<a id="gca"></a>
+## Golang Chat app (golang, postgres, redis)
 
-## If you like it Buy me a coffe :)
+### Startup
 
-[![paypal](https://www.paypalobjects.com/en_US/i/btn/btn_donateCC_LG.gif)](https://www.paypal.com/paypalme/kendarorg/1)
+* Clone the repo ```https://github.com/kendarorg/the-protocol-master-samples.git```
+* Configure your browser to use DOCKER_SERVER:29000 as HTTP/S Proxy
+* Navigate to the "golang" directory
+* Run ```docker-compose up``` to generate the environment
+* Several containers will be created
+  * go-tpm: The Protocol Master server
+  * go-postgres: The postgres database
+  * go-redis: The Redis server
+  * go-rest: The chat application
+* Download the SSL certificate
+  from [http://localhost:8081/api/protocols/http-01/plugins/ssl-plugin/der](http://localhost:8081/api/protocols/http-01/plugins/ssl-plugin/der)
+  and install
+  it as a trusted root certificate
+* Connect your postgres ui to ```DOCKER_HOST:25432``` and use the database ```db```
 
-<br>
+Now your environment is ready for a real test!
+
+### Recording
+
+* Start the recording on redis-01
+  protocol [http://localhost:8081/api/protocols/redis-01/plugins/record-plugin/start](http://localhost:8081/api/protocols/redis-01/plugins/record-plugin/start)
+* Delete all records on ```db.messages``` table
+* Open the proxied browser on [http://go-rest/index.html](http://go-rest/index.html) and login as "user1" on channel "common"
+* Open another tab of the proxied browser on [http://go-rest/index.html](http://go-rest/index.html) and login as "user2" on channel "common"
+* Write some messages on both browsers
+* Stop the recording on all
+  protocols [http://localhost:8081/api/protocols/all/plugins/record-plugin/stop](http://localhost:8081/api/protocols/all/plugins/record-plugin/stop)
+* You can download all the
+  recordings! [http://localhost:8081/api/storage/download](http://localhost:8081/api/storage/download) as a zip file
+
+### Look Ma, NO BROKER
+
+* Stop the ```py-quote-generation``` container
+* Stop the ```py-rest``` container
+* Delete all data on ```quotations``` table
+* Start the replaying on
+  MQTT [http://localhost:8081/api/protocols/amqp-01/plugins/replay-plugin/start](http://localhost:8081/api/protocols/amqp-01/plugins/replay-plugin/start)
+* Check the new data on ```quotations``` table
+* Mqtt simulation... done!
+* Stop the recording on all
+  protocols [http://localhost:8081/api/protocols/all/plugins/replay-plugin/stop](http://localhost:8081/api/protocols/all/plugins/record-plugin/stop)
+-->
+
+

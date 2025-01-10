@@ -17,35 +17,14 @@
         ]
       },
       "plugins": {
-        "mock-plugin": {
-          "dataDir": "mocks"
-        },
-        "rate-limit-plugin": {
-          "limitSites": [
-            "java-rest"
-          ],
-          "rateLimit": 120,
-          "warningThresholdPercent": 80,
-          "resetTimeWindowSeconds": 20
-        },
-        "latency-plugin": {
-          "minMs": 50,
-          "maxMs": 5000
-        },
-        "error-plugin": {
-          "showError": 500,
-          "errorMessage": "Random Generated Error",
-          "errorPercent": 5
-        },
         "record-plugin": {
           "recordSites": [
-            "java-http",
-            "java-rest"
+            "go-http"
           ]
         },
         "replay-plugin": {
           "matchSites": [
-            "java-rest"
+
           ]
         },
         "rewrite-plugin": {
@@ -53,13 +32,13 @@
         }
       }
     },
-    "mqtt-01": {
-      "protocol": "mqtt",
-      "port": 1883,
+    "redis-01": {
+      "protocol": "redis",
+      "port": 6379,
       "login": "",
       "password": "",
       "timeout": 30,
-      "connectionString": "tcp://java-mosquitto:1883",
+      "connectionString": "tcp://go-redis:6379",
       "plugins": {
         "publish-plugin": {
         },
@@ -72,13 +51,13 @@
         }
       }
     },
-    "mysql-01": {
-      "protocol": "mysql",
-      "port": 3306,
-      "login": "root",
+    "postgres-01": {
+      "protocol": "postgres",
+      "port": 5432,
+      "login": "postgres",
       "password": "password",
       "timeout": 30,
-      "connectionString": "jdbc:mysql://java-mysql:3306/db",
+      "connectionString": "jdbc:postgres://go-postgres:5432/db",
       "plugins": {
         "record-plugin": {},
         "replay-plugin": {}
