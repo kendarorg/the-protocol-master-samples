@@ -159,8 +159,31 @@ Now your environment is ready for a real test!
   MQTT [http://localhost:8081/api/protocols/mqtt-01/plugins/replay-plugin/start](http://localhost:8081/api/protocols/mqtt-01/plugins/replay-plugin/start)
 * Check the new data on ```quotations``` table
 * Mqtt simulation... done!
-* Stop the recording on all
+* Stop the replaying on all
     protocols [http://localhost:8081/api/protocols/all/plugins/replay-plugin/stop](http://localhost:8081/api/protocols/all/plugins/record-plugin/stop)
+
+### Faking a message
+
+* Activate the publish plugin
+  MQTT [http://localhost:8081/api/protocols/mqtt-01/plugins/publish-plugin/start](http://localhost:8081/api/protocols/mqtt-01/plugins/publish-plugin/start)
+* Restart Mosquitto
+* Go to the swagger instance [http://localhost:8081/swagger-ui/index.html#/](http://localhost:8081/swagger-ui/index.html#/)
+* Open the [connections](http://localhost:8081/swagger-ui/index.html#/plugins%2Fmqtt%2Fmqtt-01/get_api_protocols_mqtt_01_plugins_publish_plugin_connections) API and check the active connections
+* Open the [message sending](http://localhost:8081/swagger-ui/index.html#/plugins%2Fmqtt%2Fmqtt-01/post_api_protocols_mqtt_01_plugins_publish_plugin_connections__connectionId___topic_) API
+* Insert the following
+  * connectinId: -1 (all the subscribed)
+  * topic: quotations
+  * Request body (the unixtimestamp must be in the future of nothing will appear :P )
+
+<pre>
+{
+  "contentType": "text/plain",
+  "body": "{ \"symbol\" : \"META\", \"date\" : [UNIXTIMESTAMP]999,\"price\" : 1000,  \"volume\" : 1000\n }"
+}
+</pre>
+
+* Look on your message on the graph!
+
 
 <a id="pma"></a>
 ## Simple quotes app (python,mysql,amqp)
@@ -210,7 +233,7 @@ Now your environment is ready for a real test!
   MQTT [http://localhost:8081/api/protocols/amqp-01/plugins/replay-plugin/start](http://localhost:8081/api/protocols/amqp-01/plugins/replay-plugin/start)
 * Check the new data on ```quotations``` table
 * Mqtt simulation... done!
-* Stop the recording on all
+* Stop the replaying on all
   protocols [http://localhost:8081/api/protocols/all/plugins/replay-plugin/stop](http://localhost:8081/api/protocols/all/plugins/record-plugin/stop)
 
 <!--
