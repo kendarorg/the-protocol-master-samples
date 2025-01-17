@@ -29,6 +29,8 @@ services:
         condition: service_started
       py-tpm:
         condition: service_healthy
+      py-quote-generator:
+        condition: service_healthy
       py-rabbit:
         condition: service_started
   py-quote-generator:
@@ -38,8 +40,6 @@ services:
     image: "py-quote-generator"
     container_name: py-quote-generator
     depends_on:
-      py-rest:
-        condition: service_healthy
       py-rabbit:
         condition: service_started
   py-mysql:
