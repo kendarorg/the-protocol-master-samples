@@ -2,9 +2,11 @@ FROM python:3.9.13
 
 WORKDIR /app
 
-RUN pip install autowired bottle configparser mysql-connector-python mysql pymysql peewee pika jsons cryptography
+#RUN pip install autowired kombu bottle configparser mysql-connector-python mysql pymysql peewee pika jsons cryptography
+
 ADD rest-server /app
 COPY properties.ini /app/properties.ini
+RUN pip install -r requirements.txt
 
 
 CMD ["python", "main.py"]

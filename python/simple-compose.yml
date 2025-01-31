@@ -1,0 +1,25 @@
+version: '3.8'
+services:
+  py-mysql:
+    build:
+      context: MySQL/.
+      dockerfile: Dockerfile
+    container_name: py-mysql
+    image: "py-mysql"
+    restart: always
+    environment:
+      MYSQL_DATABASE: 'db'
+      MYSQL_USER: 'user'
+      MYSQL_PASSWORD: 'password'
+      MYSQL_ROOT_PASSWORD: 'password'
+    ports:
+      - '23306:3306'
+  py-rabbit:
+    image: "rabbitmq:3-management"
+    container_name: py-rabbit
+    ports:
+      - '25672:5672'
+      - '15672:15672'
+    environment:
+      RABBITMQ_DEFAULT_USER: root
+      RABBITMQ_DEFAULT_PASS: password

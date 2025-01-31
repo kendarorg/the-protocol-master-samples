@@ -1,0 +1,16 @@
+version: '3.8'
+services:
+  net-core-mysql:
+    build:
+      context: MySQL/.
+      dockerfile: Dockerfile
+    container_name: net-core-mysql
+    image: "net-core-mysql"
+    restart: always
+    environment:
+      MYSQL_DATABASE: 'db'
+      MYSQL_USER: 'user'
+      MYSQL_PASSWORD: 'password'
+      MYSQL_ROOT_PASSWORD: 'password'
+    ports:
+      - '23306:3306'

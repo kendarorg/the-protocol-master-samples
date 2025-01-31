@@ -1,3 +1,4 @@
+import logging
 import os
 import sys
 from importlib import import_module
@@ -15,6 +16,7 @@ class ApplicationContext(Context):
 
     def __init__(self, *args: Module):
         self.container.add(self)
+        self.log = logging.getLogger("ApplicationContext")
         for val in args:
             package_dir_name = str(os.path.basename(val.__path__[0]))
             module = import_module(f"{package_dir_name}")
@@ -31,7 +33,7 @@ class ApplicationContext(Context):
         try:
             return self.container.resolve(t)
         except Exception as ex:
-            print(ex)
+            self.log.error("Unable to resolve item {0}".format(ex))
             return None
 
     def resolve(

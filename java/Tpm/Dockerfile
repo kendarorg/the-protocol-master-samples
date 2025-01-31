@@ -1,4 +1,4 @@
-FROM adoptopenjdk/openjdk11:jdk-11.0.11_9-alpine-slim
+FROM amazoncorretto:17.0.7-alpine
 RUN apk add --no-cache bash wget curl dos2unix
 
 COPY  settings.json /settings.json
