@@ -26,4 +26,4 @@ class DbConnection(Autostart):
                     db_connection.create_tables([basic_entity])
 
         except Exception as e:
-            print("Unable to initialize DbConnection ", e)
+            print("Unable to initialize DbConnection {0}".format(e))

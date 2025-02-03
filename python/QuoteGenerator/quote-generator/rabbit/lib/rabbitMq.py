@@ -1,61 +1,73 @@
-import pika
+from threading import Thread
+from time import sleep
+import logging
+
 from autowired import component
+from kombu import Connection, Exchange, Queue, Consumer, Producer
 
 from rabbit.lib.rabbitConsumer import RabbitConsumer
+from rabbit.lib.worker import Worker
 from utils.appSettings import AppSettings
 from utils.autostart import Autostart
 
 
 @component
 class RabbitMQ(Autostart):
+    rabbit_url = ""
+
     def __init__(self, app_settings: AppSettings, consumers: list[RabbitConsumer]):
+        self.log = logging.getLogger("RabbitMQ")
         try:
+            self.log.info("Initializing")
             self.queue = app_settings.rabbit_queue
             self.user = app_settings.rabbit_user
             self.password = app_settings.rabbit_password
             self.host = app_settings.rabbit_host
             self.port = app_settings.rabbit_port
-            self.connection = None
+            self.exchange = app_settings.rabbit_exchange
+            self.rabbit_url = "amqp://" + self.host + ":" + str(self.port) + "/";
             self.channel = None
+            self.consumers = consumers
             self.connect()
-            for consumer in consumers:
+            self.connection = None
+            for consumer in self.consumers:
                 if consumer.callback is not None:
-                    self.consume(consumer.queue, consumer.callback, app_settings.rabbit_exchange)
+                    Thread(target=(lambda: self.consume(consumer.queue, consumer.callback, self.exchange))).start()
+
         except Exception as e:
-            print("Unable to initialize RabbitMq ", e)
+            self.log.error("Unable to initialize RabbitMq {0}".format(e))
 
     def connect(self):
-        credentials = pika.PlainCredentials(self.user, self.password)
-        parameters = pika.ConnectionParameters(host=self.host, port=self.port, credentials=credentials)
-        self.connection = pika.BlockingConnection(parameters)
-        self.channel = self.connection.channel()
+        None
 
     def close(self):
         if self.connection and not self.connection.is_closed:
             self.connection.close()
 
-    def consume(self, queue_name, callback, exchange=''):
-        if not self.channel:
-            raise Exception("Connection is not established.")
-        self.channel.exchange_declare(exchange=exchange)
-        self.channel.queue_declare(queue=queue_name, durable=True)
-        self.channel.queue_bind(queue=queue_name, exchange=exchange, routing_key=queue_name)
-        self.channel.basic_consume(queue=queue_name, on_message_callback=callback, auto_ack=True)
-        self.channel.start_consuming()
-
-    def send_heartbeat(self):
-        self.connection.process_data_events()
+    def consume(self, queue_name, callback, exchange_name=''):
+        self.log.info("Initializing queue "+queue_name)
+        with Connection(self.rabbit_url, userid=self.user, password=self.password, heartbeat=4) as conn:
+            worker = Worker(conn, queue_name, exchange_name, callback)
+            worker.run()
 
     def publish(self, queue_name, message, exchange=''):
-        if not self.channel:
-            raise Exception("Connection is not established.")
-        self.channel.queue_declare(queue=queue_name, durable=True)
-        self.channel.exchange_declare(exchange=exchange)
-        self.channel.queue_bind(queue=queue_name, exchange=exchange)
-        self.channel.basic_publish(exchange=exchange,
-                                   routing_key=queue_name,
-                                   body=message,
-                                   properties=pika.BasicProperties(
-                                       delivery_mode=2,  # make message persistent
-                                   ))
-        print(f"Sent message to queue {queue_name}: {message}")
+        self.log.info("Publish on "+queue_name)
+        try:
+            if self.connection is None:
+                self.connection = Connection(self.rabbit_url, userid=self.user, password=self.password)
+                self.channel = self.connection.channel()
+                self.producer = Producer(self.channel)
+            self.producer.publish(
+                message,
+                routing_key=queue_name,
+                retry=True,
+                exchange=exchange,
+                content_type="application/json"
+            )
+            self.log.info(f"Sent message to queue {queue_name}: {message}")
+
+        except Exception as e:
+            sleep(5)
+            self.log.info("Unable to initialize Rabbit {0}".format(e))
+            self.connection = None
+

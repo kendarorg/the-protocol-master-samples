@@ -1,0 +1,24 @@
+version: '3.8'
+services:
+  java-mysql:
+    build:
+      context: MySQL/.
+      dockerfile: Dockerfile
+    container_name: java-mysql
+    image: "java-mysql"
+    restart: always
+    environment:
+      MYSQL_DATABASE: 'db'
+      MYSQL_USER: 'user'
+      MYSQL_PASSWORD: 'password'
+      MYSQL_ROOT_PASSWORD: 'password'
+    ports:
+      - '23306:3306'
+  java-mosquitto:
+    build:
+      context: Mosquitto/.
+      dockerfile: Dockerfile
+    image: "java-mosquitto"
+    container_name: java-mosquitto
+    ports:
+      - '21883:1883'

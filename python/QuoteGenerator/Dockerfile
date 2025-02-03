@@ -2,9 +2,10 @@ FROM python:3.9.13
 
 WORKDIR /app
 
-RUN pip install autowired bottle configparser pika cryptography jsons
+#RUN pip install autowired kombu bottle configparser pika cryptography jsons
 ADD quote-generator /app
 COPY properties.ini /app/properties.ini
+RUN pip install -r requirements.txt
 
 
 CMD ["python", "main.py"]
