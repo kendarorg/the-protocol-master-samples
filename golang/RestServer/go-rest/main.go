@@ -119,6 +119,42 @@ func handleInit(response http.ResponseWriter, request *http.Request, dbSection *
 	response.Write([]byte(toSend))
 }
 
+func subscribe(conn *websocket.Conn, channelName string, redisSection *ini.Section) error {
+	// Connect to Redis
+	c, err := redis.Dial("tcp", redisSection.Key("host").String()+":"+redisSection.Key("port").String())
+	if err != nil {
+		return fmt.Errorf("failed to connect to Redis: %w", err)
+	}
+	defer c.Close()
+
+	// Create a new PubSub connection
+	psc := redis.PubSubConn{Conn: c}
+	err = psc.Subscribe(channelName)
+	if err != nil {
+		return fmt.Errorf("failed to subscribe: %w", err)
+	}
+	log.Println("Subscribed to channel:", channelName)
+
+	// Listen for messages
+	for {
+		switch v := psc.Receive().(type) {
+		case redis.Message:
+			log.Println("Receiving Message :" + string(v.Data))
+			if err := conn.WriteMessage(websocket.TextMessage, v.Data); err != nil {
+				log.Println("Write error:", err)
+				break
+			}
+
+			log.Println("Write Message :" + string(v.Data))
+		case redis.Subscription:
+			log.Printf("Subscription message: %s to %s with count %d", v.Kind, v.Channel, v.Count)
+		case error:
+			log.Printf("Connection error: %v", v)
+			return v // Triggers reconnection
+		}
+	}
+}
+
 func handleWebSocket(response http.ResponseWriter, request *http.Request, dbSection *ini.Section, redisSection *ini.Section) {
 
 	vars := mux.Vars(request)
@@ -138,103 +174,78 @@ func handleWebSocket(response http.ResponseWriter, request *http.Request, dbSect
 		dbSection.Key("password").String(),
 		dbSection.Key("db").String())
 
-	//Open db connection
-	db, err := sql.Open("postgres", psqlInfo)
-	if err != nil {
-		panic(err)
-	}
-	defer db.Close()
-	defer conn.Close()
-
-	//Subscribe to channel
-
 	go func() {
-		rdb, _ := redis.Dial("tcp", redisSection.Key("host").String()+":"+redisSection.Key("port").String())
 		for {
 
-			//Read all messages
-			_, msg, err := conn.ReadMessage()
+			rdb, err := redis.Dial("tcp", redisSection.Key("host").String()+":"+redisSection.Key("port").String())
 			if err != nil {
-				log.Println("Read error:", err)
+				log.Printf("Subscription failed: %v. Reconnecting...", err)
+				time.Sleep(2 * time.Second)
+				conn.Close()
 				return
 			}
-
-			//And publish them
-			strMsg := string(msg)
-
-			counter := 20
-
+			db, err := sql.Open("postgres", psqlInfo)
+			if err != nil {
+				log.Printf("Subscription failed: %v. Reconnecting...", err)
+				time.Sleep(2 * time.Second) // Delay before retrying
+				rdb.Close()
+				conn.Close()
+				return
+			}
 			for {
-				counter = counter - 1
-				err = rdb.Send("PUBLISH", channel, strMsg)
-				if counter == 0 {
-					break
-				}
+
+				//Read all messages
+				_, msg, err := conn.ReadMessage()
 				if err != nil {
+					conn.Close()
 					rdb.Close()
-					time.Sleep(500 * time.Millisecond)
-					rdb, _ = redis.Dial("tcp", redisSection.Key("host").String()+":"+redisSection.Key("port").String())
+					db.Close()
+					log.Println("Read error:", err)
+					return
+				}
+
+				//And publish them
+				strMsg := string(msg)
+
+				err = rdb.Send("PUBLISH", channel, strMsg)
+				if err != nil {
+					conn.Close()
+					rdb.Close()
+					db.Close()
 					log.Println("Send error:", err)
-					continue
+					return
 				}
 				err = rdb.Flush()
 				if err != nil {
+					conn.Close()
 					rdb.Close()
-					time.Sleep(500 * time.Millisecond)
-					rdb, _ = redis.Dial("tcp", redisSection.Key("host").String()+":"+redisSection.Key("port").String())
-					log.Println("Flush error:", err)
-					continue
+					db.Close()
+					log.Println("Send error:", err)
+					return
 				}
-				break
-			}
 
-			log.Println("Sent:", strMsg)
-			//Save the data after publishing
-			arrayString := strings.SplitN(strMsg, ":", 2)
-			sqlStatement := `INSERT INTO messages (channel,sender, message)
+				log.Println("Sent:", strMsg)
+				//Save the data after publishing
+				arrayString := strings.SplitN(strMsg, ":", 2)
+				sqlStatement := `INSERT INTO messages (channel,sender, message)
 						VALUES ($1, $2, $3)`
-			_, err = db.Exec(sqlStatement, channel, arrayString[0], arrayString[1])
-			if err != nil {
-				break
+				_, err = db.Exec(sqlStatement, channel, arrayString[0], arrayString[1])
+				if err != nil {
+					rdb.Close()
+					db.Close()
+					log.Println("Db error:", err)
+					break
+				}
 			}
 		}
+
 	}()
 
 	for {
-		// Get a connection from a pool
-		c, _ := redis.Dial("tcp", redisSection.Key("host").String()+":"+redisSection.Key("port").String())
-		psc := redis.PubSubConn{c}
-
-		// Set up subscriptions
-		err = psc.Subscribe(channel)
+		err := subscribe(conn, channel, redisSection)
 		if err != nil {
-			log.Println("Subs error:", err)
-			psc.Close()
-			c.Close()
-			time.Sleep(500 * time.Millisecond)
-			continue
+			log.Printf("Subscription failed: %v. Reconnecting...", err)
+			time.Sleep(2 * time.Second) // Delay before retrying
 		}
-
-		// While not a permanent error on the connection.
-		for c.Err() == nil {
-			switch v := psc.Receive().(type) {
-			case redis.Message:
-				log.Println("Receiving Message :" + string(v.Data))
-				if err := conn.WriteMessage(websocket.TextMessage, v.Data); err != nil {
-					log.Println("Write error:", err)
-					break
-				}
-
-				log.Println("Write Message :" + string(v.Data))
-			case redis.Subscription:
-				fmt.Printf("%s: %s %d\n", v.Channel, v.Kind, v.Count)
-				continue
-			case error:
-				break
-			}
-		}
-		psc.Close()
-		c.Close()
-		time.Sleep(500 * time.Millisecond)
 	}
 }

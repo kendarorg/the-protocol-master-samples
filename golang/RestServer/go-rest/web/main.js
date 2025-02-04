@@ -59,31 +59,81 @@ function submitUsername(event) {
     }
 }
 
+let localWebSocket = null;
+
+function trySend(counter,message){
+    if(counter<0){
+        console.log("timeout reached for "+message)
+    }
+    try {
+        console.log("trySend "+message)
+        localWebSocket.send(message);
+        console.log("trySendSucceeded "+message)
+    } catch (error) {
+        console.error(error);
+        counter--;
+        setTimeout(()=>{
+            trySend(counter,message);
+        }, 1000)
+    }
+}
+
 function startWebSocket() {
+    console.log("startWebSocket")
     const messages = document.getElementById('messages');
     const form = document.getElementById('form');
     const input = document.getElementById('input');
     const chatName = document.getElementById('chatName');
 
-    var domain = window.location.hostname;
-    var port = window.location.port;
+    const domain = window.location.hostname;
+    const port = window.location.port;
 
-    const ws = new WebSocket('ws://'+domain+':'+port+'/ws/'+chatName.value.trim());
-
-    ws.onmessage = (event) => {
+    localWebSocket = new WebSocket('ws://'+domain+':'+port+'/ws/'+chatName.value.trim());
+    var eventListener = (event) => {
+        event.preventDefault();
+        const message = input.value.trim();
+        if (message) {
+            let toSend = username + ': ' + message;
+            var counter = 10;
+            input.value = '';
+            trySend(counter,toSend);
+        }
+    }
+    localWebSocket.onmessage = (event) => {
+        console.log("startWebSocket::onmessage")
         const message = document.createElement('div');
         message.textContent = event.data;
         messages.appendChild(message);
     };
 
-    form.addEventListener('submit', (event) => {
-        event.preventDefault();
-        const message = input.value.trim();
-        if (message) {
-            ws.send(username + ': ' + message);
-            input.value = '';
+    localWebSocket.onclose =  (event) => {
+        console.log("startWebSocket::onclose")
+        localWebSocket = null;
+        try {
+            form.removeEventListener('submit', eventListener)
+        } catch (error) {
+            console.error(error);
+            // Expected output: ReferenceError: nonExistentFunction is not defined
+            // (Note: the exact output may be browser-dependent)
         }
-    });
+        // connection closed, discard old websocket and create a new one in 5s
+        setTimeout(startWebSocket, 1000)
+    }
+
+    localWebSocket.onerror =  (event) => {
+        console.log("startWebSocket::onerror")
+        try {
+            // connection closed, discard old websocket and create a new one in 5s
+            localWebSocket.close()
+            form.removeEventListener('submit', eventListener)
+        } catch (error) {
+            console.error(error);
+            // Expected output: ReferenceError: nonExistentFunction is not defined
+            // (Note: the exact output may be browser-dependent)
+        }
+    }
+
+    form.addEventListener('submit', eventListener);
 }
 
 // Add event listener for Enter key in the username input field
