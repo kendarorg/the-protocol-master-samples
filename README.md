@@ -7,7 +7,7 @@
 * <a href="#nme">Simple to-do app</a> (.net-core, mysql, EF)
 * <a href="#jmm">Java Quotations app</a> (java, mysql, mqtt)
 * <a href="#pma">Python Quotations app</a> (python, mysql, amqp-091)
-<a href="#gca">Golang Chat app</a> (golang, postgres, redis)
+* <a href="#gca">Golang Chat app</a> (golang, postgres, redis)
 
 These are simple environments to test [The Protocol Master](https://github.com/kendarorg/the-protocol-master)
 application. We will mock without a line of code the database and a rest api of a simple TODO web application.
@@ -15,7 +15,7 @@ application. We will mock without a line of code the database and a rest api of 
 * The documentation for the protocol master is [here](https://github.com/kendarorg/the-protocol-master)
 
 
-### If you like it Buy me a coffe :)
+### If you like it Buy me a coffee :)
 
 [![paypal](https://www.paypalobjects.com/en_US/i/btn/btn_donateCC_LG.gif)](https://www.paypal.com/paypalme/kendarorg/1)
 
@@ -47,7 +47,7 @@ further info on the subject)
 (Thanks [patrick-baker](https://github.com/patrick-baker/to-do-list) for the UI!)
 
 If you have Intellij or know what are *.http files you can configure [this](net-core/someutilities.http) setting the
-myhost variable to ```DOCKER_SERVER```
+`myhost` variable to ```DOCKER_SERVER```
 
 ### Startup
 
@@ -56,10 +56,10 @@ myhost variable to ```DOCKER_SERVER```
 * Navigate to the "net-core" directory
 * Run ```docker-compose up``` to generate the environment
 * Several containers will be created
-    * net-core-tpm: The Protocol Master server
-    * net-core-mysql: The mysql database
-    * net-core-http: The web-ui
-    * net-core-rest: The rest back-end
+  * net-core-tpm: The Protocol Master server
+  * net-core-mysql: The mysql database
+  * net-core-http: The web-ui
+  * net-core-rest: The rest back-end
 * Download the SSL certificate
   from [http://localhost:8081/api/protocols/http-01/plugins/ssl-plugin/der](http://localhost:8081/api/protocols/http-01/plugins/ssl-plugin/der)
   and install
@@ -77,9 +77,9 @@ but for the sake of simplicity please delete all tasks before continuing the tut
   protocols [http://localhost:8081/api/protocols/all/plugins/record-plugin/start](http://localhost:8081/api/protocols/all/plugins/record-plugin/start)
 * Navigate to [http://net-core-http/index.html](http://net-core-http/index.html)
 * Insert a new task and click Submit
-    * Task Name: Laundry
-    * Priority: High
-    * Notes: Separate Colors
+  * Task Name: Laundry
+  * Priority: High
+  * Notes: Separate Colors
 * Set the status to Completed
 * Click Update
 * Click Archive
@@ -98,7 +98,7 @@ but for the sake of simplicity please delete all tasks before continuing the tut
 * Redo exactly all the actions
 * And everything will work!!!! But with a fake DB
 * Stop all the
-  replayings [http://localhost:8081/api/protocols/all/plugins/replay-plugin/stop](http://localhost:8081/api/protocols/all/plugins/replay-plugin/stop)
+  replaying [http://localhost:8081/api/protocols/all/plugins/replay-plugin/stop](http://localhost:8081/api/protocols/all/plugins/replay-plugin/stop)
 
 ### Look Ma, NOT EVEN THE API SERVER
 
@@ -109,13 +109,13 @@ but for the sake of simplicity please delete all tasks before continuing the tut
 * Redo exactly all the actions
 * And everything will work!!!! But with a fake Rest API!!
 * Stop all the
-  replayings [http://localhost:8081/api/protocols/all/plugins/replay-plugin/stop](http://localhost:8081/api/protocols/all/plugins/replay-plugin/stop)
+  replaying [http://localhost:8081/api/protocols/all/plugins/replay-plugin/stop](http://localhost:8081/api/protocols/all/plugins/replay-plugin/stop)
 
 <a id="jmm"></a>
 ## Simple quotes app (java,mysql,mqtt)
 
 If you have Intellij or know what are *.http files you can configure [this](net-core/someutilities.http) setting the
-myhost variable to ```DOCKER_SERVER```
+`myhost` variable to ```DOCKER_SERVER```
 
 You can check the quotations going to ```http:\\java-rest\index.html```
 
@@ -126,11 +126,11 @@ You can check the quotations going to ```http:\\java-rest\index.html```
 * Navigate to the "java" directory
 * Run ```docker-compose up``` to generate the environment
 * Several containers will be created
-    * java-tpm: The Protocol Master server
-    * java-mysql: The mysql database
-    * java-mosquitto: The mqtt broker
-    * java-rest: The application reading mqtt messages (and showing on [APIs](java-rest/swagger-ui/index.html))
-    * java-quote-generator: The quote generation (every 10 seconds random stock quotes)
+  * java-tpm: The Protocol Master server
+  * java-mysql: The mysql database
+  * java-mosquitto: The mqtt broker
+  * java-rest: The application reading mqtt messages (and showing on [APIs](java-rest/swagger-ui/index.html))
+  * java-quote-generator: The quote generation (every 10 seconds random stock quotes)
 * Download the SSL certificate
   from [http://localhost:8081/api/protocols/http-01/plugins/ssl-plugin/der](http://localhost:8081/api/protocols/http-01/plugins/ssl-plugin/der)
   and install
@@ -160,7 +160,7 @@ Now your environment is ready for a real test!
 * Check the new data on ```quotations``` table
 * Mqtt simulation... done!
 * Stop the replaying on all
-    protocols [http://localhost:8081/api/protocols/all/plugins/replay-plugin/stop](http://localhost:8081/api/protocols/all/plugins/record-plugin/stop)
+  protocols [http://localhost:8081/api/protocols/all/plugins/replay-plugin/stop](http://localhost:8081/api/protocols/all/plugins/record-plugin/stop)
 
 ### Faking a message
 
@@ -171,9 +171,9 @@ Now your environment is ready for a real test!
 * Open the [connections](http://localhost:8081/swagger-ui/index.html#/plugins%2Fmqtt%2Fmqtt-01/get_api_protocols_mqtt_01_plugins_publish_plugin_connections) API and check the active connections
 * Open the [message sending](http://localhost:8081/swagger-ui/index.html#/plugins%2Fmqtt%2Fmqtt-01/post_api_protocols_mqtt_01_plugins_publish_plugin_connections__connectionId___topic_) API
 * Insert the following
-  * connectinId: -1 (all the subscribed)
+  * connectionId: -1 (all the subscribed)
   * topic: quotations
-  * Request body (the unixtimestamp must be in the future of nothing will appear :P )
+  * Request body (the `unixtimestamp` must be in the future of nothing will appear :P )
 
 <pre>
 {
@@ -189,7 +189,7 @@ Now your environment is ready for a real test!
 ## Simple quotes app (python,mysql,amqp)
 
 If you have Intellij or know what are *.http files you can configure [this](net-core/someutilities.http) setting the
-myhost variable to ```DOCKER_SERVER```
+`myhost` variable to ```DOCKER_SERVER```
 
 You can check the quotations going to ```http:\\py-rest\index.html```
 
@@ -282,7 +282,7 @@ Now your environment is ready for a real test!
 
 * Open the [message sending](http://localhost:8081/swagger-ui/index.html#/plugins%2Fredis%2Fredis-01/post_api_protocols_redis_01_plugins_publish_plugin_connections__connectionId___topic_) API
 * Insert the following
-  * connectinId: -1 (all the subscribed)
+  * connectionId: -1 (all the subscribed)
   * channel: common
   * Request body
 
