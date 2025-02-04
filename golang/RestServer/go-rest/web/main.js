@@ -65,6 +65,12 @@ function trySend(counter,message){
     if(counter<0){
         console.log("timeout reached for "+message)
     }
+    if(localWebSocket==null){
+        counter--;
+        setTimeout(()=>{
+            trySend(counter,message);
+        }, 200)
+    }
     try {
         console.log("trySend "+message)
         localWebSocket.send(message);
@@ -74,7 +80,7 @@ function trySend(counter,message){
         counter--;
         setTimeout(()=>{
             trySend(counter,message);
-        }, 1000)
+        }, 200)
     }
 }
 
@@ -84,11 +90,12 @@ function startWebSocket() {
     const form = document.getElementById('form');
     const input = document.getElementById('input');
     const chatName = document.getElementById('chatName');
+    const username = document.getElementById('username').value.trim();
 
     const domain = window.location.hostname;
     const port = window.location.port;
 
-    localWebSocket = new WebSocket('ws://'+domain+':'+port+'/ws/'+chatName.value.trim());
+    localWebSocket = new WebSocket('ws://'+domain+':'+port+'/ws/'+chatName.value.trim()+"/"+username);
     var eventListener = (event) => {
         event.preventDefault();
         const message = input.value.trim();

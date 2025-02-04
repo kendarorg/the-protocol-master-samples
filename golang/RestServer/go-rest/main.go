@@ -46,7 +46,7 @@ func main() {
 		handleStatus(response, request)
 	})
 
-	router.HandleFunc("/ws/{channel}", func(response http.ResponseWriter, request *http.Request) {
+	router.HandleFunc("/ws/{channel}/{user}", func(response http.ResponseWriter, request *http.Request) {
 		handleWebSocket(response, request, dbSection, redisSection)
 	})
 
@@ -82,7 +82,7 @@ func handleInit(response http.ResponseWriter, request *http.Request, dbSection *
 
 	defer db.Close()
 	sqlStatement := `SELECT * FROM messages WHERE
-						CHANNEL=$1 ORDER BY id DESC`
+						CHANNEL=$1 ORDER BY id ASC`
 	rows, err := db.Query(sqlStatement, channelToQuery)
 
 	response.Header().Set("Content-Type", "application/json")
@@ -155,10 +155,18 @@ func subscribe(conn *websocket.Conn, channelName string, redisSection *ini.Secti
 	}
 }
 
+type messageToParse struct {
+	message string
+	sent    bool
+}
+
+var connectionsMap = make(map[string]messageToParse)
+
 func handleWebSocket(response http.ResponseWriter, request *http.Request, dbSection *ini.Section, redisSection *ini.Section) {
 
 	vars := mux.Vars(request)
 	channel := vars["channel"]
+	username := vars["username"]
 
 	//Upgrade to websocket
 	conn, err := upgrader.Upgrade(response, request, nil)
@@ -175,58 +183,80 @@ func handleWebSocket(response http.ResponseWriter, request *http.Request, dbSect
 		dbSection.Key("db").String())
 
 	go func() {
+		_, ok := connectionsMap[username]
+		if !ok {
+			connectionsMap[username] = messageToParse{
+				message: "",
+				sent:    false,
+			}
+		} else {
+			toPrint, _ := connectionsMap[username]
+			log.Printf("Status unsent " + toPrint.message + " " + strconv.FormatBool(toPrint.sent))
+		}
+		connectionData, ok := connectionsMap[username]
 		for {
-
+			log.Printf("Reconnecting")
 			rdb, err := redis.Dial("tcp", redisSection.Key("host").String()+":"+redisSection.Key("port").String())
 			if err != nil {
 				log.Printf("Subscription failed: %v. Reconnecting...", err)
-				time.Sleep(2 * time.Second)
-				conn.Close()
-				return
+				time.Sleep(200 * time.Millisecond)
+				continue
 			}
 			db, err := sql.Open("postgres", psqlInfo)
 			if err != nil {
 				log.Printf("Subscription failed: %v. Reconnecting...", err)
-				time.Sleep(2 * time.Second) // Delay before retrying
+				time.Sleep(200 * time.Millisecond)
 				rdb.Close()
-				conn.Close()
-				return
+				continue
 			}
 			for {
-
-				//Read all messages
-				_, msg, err := conn.ReadMessage()
-				if err != nil {
-					conn.Close()
-					rdb.Close()
-					db.Close()
-					log.Println("Read error:", err)
-					return
+				if connectionData.message == "" {
+					//Read all messages
+					_, msg, err := conn.ReadMessage()
+					if err != nil {
+						conn.Close()
+						rdb.Close()
+						db.Close()
+						log.Println("Read error:", err)
+						time.Sleep(200 * time.Millisecond)
+						return
+					}
+					connectionData.message = string(msg)
 				}
 
-				//And publish them
-				strMsg := string(msg)
+				if connectionData.sent == false {
+					//And publish them
+					err = rdb.Send("PUBLISH", channel, connectionData.message)
+					if err != nil {
+						rdb.Close()
+						db.Close()
+						log.Println("Send error 1:", err)
+						time.Sleep(200 * time.Millisecond)
+						break
+					}
+					err = rdb.Flush()
+					if err != nil {
+						rdb.Close()
+						db.Close()
+						log.Println("Send error 2:", err)
+						time.Sleep(200 * time.Millisecond)
+						break
+					}
+					_, err := rdb.Receive()
+					if err != nil {
+						rdb.Close()
+						db.Close()
+						log.Println("Send error 3:", err)
+						time.Sleep(200 * time.Millisecond)
+						break
+					}
 
-				err = rdb.Send("PUBLISH", channel, strMsg)
-				if err != nil {
-					conn.Close()
-					rdb.Close()
-					db.Close()
-					log.Println("Send error:", err)
-					return
-				}
-				err = rdb.Flush()
-				if err != nil {
-					conn.Close()
-					rdb.Close()
-					db.Close()
-					log.Println("Send error:", err)
-					return
+					log.Println("Sent:", connectionData.message)
+					connectionData.sent = true
 				}
 
-				log.Println("Sent:", strMsg)
 				//Save the data after publishing
-				arrayString := strings.SplitN(strMsg, ":", 2)
+				arrayString := strings.SplitN(connectionData.message, ":", 2)
 				sqlStatement := `INSERT INTO messages (channel,sender, message)
 						VALUES ($1, $2, $3)`
 				_, err = db.Exec(sqlStatement, channel, arrayString[0], arrayString[1])
@@ -236,6 +266,9 @@ func handleWebSocket(response http.ResponseWriter, request *http.Request, dbSect
 					log.Println("Db error:", err)
 					break
 				}
+				log.Println("Stored on Db")
+				connectionData.sent = false
+				connectionData.message = ""
 			}
 		}
 
