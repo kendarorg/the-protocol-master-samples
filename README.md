@@ -7,7 +7,7 @@
 * <a href="#nme">Simple to-do app</a> (.net-core, mysql, EF)
 * <a href="#jmm">Java Quotations app</a> (java, mysql, mqtt)
 * <a href="#pma">Python Quotations app</a> (python, mysql, amqp-091)
-<!-- * <a href="#gca">Golang Chat app</a> (golang, postgres, redis) -->
+<a href="#gca">Golang Chat app</a> (golang, postgres, redis)
 
 These are simple environments to test [The Protocol Master](https://github.com/kendarorg/the-protocol-master)
 application. We will mock without a line of code the database and a rest api of a simple TODO web application.
@@ -236,7 +236,6 @@ Now your environment is ready for a real test!
 * Stop the replaying on all
   protocols [http://localhost:8081/api/protocols/all/plugins/replay-plugin/stop](http://localhost:8081/api/protocols/all/plugins/record-plugin/stop)
 
-<!--
 <a id="gca"></a>
 ## Golang Chat app (golang, postgres, redis)
 
@@ -263,7 +262,6 @@ Now your environment is ready for a real test!
 
 * Start the recording on redis-01
   protocol [http://localhost:8081/api/protocols/redis-01/plugins/record-plugin/start](http://localhost:8081/api/protocols/redis-01/plugins/record-plugin/start)
-* Delete all records on ```db.messages``` table
 * Open the proxied browser on [http://go-rest/index.html](http://go-rest/index.html) and login as "user1" on channel "common"
 * Open another tab of the proxied browser on [http://go-rest/index.html](http://go-rest/index.html) and login as "user2" on channel "common"
 * Write some messages on both browsers
@@ -274,15 +272,28 @@ Now your environment is ready for a real test!
 
 ### Look Ma, NO BROKER
 
-* Stop the ```py-quote-generation``` container
-* Stop the ```py-rest``` container
-* Delete all data on ```quotations``` table
 * Start the replaying on
-  MQTT [http://localhost:8081/api/protocols/amqp-01/plugins/replay-plugin/start](http://localhost:8081/api/protocols/amqp-01/plugins/replay-plugin/start)
-* Check the new data on ```quotations``` table
-* Mqtt simulation... done!
-* Stop the recording on all
+  REDIS [http://localhost:8081/api/protocols/redis-01/plugins/replay-plugin/start](http://localhost:8081/api/protocols/redis-01/plugins/replay-plugin/start)
+* Restart inserting data on the messages
+* Stop the replaying on all
   protocols [http://localhost:8081/api/protocols/all/plugins/replay-plugin/stop](http://localhost:8081/api/protocols/all/plugins/record-plugin/stop)
--->
+
+### Fake messaging
+
+* Open the [message sending](http://localhost:8081/swagger-ui/index.html#/plugins%2Fredis%2Fredis-01/post_api_protocols_redis_01_plugins_publish_plugin_connections__connectionId___topic_) API
+* Insert the following
+  * connectinId: -1 (all the subscribed)
+  * channel: common
+  * Request body
+
+<pre>
+{
+  "contentType": "text/plain",
+  "body": "fake: message"
+}
+</pre>
+
+* Look on your message on the chat!
+
 
 
