@@ -22,31 +22,34 @@
         },
         "rate-limit-plugin": {
           "limitSites": [
-            "python-rest"
+            "@(py-rest|localhost|127.0.0.1)\\/api"
           ],
           "rateLimit": 120,
           "warningThresholdPercent": 80,
-          "resetTimeWindowSeconds": 20
+          "resetTimeWindowSeconds": 60
         },
         "latency-plugin": {
+          "latencySites": [
+            "@(py-rest|localhost|127.0.0.1)\\/api"
+          ],
           "minMs": 50,
           "maxMs": 5000
         },
         "error-plugin": {
+          "errorSites": [
+            "@(py-rest|localhost|127.0.0.1)\\/api"
+          ],
           "showError": 500,
           "errorMessage": "Random Generated Error",
           "errorPercent": 5
         },
         "record-plugin": {
           "recordSites": [
-            "py-http",
             "py-rest"
           ]
         },
         "replay-plugin": {
-          "matchSites": [
-            "py-rest"
-          ]
+
         },
         "rewrite-plugin": {
           "rewritesFile": "rewrite.json"

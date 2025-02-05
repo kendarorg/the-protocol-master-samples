@@ -17,15 +17,41 @@
         ]
       },
       "plugins": {
+        "mock-plugin": {
+          "dataDir": "mocks"
+        },
+        "rate-limit-plugin": {
+          "limitSites": [
+            "@(go-rest|localhost|127.0.0.1)\\/api"
+          ],
+          "rateLimit": 120,
+          "warningThresholdPercent": 80,
+          "resetTimeWindowSeconds": 60
+        },
+        "latency-plugin": {
+          "latencySites": [
+            "@(go-rest|localhost|127.0.0.1)\\/api"
+          ],
+          "minMs": 50,
+          "maxMs": 5000
+        },
+        "error-plugin": {
+          "errorSites": [
+            "@(go-rest|localhost|127.0.0.1)\\/api"
+          ],
+          "showError": 500,
+          "errorMessage": "Random Generated Error",
+          "errorPercent": 5
+        },
         "record-plugin": {
           "recordSites": [
-            "go-http"
+            "go-rest",
+            "localhost",
+            "127.0.0.1"
           ]
         },
         "replay-plugin": {
-          "matchSites": [
 
-          ]
         },
         "rewrite-plugin": {
           "rewritesFile": "rewrite.json"

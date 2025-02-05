@@ -22,17 +22,23 @@
         },
         "rate-limit-plugin": {
           "limitSites": [
-            "net-core-rest"
+            "@(net-core-rest|localhost|127.0.0.1)\\/api"
           ],
           "rateLimit": 120,
           "warningThresholdPercent": 80,
-          "resetTimeWindowSeconds": 20
+          "resetTimeWindowSeconds": 60
         },
         "latency-plugin": {
+          "latencySites": [
+            "@(net-core-rest|localhost|127.0.0.1)\\/api"
+          ],
           "minMs": 50,
           "maxMs": 5000
         },
         "error-plugin": {
+          "errorSites": [
+            "@(net-core-rest|localhost|127.0.0.1)\\/api"
+          ],
           "showError": 500,
           "errorMessage": "Random Generated Error",
           "errorPercent": 5
@@ -40,29 +46,17 @@
         "record-plugin": {
           "recordSites": [
             "net-core-http",
-            "net-core-rest"
+            "net-core-rest",
+            "localhost",
+            "127.0.0.1"
           ]
         },
         "replay-plugin": {
-          "matchSites": [
-            "net-core-rest"
-          ]
+
         },
         "rewrite-plugin": {
           "rewritesFile": "rewrite.json"
         }
-      }
-    },
-    "mqtt-01": {
-      "protocol": "mqtt",
-      "port": 1883,
-      "login": "remotelogin",
-      "password": "remotepassword",
-      "timeout": 30,
-      "connectionString": "tcp://localhost:1883",
-      "plugins": {
-        "record-plugin": {},
-        "replay-plugin": {}
       }
     },
     "mysql-01": {
