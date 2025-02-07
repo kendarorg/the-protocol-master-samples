@@ -39,7 +39,7 @@ function submitUsername(event) {
     if (username) {
         document.getElementById('usernameInput').style.display = 'none';
         document.getElementById('chat').style.display = 'block';
-        getData("/api/"+chatName,"GET",(code, response) => {
+        getData("/api/chat/"+chatName,"GET",(code, response) => {
             console.log("Loading messages for chat "+chatName)
             if(code===200){
                 const messages = document.getElementById('messages');

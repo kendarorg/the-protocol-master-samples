@@ -22,7 +22,7 @@
         },
         "rate-limit-plugin": {
           "limitSites": [
-            "@(net-core-rest|localhost|127.0.0.1)\\/api"
+            "@(net-core-rest|localhost|127.0.0.1)\\/api/tasks.*"
           ],
           "rateLimit": 120,
           "warningThresholdPercent": 80,
@@ -30,29 +30,28 @@
         },
         "latency-plugin": {
           "latencySites": [
-            "@(net-core-rest|localhost|127.0.0.1)\\/api/.*"
+            "@(net-core-rest|localhost|127.0.0.1)\\/api/tasks.*"
           ],
           "minMs": 50,
           "maxMs": 5000
         },
         "error-plugin": {
           "errorSites": [
-            "@(net-core-rest|localhost|127.0.0.1)\\/api/.*"
+            "@(net-core-rest|localhost|127.0.0.1)\\/api/tasks.*"
           ],
           "showError": 500,
           "errorMessage": "Random Generated Error",
-          "errorPercent": 5
+          "errorPercent": 70
         },
         "record-plugin": {
           "recordSites": [
-            "net-core-http",
-            "net-core-rest",
-            "localhost",
-            "127.0.0.1"
+            "@(net-core-rest|localhost|127.0.0.1)\\/api/tasks.*"
           ]
         },
         "replay-plugin": {
-
+          "matchSites": [
+            "@(net-core-rest|localhost|127.0.0.1)\\/api/tasks.*"
+          ]
         },
         "rewrite-plugin": {
           "rewritesFile": "rewrite.json"

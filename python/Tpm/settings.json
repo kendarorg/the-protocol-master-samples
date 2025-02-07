@@ -22,7 +22,7 @@
         },
         "rate-limit-plugin": {
           "limitSites": [
-            "@(py-rest|localhost|127.0.0.1)\\/api/.*"
+            "@(py-rest|localhost|127.0.0.1)\\/api/quotation.*"
           ],
           "rateLimit": 120,
           "warningThresholdPercent": 80,
@@ -30,25 +30,28 @@
         },
         "latency-plugin": {
           "latencySites": [
-            "@(py-rest|localhost|127.0.0.1)\\/api/.*"
+            "@(py-rest|localhost|127.0.0.1)\\/api/quotation.*"
           ],
           "minMs": 50,
           "maxMs": 5000
         },
         "error-plugin": {
           "errorSites": [
-            "@(py-rest|localhost|127.0.0.1)\\/api/.*"
+            "@(py-rest|localhost|127.0.0.1)\\/api/quotation.*"
           ],
           "showError": 500,
           "errorMessage": "Random Generated Error",
-          "errorPercent": 5
+          "errorPercent": 70
         },
         "record-plugin": {
           "recordSites": [
-            "py-rest"
+            "@(py-rest|localhost|127.0.0.1)\\/api/quotation.*"
           ]
         },
         "replay-plugin": {
+          "matchSites": [
+            "@(py-rest|localhost|127.0.0.1)\\/api/quotation.*"
+          ]
 
         },
         "rewrite-plugin": {
