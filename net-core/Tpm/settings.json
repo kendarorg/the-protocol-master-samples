@@ -30,14 +30,14 @@
         },
         "latency-plugin": {
           "latencySites": [
-            "@(net-core-rest|localhost|127.0.0.1)\\/api"
+            "@(net-core-rest|localhost|127.0.0.1)\\/api/.*"
           ],
           "minMs": 50,
           "maxMs": 5000
         },
         "error-plugin": {
           "errorSites": [
-            "@(net-core-rest|localhost|127.0.0.1)\\/api"
+            "@(net-core-rest|localhost|127.0.0.1)\\/api/.*"
           ],
           "showError": 500,
           "errorMessage": "Random Generated Error",

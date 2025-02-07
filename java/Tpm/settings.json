@@ -22,7 +22,7 @@
         },
         "rate-limit-plugin": {
           "limitSites": [
-            "@(java-rest|localhost|127.0.0.1)\\/api"
+            "@(java-rest|localhost|127.0.0.1)\\/api/.*"
           ],
           "rateLimit": 120,
           "warningThresholdPercent": 80,
@@ -30,14 +30,14 @@
         },
         "latency-plugin": {
           "latencySites": [
-            "@(java-rest|localhost|127.0.0.1)\\/api"
+            "@(java-rest|localhost|127.0.0.1)\\/api/.*"
           ],
           "minMs": 50,
           "maxMs": 5000
         },
         "error-plugin": {
           "errorSites": [
-            "@(java-rest|localhost|127.0.0.1)\\/api"
+            "@(java-rest|localhost|127.0.0.1)\\/api/.*"
           ],
           "showError": 500,
           "errorMessage": "Random Generated Error",
