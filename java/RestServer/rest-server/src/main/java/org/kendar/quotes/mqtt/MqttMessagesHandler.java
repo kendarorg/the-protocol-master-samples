@@ -62,9 +62,11 @@ public class MqttMessagesHandler {
                 System.err.println("connectionLost: " + cause.getMessage());
                 //for (var i = 0; i < 3; i++) {
                 try {
-                    var connection = queueClient.connect();
-                    connection.setCallback(connect(connection));
-                    System.err.println("SUBSCRIBED POST RECONNET");
+                    var connectionInt = queueClient.connect();
+                    connectionInt.setCallback(connect(connectionInt));
+                    connectionInt.subscribe(topic, qos);
+                    System.err.println("SUBSCRIBED POST RECONNECT");
+                    connection.close();
                 } catch (Exception e) {
                     System.err.println("SUBSCRIBED POST RECONNECT"+e.getMessage());
                 }
@@ -82,6 +84,7 @@ public class MqttMessagesHandler {
     public void init() throws MqttException {
         var connection = queueClient.connect();
         connection.setCallback(connect(connection));
+        connection.subscribe(topic, qos);
         System.err.println("SUBSCRIBED");
     }
 }
