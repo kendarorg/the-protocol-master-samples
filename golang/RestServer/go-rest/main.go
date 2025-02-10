@@ -38,7 +38,7 @@ func main() {
 
 	router := mux.NewRouter()
 
-	router.HandleFunc("/api/{channel}", func(response http.ResponseWriter, request *http.Request) {
+	router.HandleFunc("/api/chat/{channel}", func(response http.ResponseWriter, request *http.Request) {
 		handleInit(response, request, dbSection)
 	})
 

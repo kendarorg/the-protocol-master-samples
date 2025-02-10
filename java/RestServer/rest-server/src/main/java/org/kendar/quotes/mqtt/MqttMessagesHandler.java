@@ -2,10 +2,7 @@ package org.kendar.quotes.mqtt;
 
 import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.ObjectMapper;
-import org.eclipse.paho.client.mqttv3.IMqttDeliveryToken;
-import org.eclipse.paho.client.mqttv3.MqttCallback;
-import org.eclipse.paho.client.mqttv3.MqttException;
-import org.eclipse.paho.client.mqttv3.MqttMessage;
+import org.eclipse.paho.client.mqttv3.*;
 import org.kendar.quotes.config.MqttClientFactory;
 import org.kendar.quotes.data.Quotation;
 import org.kendar.quotes.data.QuotationsRepository;
@@ -32,8 +29,18 @@ public class MqttMessagesHandler {
         this.topic = topic;
     }
 
-    private MqttCallback connect(){
-        return new MqttCallback() {
+    private MqttCallback connect(IMqttClient connection){
+        return new MqttCallbackExtended() {
+            @Override
+            public void connectComplete(boolean reconnect, String serverURI) {
+
+                try {
+                    connection.subscribe(topic, qos);
+                } catch (MqttException e) {
+                    throw new RuntimeException("UNABLE TO SUBSCRIBE",e);
+                }
+            }
+
             public void messageArrived(String topic, MqttMessage message) {
                 var messageText = new String(message.getPayload());
                 System.out.println("MESSAGE ARRIVED: " + messageText);
@@ -55,12 +62,13 @@ public class MqttMessagesHandler {
                 System.err.println("connectionLost: " + cause.getMessage());
                 //for (var i = 0; i < 3; i++) {
                 try {
-                    var connection = queueClient.connect();
-                    connection.setCallback(connect());
-                    connection.subscribe(topic, qos);
-                    System.err.println("SUBSCRIBED POST RECONNET");
+                    var connectionInt = queueClient.connect();
+                    connectionInt.setCallback(connect(connectionInt));
+                    connectionInt.subscribe(topic, qos);
+                    System.err.println("SUBSCRIBED POST RECONNECT");
+                    connection.close();
                 } catch (Exception e) {
-                    System.err.println(e.getMessage());
+                    System.err.println("SUBSCRIBED POST RECONNECT"+e.getMessage());
                 }
                 //}
             }
@@ -75,7 +83,7 @@ public class MqttMessagesHandler {
     @PostConstruct
     public void init() throws MqttException {
         var connection = queueClient.connect();
-        connection.setCallback(connect());
+        connection.setCallback(connect(connection));
         connection.subscribe(topic, qos);
         System.err.println("SUBSCRIBED");
     }
