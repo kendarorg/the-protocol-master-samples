@@ -16,6 +16,12 @@ public class QuotationController {
         this.repository = repository;
     }
 
+    @DeleteMapping(value = "/symbols", produces = "application/json")
+    String clearQuotationsData() {
+        repository.deleteAll();
+        return "OK";
+    }
+
 
     @GetMapping(value = "/symbols", produces = "application/json")
     List<QuotationSymbol> findAllSymbols() {
