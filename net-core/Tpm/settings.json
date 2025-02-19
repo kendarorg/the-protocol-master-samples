@@ -18,7 +18,7 @@
       },
       "plugins": {
         "mock-plugin": {
-          "dataDir": "mocks"
+
         },
         "rate-limit-plugin": {
           "limitSites": [
