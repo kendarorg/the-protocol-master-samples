@@ -61,7 +61,7 @@ If you have Intellij or know what are *.http files you can configure [this](net-
   * net-core-http: The web-ui
   * net-core-rest: The rest back-end
 * Download the SSL certificate
-  from [http://localhost:8081/api/protocols/http-01/plugins/ssl-plugin/der](http://localhost:8081/api/protocols/http-01/plugins/ssl-plugin/der)
+  from [http://net-core-tpm:8081/api/protocols/http-01/plugins/ssl-plugin/der](http://net-core-tpm:8081/api/protocols/http-01/plugins/ssl-plugin/der)
   and install
   it as a trusted root certificate
 
@@ -74,7 +74,7 @@ but for the sake of simplicity please delete all tasks before continuing the tut
 ### Recording
 
 * Start the recording on all
-  protocols [http://localhost:8081/api/protocols/all/plugins/record-plugin/start](http://localhost:8081/api/protocols/all/plugins/record-plugin/start)
+  protocols [http://net-core-tpm:8081/api/protocols/all/plugins/record-plugin/start](http://net-core-tpm:8081/api/protocols/all/plugins/record-plugin/start)
 * Navigate to [http://net-core-http/index.html](http://net-core-http/index.html)
 * Insert a new task and click Submit
   * Task Name: Laundry
@@ -85,31 +85,31 @@ but for the sake of simplicity please delete all tasks before continuing the tut
 * Click Archive
 * Go on Archive tab (upper right) and notice the task
 * Stop the recording on all
-  protocols [http://localhost:8081/api/protocols/all/plugins/record-plugin/stop](http://localhost:8081/api/protocols/all/plugins/record-plugin/stop)
+  protocols [http://net-core-tpm:8081/api/protocols/all/plugins/record-plugin/stop](http://net-core-tpm:8081/api/protocols/all/plugins/record-plugin/stop)
 * You can download all the
-  recordings! [http://localhost:8081/api/storage/download](http://localhost:8081/api/storage/download) as a zip file
+  recordings! [http://net-core-tpm:8081/api/storage/download](http://net-core-tpm:8081/api/storage/download) as a zip file
 
 ### Look Ma, NO DATABASE
 
 * Stop the ```db_mysql``` container
 * Start the replaying on
-  MySQL [http://localhost:8081/api/protocols/mysql-01/plugins/replay-plugin/start](http://localhost:8081/api/protocols/mysql-01/plugins/replay-plugin/start)
+  MySQL [http://net-core-tpm:8081/api/protocols/mysql-01/plugins/replay-plugin/start](http://net-core-tpm:8081/api/protocols/mysql-01/plugins/replay-plugin/start)
 * Refresh the page [http://net-core-http/index.html](http://net-core-http/index.html)
 * Redo exactly all the actions
 * And everything will work!!!! But with a fake DB
 * Stop all the
-  replaying [http://localhost:8081/api/protocols/all/plugins/replay-plugin/stop](http://localhost:8081/api/protocols/all/plugins/replay-plugin/stop)
+  replaying [http://net-core-tpm:8081/api/protocols/all/plugins/replay-plugin/stop](http://net-core-tpm:8081/api/protocols/all/plugins/replay-plugin/stop)
 
 ### Look Ma, NOT EVEN THE API SERVER
 
 * Stop the ```net-core-rest``` container
 * Start the replaying on
-  MySQL [http://localhost:8081/api/protocols/http-01/plugins/replay-plugin/start](http://localhost:8081/api/protocols/http-01/plugins/replay-plugin/start)
+  MySQL [http://net-core-tpm:8081/api/protocols/http-01/plugins/replay-plugin/start](http://net-core-tpm:8081/api/protocols/http-01/plugins/replay-plugin/start)
 * Refresh the page [http://net-core-http/index.html](http://net-core-http/index.html)
 * Redo exactly all the actions
 * And everything will work!!!! But with a fake Rest API!!
 * Stop all the
-  replaying [http://localhost:8081/api/protocols/all/plugins/replay-plugin/stop](http://localhost:8081/api/protocols/all/plugins/replay-plugin/stop)
+  replaying [http://net-core-tpm:8081/api/protocols/all/plugins/replay-plugin/stop](http://net-core-tpm:8081/api/protocols/all/plugins/replay-plugin/stop)
 
 <a id="jmm"></a>
 ## Simple quotes app (java,mysql,mqtt)
@@ -132,7 +132,7 @@ You can check the quotations going to ```http:\\java-rest\index.html```
   * java-rest: The application reading mqtt messages (and showing on [APIs](java-rest/swagger-ui/index.html))
   * java-quote-generator: The quote generation (every 10 seconds random stock quotes)
 * Download the SSL certificate
-  from [http://localhost:8081/api/protocols/http-01/plugins/ssl-plugin/der](http://localhost:8081/api/protocols/http-01/plugins/ssl-plugin/der)
+  from [http://java-tpm:8081/api/protocols/http-01/plugins/ssl-plugin/der](http://java-tpm:8081/api/protocols/http-01/plugins/ssl-plugin/der)
   and install
   it as a trusted root certificate
 * Connect your mysql ui to ```DOCKER_HOST:23306``` and use the database ```db```
@@ -142,13 +142,13 @@ Now your environment is ready for a real test!
 ### Recording
 
 * Start the recording on mqtt-01
-  protocol [http://localhost:8081/api/protocols/mqtt-01/plugins/record-plugin/start](http://localhost:8081/api/protocols/mqtt-01/plugins/record-plugin/start)
+  protocol [http://java-tpm:8081/api/protocols/mqtt-01/plugins/record-plugin/start](http://java-tpm:8081/api/protocols/mqtt-01/plugins/record-plugin/start)
 * Delete all records on ```db.quotations``` table
 * Wait for some data on ```quotations``` table (at least 10 seconds, this is the "run-time")
 * Stop the recording on all
-  protocols [http://localhost:8081/api/protocols/all/plugins/record-plugin/stop](http://localhost:8081/api/protocols/all/plugins/record-plugin/stop)
+  protocols [http://java-tpm:8081/api/protocols/all/plugins/record-plugin/stop](http://java-tpm:8081/api/protocols/all/plugins/record-plugin/stop)
 * You can download all the
-  recordings! [http://localhost:8081/api/storage/download](http://localhost:8081/api/storage/download) as a zip file
+  recordings! [http://java-tpm:8081/api/storage/download](http://java-tpm:8081/api/storage/download) as a zip file
 
 ### Look Ma, NO BROKER
 
@@ -156,20 +156,20 @@ Now your environment is ready for a real test!
 * Stop the ```java-rest``` container
 * Delete all data on ```quotations``` table
 * Start the replaying on
-  MQTT [http://localhost:8081/api/protocols/mqtt-01/plugins/replay-plugin/start](http://localhost:8081/api/protocols/mqtt-01/plugins/replay-plugin/start)
+  MQTT [http://java-tpm:8081/api/protocols/mqtt-01/plugins/replay-plugin/start](http://java-tpm:8081/api/protocols/mqtt-01/plugins/replay-plugin/start)
 * Check the new data on ```quotations``` table
 * Mqtt simulation... done!
 * Stop the replaying on all
-  protocols [http://localhost:8081/api/protocols/all/plugins/replay-plugin/stop](http://localhost:8081/api/protocols/all/plugins/record-plugin/stop)
+  protocols [http://java-tpm:8081/api/protocols/all/plugins/replay-plugin/stop](http://java-tpm:8081/api/protocols/all/plugins/record-plugin/stop)
 
 ### Faking a message
 
 * Activate the publish plugin
-  MQTT [http://localhost:8081/api/protocols/mqtt-01/plugins/publish-plugin/start](http://localhost:8081/api/protocols/mqtt-01/plugins/publish-plugin/start)
+  MQTT [http://java-tpm:8081/api/protocols/mqtt-01/plugins/publish-plugin/start](http://java-tpm:8081/api/protocols/mqtt-01/plugins/publish-plugin/start)
 * Restart Mosquitto
-* Go to the swagger instance [http://localhost:8081/swagger-ui/index.html#/](http://localhost:8081/swagger-ui/index.html#/)
-* Open the [connections](http://localhost:8081/swagger-ui/index.html#/plugins%2Fmqtt%2Fmqtt-01/get_api_protocols_mqtt_01_plugins_publish_plugin_connections) API and check the active connections
-* Open the [message sending](http://localhost:8081/swagger-ui/index.html#/plugins%2Fmqtt%2Fmqtt-01/post_api_protocols_mqtt_01_plugins_publish_plugin_connections__connectionId___topic_) API
+* Go to the swagger instance [http://java-tpm:8081/swagger-ui/index.html#/](http://java-tpm:8081/swagger-ui/index.html#/)
+* Open the [connections](http://java-tpm:8081/swagger-ui/index.html#/plugins%2Fmqtt%2Fmqtt-01/get_api_protocols_mqtt_01_plugins_publish_plugin_connections) API and check the active connections
+* Open the [message sending](http://java-tpm:8081/swagger-ui/index.html#/plugins%2Fmqtt%2Fmqtt-01/post_api_protocols_mqtt_01_plugins_publish_plugin_connections__connectionId___topic_) API
 * Insert the following
   * connectionId: -1 (all the subscribed)
   * topic: quotations
@@ -206,7 +206,7 @@ You can check the quotations going to ```http:\\py-rest\index.html```
   * py-rest: The application reading mqtt messages (and showing on [APIs](java-rest/swagger-ui/index.html))
   * py-quote-generator: The quote generation (every 10 seconds random stock quotes)
 * Download the SSL certificate
-  from [http://localhost:8081/api/protocols/http-01/plugins/ssl-plugin/der](http://localhost:8081/api/protocols/http-01/plugins/ssl-plugin/der)
+  from [http://py-tpm:8081/api/protocols/http-01/plugins/ssl-plugin/der](http://py-tpm:8081/api/protocols/http-01/plugins/ssl-plugin/der)
   and install
   it as a trusted root certificate
 * Connect your mysql ui to ```DOCKER_HOST:23306``` and use the database ```db```
@@ -216,13 +216,13 @@ Now your environment is ready for a real test!
 ### Recording
 
 * Start the recording on mqtt-01
-  protocol [http://localhost:8081/api/protocols/amqp-01/plugins/record-plugin/start](http://localhost:8081/api/protocols/amqp-01/plugins/record-plugin/start)
+  protocol [http://py-tpm:8081/api/protocols/amqp-01/plugins/record-plugin/start](http://py-tpm:8081/api/protocols/amqp-01/plugins/record-plugin/start)
 * Delete all records on ```db.quotations``` table
 * Wait for some data on ```quotations``` table (at least 10 seconds, this is the "run-time")
 * Stop the recording on all
-  protocols [http://localhost:8081/api/protocols/all/plugins/record-plugin/stop](http://localhost:8081/api/protocols/all/plugins/record-plugin/stop)
+  protocols [http://py-tpm:8081/api/protocols/all/plugins/record-plugin/stop](http://py-tpm:8081/api/protocols/all/plugins/record-plugin/stop)
 * You can download all the
-  recordings! [http://localhost:8081/api/storage/download](http://localhost:8081/api/storage/download) as a zip file
+  recordings! [http://py-tpm:8081/api/storage/download](http://py-tpm:8081/api/storage/download) as a zip file
 
 ### Look Ma, NO BROKER
 
@@ -230,11 +230,11 @@ Now your environment is ready for a real test!
 * Stop the ```py-rest``` container
 * Delete all data on ```quotations``` table
 * Start the replaying on
-  MQTT [http://localhost:8081/api/protocols/amqp-01/plugins/replay-plugin/start](http://localhost:8081/api/protocols/amqp-01/plugins/replay-plugin/start)
+  MQTT [http://py-tpm:8081/api/protocols/amqp-01/plugins/replay-plugin/start](http://py-tpm:8081/api/protocols/amqp-01/plugins/replay-plugin/start)
 * Check the new data on ```quotations``` table
 * Mqtt simulation... done!
 * Stop the replaying on all
-  protocols [http://localhost:8081/api/protocols/all/plugins/replay-plugin/stop](http://localhost:8081/api/protocols/all/plugins/record-plugin/stop)
+  protocols [http://py-tpm:8081/api/protocols/all/plugins/replay-plugin/stop](http://py-tpm:8081/api/protocols/all/plugins/record-plugin/stop)
 
 <a id="gca"></a>
 ## Golang Chat app (golang, postgres, redis)
@@ -251,7 +251,7 @@ Now your environment is ready for a real test!
   * go-redis: The Redis server
   * go-rest: The chat application
 * Download the SSL certificate
-  from [http://localhost:8081/api/protocols/http-01/plugins/ssl-plugin/der](http://localhost:8081/api/protocols/http-01/plugins/ssl-plugin/der)
+  from [http://go-tpm:8081/api/protocols/http-01/plugins/ssl-plugin/der](http://go-tpm:8081/api/protocols/http-01/plugins/ssl-plugin/der)
   and install
   it as a trusted root certificate
 * Connect your postgres ui to ```DOCKER_HOST:25432``` and use the database ```db```
@@ -261,26 +261,26 @@ Now your environment is ready for a real test!
 ### Recording
 
 * Start the recording on redis-01
-  protocol [http://localhost:8081/api/protocols/redis-01/plugins/record-plugin/start](http://localhost:8081/api/protocols/redis-01/plugins/record-plugin/start)
+  protocol [http://go-tpm:8081/api/protocols/redis-01/plugins/record-plugin/start](http://go-tpm:8081/api/protocols/redis-01/plugins/record-plugin/start)
 * Open the proxied browser on [http://go-rest/index.html](http://go-rest/index.html) and login as "user1" on channel "common"
 * Open another tab of the proxied browser on [http://go-rest/index.html](http://go-rest/index.html) and login as "user2" on channel "common"
 * Write some messages on both browsers
 * Stop the recording on all
-  protocols [http://localhost:8081/api/protocols/all/plugins/record-plugin/stop](http://localhost:8081/api/protocols/all/plugins/record-plugin/stop)
+  protocols [http://go-tpm:8081/api/protocols/all/plugins/record-plugin/stop](http://go-tpm:8081/api/protocols/all/plugins/record-plugin/stop)
 * You can download all the
-  recordings! [http://localhost:8081/api/storage/download](http://localhost:8081/api/storage/download) as a zip file
+  recordings! [http://go-tpm:8081/api/storage/download](http://go-tpm:8081/api/storage/download) as a zip file
 
 ### Look Ma, NO BROKER
 
 * Start the replaying on
-  REDIS [http://localhost:8081/api/protocols/redis-01/plugins/replay-plugin/start](http://localhost:8081/api/protocols/redis-01/plugins/replay-plugin/start)
+  REDIS [http://go-tpm:8081/api/protocols/redis-01/plugins/replay-plugin/start](http://go-tpm:8081/api/protocols/redis-01/plugins/replay-plugin/start)
 * Restart inserting data on the messages
 * Stop the replaying on all
-  protocols [http://localhost:8081/api/protocols/all/plugins/replay-plugin/stop](http://localhost:8081/api/protocols/all/plugins/record-plugin/stop)
+  protocols [http://go-tpm:8081/api/protocols/all/plugins/replay-plugin/stop](http://go-tpm:8081/api/protocols/all/plugins/record-plugin/stop)
 
 ### Fake messaging
 
-* Open the [message sending](http://localhost:8081/swagger-ui/index.html#/plugins%2Fredis%2Fredis-01/post_api_protocols_redis_01_plugins_publish_plugin_connections__connectionId___topic_) API
+* Open the [message sending](http://go-tpm:8081/swagger-ui/index.html#/plugins%2Fredis%2Fredis-01/post_api_protocols_redis_01_plugins_publish_plugin_connections__connectionId___topic_) API
 * Insert the following
   * connectionId: -1 (all the subscribed)
   * channel: common
