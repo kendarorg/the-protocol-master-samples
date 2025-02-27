@@ -1,0 +1,83 @@
+{
+  "pluginsDir": "plugins",
+  "logLevel": "DEBUG",
+  "dataDir": "data",
+  "apiPort": 8081,
+  "protocols": {
+    "dns-01": {
+      "protocol": "dns",
+      "port": 53,
+      "childDns": [
+        "8.8.8.8"
+      ],
+      "blocked": [
+        "www.facebook.com"
+      ],
+      "registered": [
+
+      ],
+      "plugins": {
+        "report-plugin": {
+          "active": true
+        }
+      }
+    },
+    "http-01": {
+      "protocol": "http",
+      "http": 80,
+      "https": 443,
+      "proxy": 9000,
+      "ssl": {
+        "der": "resource://certificates/ca.der",
+        "key": "resource://certificates/ca.key",
+        "cname": "C=US,O=Local Development,CN=local.org",
+        "hosts": [
+        ]
+      },
+      "plugins": {
+        "mock-plugin": {
+
+        },
+        "rate-limit-plugin": {
+          "limitSites": [
+
+          ],
+          "rateLimit": 120,
+          "warningThresholdPercent": 80,
+          "resetTimeWindowSeconds": 60
+        },
+        "latency-plugin": {
+          "latencySites": [
+
+          ],
+          "minMs": 50,
+          "maxMs": 5000
+        },
+        "error-plugin": {
+          "errorSites": [
+
+          ],
+          "showError": 500,
+          "errorMessage": "Random Generated Error",
+          "errorPercent": 70
+        },
+        "record-plugin": {
+          "recordSites": [
+
+          ]
+        },
+        "replay-plugin": {
+          "matchSites": [
+
+          ]
+        },
+        "rewrite-plugin": {
+
+        },
+        "report-plugin": {
+          "active": true
+        }
+      }
+    }
+  }
+}
