@@ -1,5 +1,6 @@
 version: '3.8'
 services:
+  # TPM Application
   net-core-tpm:
     build:
       context: Tpm/.
@@ -15,6 +16,7 @@ services:
     depends_on:
       net-core-mysql:
         condition: service_started
+  # Frontend
   net-core-http:
     build:
       context: HttpServer/.
@@ -24,6 +26,7 @@ services:
     depends_on:
       net-core-tpm:
         condition: service_healthy
+  # Backend
   net-core-rest:
     build:
       context: RestServer/.
@@ -33,6 +36,7 @@ services:
     depends_on:
       net-core-tpm:
         condition: service_healthy
+  # Real mysql
   net-core-mysql:
     build:
       context: MySQL/.
