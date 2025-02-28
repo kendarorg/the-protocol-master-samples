@@ -21,7 +21,7 @@
 
         },
         "rate-limit-plugin": {
-          "limitSites": [
+          "target": [
             "@(net-core-rest|localhost|127.0.0.1)\\/api/tasks.*"
           ],
           "rateLimit": 120,
@@ -29,27 +29,27 @@
           "resetTimeWindowSeconds": 60
         },
         "latency-plugin": {
-          "latencySites": [
+          "target": [
             "@(net-core-rest|localhost|127.0.0.1)\\/api/tasks.*"
           ],
           "minMs": 50,
           "maxMs": 5000
         },
         "error-plugin": {
-          "errorSites": [
+          "target": [
             "@(net-core-rest|localhost|127.0.0.1)\\/api/tasks.*"
           ],
           "showError": 500,
           "errorMessage": "Random Generated Error",
-          "errorPercent": 70
+          "percentAction": 70
         },
         "record-plugin": {
-          "recordSites": [
+          "target": [
             "@(net-core-rest|localhost|127.0.0.1)\\/api/tasks.*"
           ]
         },
         "replay-plugin": {
-          "matchSites": [
+          "target": [
             "@(net-core-rest|localhost|127.0.0.1)\\/api/tasks.*"
           ]
         },
