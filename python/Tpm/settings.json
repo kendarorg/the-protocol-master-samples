@@ -3,6 +3,11 @@
   "logLevel": "DEBUG",
   "dataDir": "data",
   "apiPort": 8081,
+  "plugins": {
+    "report-plugin": {
+      "active": true
+    }
+  },
   "protocols": {
     "http-01": {
       "protocol": "http",
@@ -17,11 +22,16 @@
         ]
       },
       "plugins": {
+        "report-plugin": {
+          "active": true,
+          "ignore": [
+            "py-tpm"
+          ]
+        },
         "mock-plugin": {
-
         },
         "rate-limit-plugin": {
-          "limitSites": [
+          "target": [
             "@(py-rest|localhost|127.0.0.1)\\/api/quotation.*"
           ],
           "rateLimit": 120,
@@ -29,30 +39,29 @@
           "resetTimeWindowSeconds": 60
         },
         "latency-plugin": {
-          "latencySites": [
+          "target": [
             "@(py-rest|localhost|127.0.0.1)\\/api/quotation.*"
           ],
           "minMs": 50,
           "maxMs": 5000
         },
         "error-plugin": {
-          "errorSites": [
+          "target": [
             "@(py-rest|localhost|127.0.0.1)\\/api/quotation.*"
           ],
           "showError": 500,
           "errorMessage": "Random Generated Error",
-          "errorPercent": 70
+          "percentAction": 70
         },
         "record-plugin": {
-          "recordSites": [
+          "target": [
             "@(py-rest|localhost|127.0.0.1)\\/api/quotation.*"
           ]
         },
         "replay-plugin": {
-          "matchSites": [
+          "target": [
             "@(py-rest|localhost|127.0.0.1)\\/api/quotation.*"
           ]
-
         },
         "rewrite-plugin": {
           "rewritesFile": "rewrite.json"
@@ -67,6 +76,9 @@
       "timeout": 30,
       "connectionString": "tcp://py-rabbit:5672",
       "plugins": {
+        "report-plugin": {
+          "active": false
+        },
         "publish-plugin": {
         },
         "record-plugin": {
@@ -87,6 +99,9 @@
       "connectionString": "jdbc:mysql://py-mysql:3306/db",
       "force3BytesOkPacketInfo": true,
       "plugins": {
+        "report-plugin": {
+          "active": true
+        },
         "record-plugin": {},
         "replay-plugin": {}
       }
