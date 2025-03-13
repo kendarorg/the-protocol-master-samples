@@ -1,2 +1,8 @@
 bin
 obj
+/.idea/misc.xml
+/.idea/modules.xml
+/.idea/net-core.iml
+/.idea/inspectionProfiles/profiles_settings.xml
+/.idea/vcs.xml
+/.idea/workspace.xml
