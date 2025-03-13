@@ -3,6 +3,11 @@
   "logLevel": "DEBUG",
   "dataDir": "data",
   "apiPort": 8081,
+  "plugins": {
+    "report-plugin": {
+      "active": true
+    }
+  },
   "protocols": {
     "dns-01": {
       "protocol": "dns",
@@ -75,7 +80,8 @@
 
         },
         "report-plugin": {
-          "active": true
+          "active": true,
+          "ignore": ["wg-tpm"]
         }
       }
     }
