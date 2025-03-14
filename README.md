@@ -8,6 +8,7 @@
 * <a href="#jmm">Java Quotations app</a> (java, mysql, mqtt)
 * <a href="#pma">Python Quotations app</a> (python, mysql, amqp-091)
 * <a href="#gca">Golang Chat app</a> (golang, postgres, redis)
+* <a href="#mitms">Intercept Phone</a> with Wireguard
 
 These are simple environments to test [The Protocol Master](https://github.com/kendarorg/the-protocol-master)
 application. We will mock without a line of code the database and a rest api of a simple TODO web application.
@@ -309,5 +310,26 @@ Now your environment is ready for a real test!
 
 * Look on your message on the chat!
 
+<a id="mitm"></a>
 
+## Intercept Phone
 
+This works well even when working with applications that do not support proxies
+
+Both the Docker and your phone must be on the same network and visible to each other
+
+* First replace in `wireguard/docker-compose.yml` the `WG_HOST` variable with the one of your Docker Server
+* Run `docker-compose up` in `wireguard` directory
+* Install the Wireguard client on your phone 
+* Navigate to the Wireguard interface http://YOUR_DOCKER_SERVER:51821/
+* And create a profile to install in Wireguard
+* Now going on the report plugin http://YOUR_DOCKER_SERVER:28081/plugins/global/report-plugin
+* You can query all DNS calls and see all requested domains
+
+`
+SELECT(
+  WHAT(cnt=COUNT(),tags.requestedDomain=tags.requestedDomain),
+  GROUPBY(tags.requestedDomain),
+  ORDERBY(DESC(cnt))
+)
+`
