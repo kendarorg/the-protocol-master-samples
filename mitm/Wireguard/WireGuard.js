@@ -1,5 +1,7 @@
 'use strict';
 
+//KENDAR MODIFICATIONS
+
 const fs = require('node:fs/promises');
 const path = require('path');
 const debug = require('debug')('WireGuard');
@@ -209,32 +211,23 @@ ${client.preSharedKey ? `PresharedKey = ${client.preSharedKey}\n` : ''
         return client;
     }
 
-    lookup = function(domain) {
-        return new Promise((resolve, reject) => {
-            dns.lookup(address, (err, address, family) => {
-                if (err) {
-                    reject(err)
-                } else {
-                    resolve({ address, family })
-                }
-            })
-        })
-    }
 
-
+    //KENDAR MODIFICATIONS
     async getClientConfiguration({ clientId }) {
         const config = await this.getConfig();
         const client = await this.getClient({ clientId });
+        //If it's set use it
         var defaultDns = `${WG_DEFAULT_DNS ? `DNS = ${WG_DEFAULT_DNS}` : ''}`;
         let defaultDnsPlain = `${WG_DEFAULT_DNS}`;
+        //Check if it's already an ip
         const isValidIp =  (/^[0-9]+\.[0-9]+\.[0-9]+\.[0-9]+$/.test(defaultDnsPlain));
         debug(`Default DNS ${defaultDnsPlain}`)
+        //If it's not but is a domain name, resolve it through system DNS
         if(!isValidIp){
+            //Lookup the real ip
             var address = await dns.promises.lookup(defaultDnsPlain,{family:4});
             defaultDns = `DNS = ${address.address}`;
 
-        }else{
-            defaultDns = `DNS = 8.8.8.8`;
         }
         return `
 [Interface]
