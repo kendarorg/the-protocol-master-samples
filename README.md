@@ -8,12 +8,12 @@
 * <a href="#jmm">Java Quotations app</a> (java, mysql, mqtt)
 * <a href="#pma">Python Quotations app</a> (python, mysql, amqp-091)
 * <a href="#gca">Golang Chat app</a> (golang, postgres, redis)
+* <a href="#mitms">Intercept Phone</a> with Wireguard
 
 These are simple environments to test [The Protocol Master](https://github.com/kendarorg/the-protocol-master)
 application. We will mock without a line of code the database and a rest api of a simple TODO web application.
 
 * The documentation for the protocol master is [here](https://github.com/kendarorg/the-protocol-master)
-
 
 ### If you like it Buy me a coffee :)
 
@@ -25,6 +25,8 @@ application. We will mock without a line of code the database and a rest api of 
 
 * A Docker environment
 * The Docker environment address (let's use DOCKER_SERVER for now)
+* To play with the applications as stand-alone you can replace all 192.168.131.20 addresses (my docker server) with your
+  docker server address
 
 ### Machine Dependant Stuffs! Beware
 
@@ -42,6 +44,7 @@ further info on the subject)
 * Target Architecture: arm64
 
 <a id="nme"></a>
+
 ## Simple TODO app (mysql,http,.NET)
 
 (Thanks [patrick-baker](https://github.com/patrick-baker/to-do-list) for the UI!)
@@ -56,10 +59,10 @@ If you have Intellij or know what are *.http files you can configure [this](net-
 * Navigate to the "net-core" directory
 * Run ```docker-compose up``` to generate the environment
 * Several containers will be created
-  * net-core-tpm: The Protocol Master server
-  * net-core-mysql: The mysql database
-  * net-core-http: The web-ui
-  * net-core-rest: The rest back-end
+    * net-core-tpm: The Protocol Master server
+    * net-core-mysql: The mysql database
+    * net-core-http: The web-ui
+    * net-core-rest: The rest back-end
 * Download the SSL certificate
   from [http://net-core-tpm:8081/api/protocols/http-01/plugins/ssl-plugin/der](http://net-core-tpm:8081/api/protocols/http-01/plugins/ssl-plugin/der)
   and install
@@ -77,9 +80,9 @@ but for the sake of simplicity please delete all tasks before continuing the tut
   protocols [http://net-core-tpm:8081/api/protocols/all/plugins/record-plugin/start](http://net-core-tpm:8081/api/protocols/all/plugins/record-plugin/start)
 * Navigate to [http://net-core-http/index.html](http://net-core-http/index.html)
 * Insert a new task and click Submit
-  * Task Name: Laundry
-  * Priority: High
-  * Notes: Separate Colors
+    * Task Name: Laundry
+    * Priority: High
+    * Notes: Separate Colors
 * Set the status to Completed
 * Click Update
 * Click Archive
@@ -87,7 +90,8 @@ but for the sake of simplicity please delete all tasks before continuing the tut
 * Stop the recording on all
   protocols [http://net-core-tpm:8081/api/protocols/all/plugins/record-plugin/stop](http://net-core-tpm:8081/api/protocols/all/plugins/record-plugin/stop)
 * You can download all the
-  recordings! [http://net-core-tpm:8081/api/storage/download](http://net-core-tpm:8081/api/storage/download) as a zip file
+  recordings! [http://net-core-tpm:8081/api/storage/download](http://net-core-tpm:8081/api/storage/download) as a zip
+  file
 
 ### Look Ma, NO DATABASE
 
@@ -112,6 +116,7 @@ but for the sake of simplicity please delete all tasks before continuing the tut
   replaying [http://net-core-tpm:8081/api/protocols/all/plugins/replay-plugin/stop](http://net-core-tpm:8081/api/protocols/all/plugins/replay-plugin/stop)
 
 <a id="jmm"></a>
+
 ## Simple quotes app (java,mysql,mqtt)
 
 If you have Intellij or know what are *.http files you can configure [this](net-core/someutilities.http) setting the
@@ -126,11 +131,11 @@ You can check the quotations going to ```http:\\java-rest\index.html```
 * Navigate to the "java" directory
 * Run ```docker-compose up``` to generate the environment
 * Several containers will be created
-  * java-tpm: The Protocol Master server
-  * java-mysql: The mysql database
-  * java-mosquitto: The mqtt broker
-  * java-rest: The application reading mqtt messages (and showing on [APIs](java-rest/swagger-ui/index.html))
-  * java-quote-generator: The quote generation (every 10 seconds random stock quotes)
+    * java-tpm: The Protocol Master server
+    * java-mysql: The mysql database
+    * java-mosquitto: The mqtt broker
+    * java-rest: The application reading mqtt messages (and showing on [APIs](java-rest/swagger-ui/index.html))
+    * java-quote-generator: The quote generation (every 10 seconds random stock quotes)
 * Download the SSL certificate
   from [http://java-tpm:8081/api/protocols/http-01/plugins/ssl-plugin/der](http://java-tpm:8081/api/protocols/http-01/plugins/ssl-plugin/der)
   and install
@@ -167,13 +172,18 @@ Now your environment is ready for a real test!
 * Activate the publish plugin
   MQTT [http://java-tpm:8081/api/protocols/mqtt-01/plugins/publish-plugin/start](http://java-tpm:8081/api/protocols/mqtt-01/plugins/publish-plugin/start)
 * Restart Mosquitto
-* Go to the swagger instance [http://java-tpm:8081/swagger-ui/index.html#/](http://java-tpm:8081/swagger-ui/index.html#/)
-* Open the [connections](http://java-tpm:8081/swagger-ui/index.html#/plugins%2Fmqtt%2Fmqtt-01/get_api_protocols_mqtt_01_plugins_publish_plugin_connections) API and check the active connections
-* Open the [message sending](http://java-tpm:8081/swagger-ui/index.html#/plugins%2Fmqtt%2Fmqtt-01/post_api_protocols_mqtt_01_plugins_publish_plugin_connections__connectionId___topic_) API
+* Go to the swagger
+  instance [http://java-tpm:8081/swagger-ui/index.html#/](http://java-tpm:8081/swagger-ui/index.html#/)
+* Open
+  the [connections](http://java-tpm:8081/swagger-ui/index.html#/plugins%2Fmqtt%2Fmqtt-01/get_api_protocols_mqtt_01_plugins_publish_plugin_connections)
+  API and check the active connections
+* Open
+  the [message sending](http://java-tpm:8081/swagger-ui/index.html#/plugins%2Fmqtt%2Fmqtt-01/post_api_protocols_mqtt_01_plugins_publish_plugin_connections__connectionId___topic_)
+  API
 * Insert the following
-  * connectionId: -1 (all the subscribed)
-  * topic: quotations
-  * Request body (the `unixtimestamp` must be in the future of nothing will appear :P )
+    * connectionId: -1 (all the subscribed)
+    * topic: quotations
+    * Request body (the `unixtimestamp` must be in the future of nothing will appear :P )
 
 <pre>
 {
@@ -184,8 +194,8 @@ Now your environment is ready for a real test!
 
 * Look on your message on the graph!
 
-
 <a id="pma"></a>
+
 ## Simple quotes app (python,mysql,amqp)
 
 If you have Intellij or know what are *.http files you can configure [this](net-core/someutilities.http) setting the
@@ -200,11 +210,11 @@ You can check the quotations going to ```http:\\py-rest\index.html```
 * Navigate to the "python" directory
 * Run ```docker-compose up``` to generate the environment
 * Several containers will be created
-  * py-tpm: The Protocol Master server
-  * py-mysql: The mysql database
-  * py-rabbit: The amqp broker
-  * py-rest: The application reading mqtt messages (and showing on [APIs](java-rest/swagger-ui/index.html))
-  * py-quote-generator: The quote generation (every 10 seconds random stock quotes)
+    * py-tpm: The Protocol Master server
+    * py-mysql: The mysql database
+    * py-rabbit: The amqp broker
+    * py-rest: The application reading mqtt messages (and showing on [APIs](java-rest/swagger-ui/index.html))
+    * py-quote-generator: The quote generation (every 10 seconds random stock quotes)
 * Download the SSL certificate
   from [http://py-tpm:8081/api/protocols/http-01/plugins/ssl-plugin/der](http://py-tpm:8081/api/protocols/http-01/plugins/ssl-plugin/der)
   and install
@@ -237,6 +247,7 @@ Now your environment is ready for a real test!
   protocols [http://py-tpm:8081/api/protocols/all/plugins/replay-plugin/stop](http://py-tpm:8081/api/protocols/all/plugins/record-plugin/stop)
 
 <a id="gca"></a>
+
 ## Golang Chat app (golang, postgres, redis)
 
 ### Startup
@@ -246,10 +257,10 @@ Now your environment is ready for a real test!
 * Navigate to the "golang" directory
 * Run ```docker-compose up``` to generate the environment
 * Several containers will be created
-  * go-tpm: The Protocol Master server
-  * go-postgres: The postgres database
-  * go-redis: The Redis server
-  * go-rest: The chat application
+    * go-tpm: The Protocol Master server
+    * go-postgres: The postgres database
+    * go-redis: The Redis server
+    * go-rest: The chat application
 * Download the SSL certificate
   from [http://go-tpm:8081/api/protocols/http-01/plugins/ssl-plugin/der](http://go-tpm:8081/api/protocols/http-01/plugins/ssl-plugin/der)
   and install
@@ -262,8 +273,10 @@ Now your environment is ready for a real test!
 
 * Start the recording on redis-01
   protocol [http://go-tpm:8081/api/protocols/redis-01/plugins/record-plugin/start](http://go-tpm:8081/api/protocols/redis-01/plugins/record-plugin/start)
-* Open the proxied browser on [http://go-rest/index.html](http://go-rest/index.html) and login as "user1" on channel "common"
-* Open another tab of the proxied browser on [http://go-rest/index.html](http://go-rest/index.html) and login as "user2" on channel "common"
+* Open the proxied browser on [http://go-rest/index.html](http://go-rest/index.html) and login as "user1" on channel "
+  common"
+* Open another tab of the proxied browser on [http://go-rest/index.html](http://go-rest/index.html) and login as "user2"
+  on channel "common"
 * Write some messages on both browsers
 * Stop the recording on all
   protocols [http://go-tpm:8081/api/protocols/all/plugins/record-plugin/stop](http://go-tpm:8081/api/protocols/all/plugins/record-plugin/stop)
@@ -280,11 +293,13 @@ Now your environment is ready for a real test!
 
 ### Fake messaging
 
-* Open the [message sending](http://go-tpm:8081/swagger-ui/index.html#/plugins%2Fredis%2Fredis-01/post_api_protocols_redis_01_plugins_publish_plugin_connections__connectionId___topic_) API
+* Open
+  the [message sending](http://go-tpm:8081/swagger-ui/index.html#/plugins%2Fredis%2Fredis-01/post_api_protocols_redis_01_plugins_publish_plugin_connections__connectionId___topic_)
+  API
 * Insert the following
-  * connectionId: -1 (all the subscribed)
-  * channel: common
-  * Request body
+    * connectionId: -1 (all the subscribed)
+    * channel: common
+    * Request body
 
 <pre>
 {
@@ -295,5 +310,27 @@ Now your environment is ready for a real test!
 
 * Look on your message on the chat!
 
+<a id="mitm"></a>
 
+## Intercept Phone
 
+This works well even when working with applications that do not support proxies
+
+Both the Docker and your phone must be on the same network and visible to each other
+
+* First replace in `mitm/docker-compose.yml` the `WG_HOST` variable with the one of your Docker Server
+* Run `docker-compose up` in `mitm` directory
+* Install the Wireguard client on your phone 
+* Navigate to the Wireguard interface http://YOUR_DOCKER_SERVER:51821/
+* And create a profile to install in Wireguard
+* Now going on the report plugin http://YOUR_DOCKER_SERVER:28081/plugins/global/report-plugin
+* You can query all DNS calls and see all requested domains
+* Next step will be intercepting all this calls through TPM
+
+`
+SELECT(
+  WHAT(cnt=COUNT(),tags.requestedDomain=tags.requestedDomain),
+  GROUPBY(tags.requestedDomain),
+  ORDERBY(DESC(cnt))
+)
+`
