@@ -325,6 +325,7 @@ Both the Docker and your phone must be on the same network and visible to each o
 * And create a profile to install in Wireguard
 * Now going on the report plugin http://YOUR_DOCKER_SERVER:28081/plugins/global/report-plugin
 * You can query all DNS calls and see all requested domains
+* Next step will be intercepting all this calls through TPM
 
 `
 SELECT(
