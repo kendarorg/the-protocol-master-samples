@@ -1,4 +1,4 @@
-## The Protocol Master Sample
+## The Protocol Master Proxy Samples
 
 ![](protocolmaster_s.gif)
 
