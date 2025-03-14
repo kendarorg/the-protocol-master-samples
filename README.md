@@ -318,8 +318,8 @@ This works well even when working with applications that do not support proxies
 
 Both the Docker and your phone must be on the same network and visible to each other
 
-* First replace in `wireguard/docker-compose.yml` the `WG_HOST` variable with the one of your Docker Server
-* Run `docker-compose up` in `wireguard` directory
+* First replace in `mitm/docker-compose.yml` the `WG_HOST` variable with the one of your Docker Server
+* Run `docker-compose up` in `mitm` directory
 * Install the Wireguard client on your phone 
 * Navigate to the Wireguard interface http://YOUR_DOCKER_SERVER:51821/
 * And create a profile to install in Wireguard
