@@ -12,7 +12,7 @@ else
      wget --no-verbose https://github.com/kendarorg/the-protocol-master/releases/download/main-release/protocol-runner.jar
      mkdir /plugins
      wget --no-verbose https://github.com/kendarorg/the-protocol-master/releases/download/main-release/protocol-dns-plugin-4.0.1.jar
-     cp /protocol-dns-plugin-3.0.2.jar /plugins/
-     rm -rf /protocol-dns-plugin-3.0.2.jar
+     cp /protocol-dns-plugin-*.jar /plugins/
+     rm -rf /protocol-dns-plugin-*.jar
      java -jar /protocol-runner.jar -cfg /settings.json -unattended
 fi
