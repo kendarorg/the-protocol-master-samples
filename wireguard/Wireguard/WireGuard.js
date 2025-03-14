@@ -209,23 +209,38 @@ ${client.preSharedKey ? `PresharedKey = ${client.preSharedKey}\n` : ''
         return client;
     }
 
+    lookup = function(domain) {
+        return new Promise((resolve, reject) => {
+            dns.lookup(address, (err, address, family) => {
+                if (err) {
+                    reject(err)
+                } else {
+                    resolve({ address, family })
+                }
+            })
+        })
+    }
+
+
     async getClientConfiguration({ clientId }) {
         const config = await this.getConfig();
         const client = await this.getClient({ clientId });
-        var defaultDns = `${WG_DEFAULT_DNS ? `DNS = ${WG_DEFAULT_DNS}\n` : ''}`;
-        const isValidIp = defaultDns => (/^(?:(?:^|\.)(?:2(?:5[0-5]|[0-4]\d)|1?\d?\d)){4}$/.test(defaultDns));
+        var defaultDns = `${WG_DEFAULT_DNS ? `DNS = ${WG_DEFAULT_DNS}` : ''}`;
+        let defaultDnsPlain = `${WG_DEFAULT_DNS}`;
+        const isValidIp =  (/^[0-9]+\.[0-9]+\.[0-9]+\.[0-9]+$/.test(defaultDnsPlain));
+        debug(`Default DNS ${defaultDnsPlain}`)
         if(!isValidIp){
-            await dns.resolve(defaultDns, (err, addresses) => {
-                if (err) throw err;
-                console.log(`addresses: ${JSON.stringify(addresses)}`);
-                defaultDns = addresses[0];
-            });
+            var address = await dns.promises.lookup(defaultDnsPlain,{family:4});
+            defaultDns = `DNS = ${address.address}`;
+
+        }else{
+            defaultDns = `DNS = 8.8.8.8`;
         }
         return `
 [Interface]
 PrivateKey = ${client.privateKey ? `${client.privateKey}` : 'REPLACE_ME'}
 Address = ${client.address}/24
-${defaultDns ? `DNS = ${defaultDns}\n` : ''}\
+${defaultDns ? `${defaultDns}\n` : ''}\
 ${WG_MTU ? `MTU = ${WG_MTU}\n` : ''}\
 
 [Peer]

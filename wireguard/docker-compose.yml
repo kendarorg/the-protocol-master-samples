@@ -26,7 +26,7 @@ services:
       - LANG=en
       # ⚠️ Required:
       # Change this to your host's public address
-      - WG_HOST=192.168.1.2
+      - WG_HOST=192.168.1.44
       - WG_DEFAULT_DNS=wg-tpm
 
       # Optional:
@@ -52,8 +52,8 @@ services:
 
     image: "wg-tpm-wireguard"
     container_name: wg-easy
-    volumes:
-      - etc_wireguard:/etc/wireguard
+#    volumes:
+#      - etc_wireguard:/etc/wireguard
     ports:
       - "51820:51820/udp"
       - "51821:51821/tcp"
