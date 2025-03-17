@@ -1,4 +1,4 @@
-package org.kendar.protocol.unused;
+package org.kendar.protocol.utils;
 
 import java.io.BufferedReader;
 import java.io.InputStream;

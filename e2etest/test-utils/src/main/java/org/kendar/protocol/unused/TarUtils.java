@@ -3,6 +3,7 @@ package org.kendar.protocol.unused;
 import org.apache.commons.compress.archivers.tar.TarArchiveEntry;
 import org.apache.commons.compress.archivers.tar.TarArchiveInputStream;
 import org.apache.commons.compress.compressors.gzip.GzipCompressorInputStream;
+import org.kendar.protocol.utils.LogWriter;
 
 import java.io.BufferedOutputStream;
 import java.io.File;

@@ -3,12 +3,11 @@ package org.kendar.protocols;
 import org.junit.jupiter.api.*;
 import org.kendar.protocol.utils.Sleeper;
 import org.openqa.selenium.By;
-import org.openqa.selenium.WebElement;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertTrue;
 
-
+@TestMethodOrder(MethodOrderer.MethodName.class)
 public class NetCoreTest extends BasicTest {
     @AfterAll
     public static void tearDownAfterClass() throws Exception {
@@ -47,7 +46,7 @@ public class NetCoreTest extends BasicTest {
     }
 
     @Test
-    void testDockerIsUp() throws Exception {
+    void A_testDockerIsUp() throws Exception {
         navigateTo("http://net-core-tpm:8081/api/status", false);
         assertTrue(
                 check(() -> getPageSource().contains("\"OK\"")),
@@ -63,7 +62,7 @@ public class NetCoreTest extends BasicTest {
     }
 
     @Test
-    void testNavigation() {
+    void B_testNavigation() {
         navigateTo("http://net-core-http/index.html");
 
         //Insert item
@@ -74,6 +73,7 @@ public class NetCoreTest extends BasicTest {
         //Submit
         clickItem("submitNewTask");
         Sleeper.sleep(1000);
+        humanWait();
 
         //Find the selected item
         var tableBody = findElementById("listTableBody");
@@ -89,6 +89,7 @@ public class NetCoreTest extends BasicTest {
         var button = tr.findElements(By.xpath(".//button")).get(1);
         button.click();
         Sleeper.sleep(1000);
+        humanWait();
 
         //Reload the stale element
         tableBody = findElementById("listTableBody");
@@ -96,9 +97,42 @@ public class NetCoreTest extends BasicTest {
         button = tr.findElements(By.xpath(".//button")).get(1);
         button.click();
         Sleeper.sleep(1000);
+        takeSnapshot();
+        humanWait();
 
         //Set the archive
         clickItem("setArchivedTasks");
         Sleeper.sleep(1000);
+        humanWait();
+
+        //Delete old item
+        tableBody = findElementById("archivedTableBody");
+        tr = tableBody.findElements(By.xpath(".//tr")).get(0);
+        button = tr.findElements(By.xpath(".//button")).get(0);
+        button.click();
+        Sleeper.sleep(1000);
+        var yesButton = findElementsByXpath(".//button[contains(text(), \"Yes, delete it!\")]").get(0);
+        yesButton.click();
+        humanWait();
+    }
+
+    @Test
+    void C_testRecording() throws Exception {
+        newTab("tpm");
+        //Open tpm
+        navigateTo("http://net-core-tpm:8081/plugins");
+        Sleeper.sleep(1000);
+        executeScript("toggleAccordion('collapseWildcard')");
+        executeScript("getData('/api/protocols/all/plugins/record-plugin/start','GET',reloadAllPlugins)");
+        swithToTab("main");
+        Sleeper.sleep(1000);
+        B_testNavigation();
+        swithToTab("tpm");
+        executeScript("getData('/api/protocols/all/plugins/record-plugin/stop','GET',reloadAllPlugins)");
+        Sleeper.sleep(1000);
+        var data = httpGetBinaryFile("http://localhost:5005/api/global/storage");
+        stopContainer("net-core-mysql", 3306);
+        Sleeper.sleep(1000);
+
     }
 }

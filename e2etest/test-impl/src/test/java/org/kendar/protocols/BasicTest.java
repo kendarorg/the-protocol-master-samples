@@ -1,8 +1,14 @@
 package org.kendar.protocols;
 
+import org.apache.hc.client5.http.classic.methods.HttpGet;
+import org.apache.hc.client5.http.impl.classic.CloseableHttpClient;
+import org.apache.hc.client5.http.impl.classic.HttpClients;
+import org.apache.hc.client5.http.impl.routing.DefaultProxyRoutePlanner;
+import org.apache.hc.core5.http.HttpHost;
 import org.junit.jupiter.api.TestInfo;
 import org.kendar.protocol.utils.*;
 import org.openqa.selenium.By;
+import org.openqa.selenium.JavascriptExecutor;
 import org.openqa.selenium.WebDriver;
 import org.openqa.selenium.WebElement;
 import org.openqa.selenium.support.ui.Select;
@@ -10,9 +16,12 @@ import org.testcontainers.containers.ComposeContainer;
 import org.testcontainers.containers.wait.strategy.FakeStrategy;
 import org.testcontainers.containers.wait.strategy.PortWaitStrategy;
 
+import java.io.ByteArrayOutputStream;
 import java.nio.file.Path;
 import java.time.Duration;
+import java.util.ArrayList;
 import java.util.HashMap;
+import java.util.List;
 import java.util.function.BooleanSupplier;
 
 @SuppressWarnings("resource")
@@ -26,21 +35,37 @@ public class BasicTest {
     private SeleniumIntegration selenium;
     private NavigationUtils navigation;
     private WebDriver driver;
+    private String proxyHost;
+    private Integer proxyPort;
 
-    protected void humanWait(){
-        //Sleeper.sleep(4000);
+    protected CloseableHttpClient getHttpClient(){
+        var custom = HttpClients.custom();
+        var proxy = new HttpHost("http",proxyHost, proxyPort);
+        var routePlanner = new DefaultProxyRoutePlanner(proxy);
+        return custom.setRoutePlanner(routePlanner).build();
     }
 
-    public static void tearDownAfterClassBase(){
+    protected String httpGet(String path){
+        return new String(httpGetBinaryFile(path));
+    }
+
+    protected byte[] httpGetBinaryFile(String path){
+        try(var client=getHttpClient()){
+            var httpget = new HttpGet(path);
+            var httpresponse = client.execute(httpget);
+
+            var baos = new ByteArrayOutputStream();
+            httpresponse.getEntity().writeTo(baos);
+            return baos.toByteArray();
+        }catch (Exception e){
+            throw new RuntimeException(e);
+        }
+    }
+
+    public static void tearDownAfterClassBase() {
         environment.stop();
     }
-    public void tearDownAfterEachBase(){
-        Utils.setCache("driver", null);
-        Utils.setCache("js", null);
-        selenium.takeMessageSnapshot("End of test");
-        driver.quit();
-        driver = null;
-    }
+
     public static ComposeContainer getEnvironment() {
         return environment;
     }
@@ -66,36 +91,70 @@ public class BasicTest {
         environment = new ComposeContainer(
                 Path.of(getProjectRoot().toString(), "docker-compose-testcontainers.yml").toFile()
         );
-        toWaitFor.put(tpmHost,8081);
-        withExposedServiceHidden(tpmHost,5005);
-        withExposedService(tpmHost,8081);
-        withExposedService(tpmHost,9000);
-        withExposedService(tpmHost,80);
+        toWaitFor.put(tpmHost, 8081);
+        withExposedServiceHidden(tpmHost, 5005);
+        withExposedService(tpmHost, 8081);
+        withExposedService(tpmHost, 9000);
+        withExposedService(tpmHost, 80);
         return environment;
     }
 
     protected static void startContainers() {
         environment.start();
-        for(var item : toWaitFor.entrySet()){
-            waitPortAvailable(item.getKey(),item.getValue());
+        for (var item : toWaitFor.entrySet()) {
+            waitPortAvailable(item.getKey(), item.getValue());
         }
     }
-    public static ComposeContainer withExposedService(String host,int ports) throws Exception {
+
+    public static ComposeContainer withExposedService(String host, int ports) throws Exception {
         //environment.withExposedService(host, mainPort);
         environment.withExposedService(host, ports,
                 new PortWaitStrategy().
                         forPorts(ports).
                         withStartupTimeout(Duration.ofSeconds(5)));
-        toWaitFor.put(host,ports);
+        toWaitFor.put(host, ports);
         return environment;
     }
 
-    public static ComposeContainer withExposedServiceHidden(String host,int ports) throws Exception {
+    public static ComposeContainer withExposedServiceHidden(String host, int ports) throws Exception {
         //environment.withExposedService(host, mainPort);
         environment.withExposedService(host, ports,
                 new FakeStrategy());
-        toWaitFor.put(host,ports);
+        toWaitFor.put(host, ports);
         return environment;
+    }
+
+    public static void waitPortAvailable(String service, int port) {
+        Sleeper.sleep(5000, () -> {
+            try {
+                getEnvironment().getServiceHost(service, port);
+                getEnvironment().getServicePort(service, port);
+                return true;
+            } catch (Exception e) {
+                return false;
+            }
+        }, "Not started " + service + ":" + port);
+
+    }
+
+    protected void humanWait() {
+        if (System.getenv("HUMAN_WAIT_MS") != null) {
+            var humanWaitTime = Integer.parseInt(System.getenv("HUMAN_WAIT_MS"));
+            Sleeper.sleep(humanWaitTime * 1000L);
+        }
+        takeSnapshot();
+    }
+
+    protected void takeSnapshot() {
+        selenium.takeSnapShot();
+    }
+
+    public void tearDownAfterEachBase() {
+        Utils.setCache("driver", null);
+        Utils.setCache("js", null);
+        selenium.takeMessageSnapshot("End of test");
+        driver.quit();
+        driver = null;
     }
 
     protected Path getStorage() {
@@ -114,19 +173,6 @@ public class BasicTest {
         return driver;
     }
 
-    public static void waitPortAvailable(String service, int port){
-        Sleeper.sleep(5000,()->{
-            try{
-                var proxyHost = getEnvironment().getServiceHost(service, port);
-                var proxyPort = getEnvironment().getServicePort(service, port);
-                return true;
-            }catch (Exception e){
-                return false;
-            }
-        },"Not started "+service+":"+port);
-
-    }
-
     protected void beforeEachBase(TestInfo testInfo) throws Exception {
         if (testInfo != null && testInfo.getTestClass().isPresent() &&
                 testInfo.getTestMethod().isPresent()) {
@@ -141,8 +187,10 @@ public class BasicTest {
             }
         }
         Utils.getCache().clear();
-        var proxyHost = getEnvironment().getServiceHost(tpmHost, 9000);
-        var proxyPort = getEnvironment().getServicePort(tpmHost, 9000);
+        proxyHost = getEnvironment().getServiceHost(tpmHost, 9000);
+        proxyPort = getEnvironment().getServicePort(tpmHost, 9000);
+
+
 
         selenium = new SeleniumIntegration(storage, proxyHost, proxyPort);
         navigation = new NavigationUtils(selenium);
@@ -157,72 +205,95 @@ public class BasicTest {
         //Utils.killApacheLogger();
     }
 
-
-
-    public boolean navigateTo(String url){
-        return getNavigation().navigateTo(url,true);
-    }
-    public boolean navigateTo(String url,boolean snapshot){
-        return getNavigation().navigateTo(url,snapshot);
-    }
-
-    public boolean check(BooleanSupplier supplier){
-        return check(2000,supplier);
+    public void stopContainer(String host, int port) throws Exception {
+        var realHost = getEnvironment().getServiceHost(host, port);
+        var commandRunner = new CommandRunner(
+                getProjectRoot(),
+                "docker-compose", "-f", "docker-compose-testcontainers.yml", "stop", realHost);
+        commandRunner.run();
     }
 
-    public boolean check(int timoutms, BooleanSupplier supplier){
-        return Sleeper.sleepNoException(timoutms,supplier);
+    public void startContainer(String host, int port) throws Exception {
+        var realHost = getEnvironment().getServiceHost(host, port);
+        var commandRunner = new CommandRunner(
+                getProjectRoot(),
+                "docker-compose", "-f", "docker-compose-testcontainers.yml", "start", realHost);
+        commandRunner.run();
     }
 
-    public String getPageSource(){
+
+    public boolean navigateTo(String url) {
+        return getNavigation().navigateTo(url, true);
+    }
+
+    public boolean navigateTo(String url, boolean snapshot) {
+        return getNavigation().navigateTo(url, snapshot);
+    }
+
+    public boolean check(BooleanSupplier supplier) {
+        return check(2000, supplier);
+    }
+
+    public boolean check(int timoutms, BooleanSupplier supplier) {
+        return Sleeper.sleepNoException(timoutms, supplier);
+    }
+
+    public String getPageSource() {
         return getDriver().getPageSource();
     }
 
-    public boolean clickItem(String id){
-        return clickItem(2000,id);
+    public boolean clickItem(String id) {
+        return clickItem(2000, id);
     }
 
-    protected WebElement findElementById(String id){
-        return findElementById(2000,id);
+    protected WebElement findElementById(String id) {
+        return findElementById(2000, id);
     }
 
-    protected WebElement findElementById(int timeoutms,String id){
+    protected List<WebElement> findElementsByXpath(String xpath) {
+        return getDriver().findElements(By.xpath(xpath));
+    }
+
+
+    protected WebElement findElementById(int timeoutms, String id) {
         var element = new ObjectContainer<WebElement>();
-        Sleeper.sleep(timeoutms,()-> {
+        Sleeper.sleep(timeoutms, () -> {
             element.setObject(getDriver().findElement(By.id(id)));
-            return element.getObject()!=null;
+            return element.getObject() != null;
         });
         return element.getObject();
     }
-    public boolean clickItem(int timeoutms, String id){
-        var element = findElementById(timeoutms,id);
+
+    public boolean clickItem(int timeoutms, String id) {
+        var element = findElementById(timeoutms, id);
         var done = new ObjectContainer<>(false);
 
-        Sleeper.sleep(timeoutms,()-> {
+        Sleeper.sleep(timeoutms, () -> {
             var we = element;
             try {
                 we.click();
                 done.setObject(true);
                 return true;
-            }catch (Exception e){
+            } catch (Exception e) {
                 return false;
             }
         });
-        if(!done.getObject()){
+        if (!done.getObject()) {
             var we = element;
             we.click();
             return true;
-        }else{
+        } else {
             return true;
         }
     }
 
     protected void selectItem(String id, String value) {
-        selectItem(2000,id,value);
+        selectItem(2000, id, value);
     }
-    protected void selectItem(int timeoutms,String id, String value) {
-        var element = findElementById(timeoutms,id);
-        selectItem(element,value);
+
+    protected void selectItem(int timeoutms, String id, String value) {
+        var element = findElementById(timeoutms, id);
+        selectItem(element, value);
     }
 
     protected void selectItem(WebElement element, String value) {
@@ -231,13 +302,30 @@ public class BasicTest {
     }
 
     public void fillItem(String id, String data) {
-        fillItem(2000,id,data);
+        fillItem(2000, id, data);
     }
 
-    public void fillItem(int timeoutms,String id, String data) {
-        var element = findElementById(timeoutms,id);
+    public void fillItem(int timeoutms, String id, String data) {
+        var element = findElementById(timeoutms, id);
         element.clear();
         element.sendKeys(data);
         getSelenium().takeSnapShot();
+    }
+
+
+    public void newTab(String id) {
+        getSelenium().newTab(id);
+        Sleeper.sleep(200);
+    }
+
+    public void swithToTab(String id) {
+        getSelenium().swithToTab(id);
+        Sleeper.sleep(200);
+    }
+
+    public void executeScript(String script) {
+        ((JavascriptExecutor) getDriver()).executeScript(script);
+        Sleeper.sleep(200);
+        takeSnapshot();
     }
 }

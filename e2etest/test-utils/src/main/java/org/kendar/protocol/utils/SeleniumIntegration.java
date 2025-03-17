@@ -16,6 +16,8 @@ import java.awt.image.BufferedImage;
 import java.io.File;
 import java.nio.file.Files;
 import java.nio.file.Path;
+import java.util.HashMap;
+import java.util.Map;
 import java.util.stream.Collectors;
 
 public class SeleniumIntegration {
@@ -24,6 +26,7 @@ public class SeleniumIntegration {
     private final int proxyPort;
     private ChromeDriver driver;
     private JavascriptExecutor js;
+    private Map<String,String> windowHandles = new HashMap<>();
 
     public SeleniumIntegration(Path rootPath, String proxyHost, int proxyPort) {
         this.rootPath = rootPath;
@@ -49,7 +52,7 @@ public class SeleniumIntegration {
     }
 
     public void seleniumInitialized() throws Exception {
-
+        windowHandles.clear();
         //ChromeDriverManager.getInstance().setup();
         //var chromeExecutable = SeleniumBase.findchrome();
 
@@ -83,6 +86,16 @@ public class SeleniumIntegration {
         Utils.setCache("driver", driver);
         Utils.setCache("js", js);
         setupSize(driver);
+        windowHandles.put("main",driver.getWindowHandle());
+    }
+
+    public void newTab(String id) {
+        driver.switchTo().newWindow(WindowType.TAB);
+        windowHandles.put(id,driver.getWindowHandle());
+    }
+
+    public void swithToTab(String id) {
+        driver.switchTo().window(windowHandles.get(id));
     }
 
     public void resettingDriver() throws Exception {
