@@ -34,6 +34,7 @@ public class BasicTest {
     private WebDriver driver;
     private String proxyHost;
     private Integer proxyPort;
+    private static int defaultTimeout = 5000;
 
     public static void tearDownAfterClassBase() {
         environment.stop();
@@ -99,7 +100,7 @@ public class BasicTest {
     }
 
     public static void waitPortAvailable(String service, int port) {
-        Sleeper.sleep(5000, () -> {
+        Sleeper.sleep(defaultTimeout, () -> {
             try {
                 getEnvironment().getServiceHost(service, port);
                 getEnvironment().getServicePort(service, port);
@@ -235,7 +236,7 @@ public class BasicTest {
     }
 
     public boolean check(BooleanSupplier supplier) {
-        return check(2000, supplier);
+        return check(defaultTimeout, supplier);
     }
 
     public boolean check(int timoutms, BooleanSupplier supplier) {
@@ -247,22 +248,43 @@ public class BasicTest {
     }
 
     public boolean clickItem(String id) {
-        return clickItem(2000, id);
+        return clickItem(defaultTimeout, id);
     }
 
     protected WebElement findElementById(String id) {
-        return findElementById(2000, id);
+        return findElementById(defaultTimeout, id);
     }
 
     protected WebElement findElementByXPath(String id) {
-        return findElementByXPath(2000, id);
+        return findElementByXPath(defaultTimeout, id);
+    }
+
+    protected WebElement findElementByXPath(WebElement from,String id) {
+        return findElementByXPath(defaultTimeout,from, id);
+    }
+
+    protected WebElement findElementByXPath(int timeoutms,WebElement from, String id) {
+        var element = new ObjectContainer<WebElement>();
+        Sleeper.sleep(timeoutms, () -> {
+            try {
+                element.setObject(from.findElement(By.xpath(id)));
+                return element.getObject() != null;
+            }catch (Exception e) {
+                return false;
+            }
+        });
+        return element.getObject();
     }
 
     protected WebElement findElementByXPath(int timeoutms, String id) {
         var element = new ObjectContainer<WebElement>();
         Sleeper.sleep(timeoutms, () -> {
-            element.setObject(getDriver().findElement(By.xpath(id)));
-            return element.getObject() != null;
+            try {
+                element.setObject(getDriver().findElement(By.xpath(id)));
+                return element.getObject() != null;
+            }catch (Exception e) {
+                return false;
+            }
         });
         return element.getObject();
     }
@@ -275,8 +297,12 @@ public class BasicTest {
     protected WebElement findElementById(int timeoutms, String id) {
         var element = new ObjectContainer<WebElement>();
         Sleeper.sleep(timeoutms, () -> {
-            element.setObject(getDriver().findElement(By.id(id)));
-            return element.getObject() != null;
+            try {
+                element.setObject(getDriver().findElement(By.id(id)));
+                return element.getObject() != null;
+            }catch (Exception e) {
+                return false;
+            }
         });
         return element.getObject();
     }
@@ -305,7 +331,7 @@ public class BasicTest {
     }
 
     protected void selectItem(String id, String value) {
-        selectItem(2000, id, value);
+        selectItem(defaultTimeout, id, value);
     }
 
     protected void selectItem(int timeoutms, String id, String value) {
@@ -319,7 +345,7 @@ public class BasicTest {
     }
 
     public void fillItem(String id, String data) {
-        fillItem(2000, id, data);
+        fillItem(defaultTimeout, id, data);
     }
 
     public void fillItem(int timeoutms, String id, String data) {
@@ -370,8 +396,10 @@ public class BasicTest {
                     alert = null;
                 }
             }
+
             //System.out.println("Human driven alert");
         }
+        Sleeper.sleep(1000);
     }
 
     protected void cleanBrowserCache() {

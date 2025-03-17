@@ -3,6 +3,7 @@ package org.kendar.protocols;
 import org.junit.jupiter.api.*;
 import org.kendar.protocol.utils.Sleeper;
 import org.openqa.selenium.By;
+import org.testcontainers.shaded.org.bouncycastle.cert.jcajce.JcaAttributeCertificateIssuer;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertTrue;
@@ -80,9 +81,9 @@ public class NetCoreTest extends BasicTest {
 
         //Find the selected item
         var tableBody = findElementById("listTableBody");
-        var tr = tableBody.findElements(By.xpath(".//tr")).get(0);
-        tr.findElement(By.xpath(".//td[contains(text(), \"Laundry\")]"));
-        tr.findElement(By.xpath(".//td[contains(text(), \"Wash Cotton\")]"));
+        var tr = findElementByXPath(tableBody,".//tr");
+        findElementByXPath(tr,".//td[contains(text(), \"Laundry\")]");
+        findElementByXPath(tr,".//td[contains(text(), \"Wash Cotton\")]");
 
         alertWhenHumanDriven("Completing task");
         //Modify the status
@@ -99,7 +100,7 @@ public class NetCoreTest extends BasicTest {
         alertWhenHumanDriven("Archiving the task");
         //Reload the stale element
         tableBody = findElementById("listTableBody");
-        tr = tableBody.findElements(By.xpath(".//tr")).get(0);
+        tr = findElementByXPath(tableBody,".//tr");
         button = tr.findElements(By.xpath(".//button")).get(1);
         button.click();
         Sleeper.sleep(1000);
@@ -114,8 +115,8 @@ public class NetCoreTest extends BasicTest {
         alertWhenHumanDriven("Clean up the task");
         //Delete old item
         tableBody = findElementById("archivedTableBody");
-        tr = tableBody.findElements(By.xpath(".//tr")).get(0);
-        button = tr.findElements(By.xpath(".//button")).get(0);
+        tr = findElementByXPath(tableBody,".//tr");
+        button = findElementByXPath(tableBody,".//button");
         button.click();
         Sleeper.sleep(1000);
         var yesButton = findElementByXPath(".//button[contains(text(), \"Yes, delete it!\")]");
@@ -132,52 +133,23 @@ public class NetCoreTest extends BasicTest {
 
     @Test
     void C_testRecording() throws Exception {
-        cleanBrowserCache();
-        newTab("tpm");
-        alertWhenHumanDriven("Starting the recording");
-        Sleeper.sleep(1000);
-        //Open tpm
-        navigateTo("http://net-core-tpm:8081/plugins");
-        Sleeper.sleep(1000);
 
-        executeScript("toggleAccordion('collapseWildcard')");
-        executeScript("getData('/api/protocols/all/plugins/record-plugin/start','GET',reloadAllPlugins)");
-        Sleeper.sleep(1000);
-        alertWhenHumanDriven("Executing operations to record");
-        switchToTab("main");
+        try{
+            recordingData();
 
-        B_testNavigation();
-        switchToTab("tpm");
-        executeScript("getData('/api/protocols/all/plugins/record-plugin/stop','GET',reloadAllPlugins)");
-        Sleeper.sleep(1000);
+            //Replaying without mysql
+            var data = httpGetBinaryFile("http://localhost:5005/api/global/storage");
 
-        alertWhenHumanDriven("Recording completed");
+            replayWithoutMysql();
 
-        //Replaying without mysql
-        var data = httpGetBinaryFile("http://localhost:5005/api/global/storage");
+            replayWIthoutBackend();
+        }catch(Exception ex){
+            System.out.println(ex.getMessage());
+            throw new RuntimeException(ex);
+        }
+    }
 
-        stopContainer("net-core-mysql");
-        alertWhenHumanDriven("Stopped mysql container");
-        Sleeper.sleep(1000);
-        scrollFind("mysql01panel");
-        executeScript("toggleAccordion('collapseWildcard')");
-        executeScript("toggleAccordion('collapsemysql01')");
-        executeScript("getData('/api/protocols/mysql-01/plugins/replay-plugin/start','GET',()=>reloadProtocolmysql01().then(()=>reloadWildcard()).then(()=>reloadActive()))");
-        Sleeper.sleep(1000);
-        alertWhenHumanDriven("Start replaying with fake mysql");
-        switchToTab("main");
-
-        Sleeper.sleep(1000);
-        alertWhenHumanDriven("Cleaning cache and cookies");
-        cleanBrowserCache();
-        Sleeper.sleep(1000);
-        B_testNavigation();
-        alertWhenHumanDriven("No MySql Replaying completed");
-        switchToTab("tpm");
-        executeScript("getData('/api/protocols/mysql-01/plugins/replay-plugin/stop','GET',()=>reloadProtocolmysql01().then(()=>reloadWildcard()).then(()=>reloadActive()))");
-        Sleeper.sleep(1000);
-        alertWhenHumanDriven("Stopped mysql replaying");
-
+    private void replayWIthoutBackend() throws Exception {
         //Replaying without backend
         stopContainer("net-core-rest");
         Sleeper.sleep(1000);
@@ -201,6 +173,52 @@ public class NetCoreTest extends BasicTest {
         executeScript("getData('/api/protocols/http-01/plugins/replay-plugin/stop','GET',()=>reloadProtocolmysql01().then(()=>reloadWildcard()).then(()=>reloadActive()))");
         Sleeper.sleep(1000);
         alertWhenHumanDriven("Test completed");
+    }
 
+    private void replayWithoutMysql() throws Exception {
+        stopContainer("net-core-mysql");
+        alertWhenHumanDriven("Stopped mysql container");
+        Sleeper.sleep(1000);
+        scrollFind("mysql01panel");
+        executeScript("toggleAccordion('collapseWildcard')");
+        executeScript("toggleAccordion('collapsemysql01')");
+        executeScript("getData('/api/protocols/mysql-01/plugins/replay-plugin/start','GET',()=>reloadProtocolmysql01().then(()=>reloadWildcard()).then(()=>reloadActive()))");
+        Sleeper.sleep(1000);
+        alertWhenHumanDriven("Start replaying with fake mysql");
+        switchToTab("main");
+
+        Sleeper.sleep(1000);
+        alertWhenHumanDriven("Cleaning cache and cookies");
+        cleanBrowserCache();
+        Sleeper.sleep(1000);
+        B_testNavigation();
+        alertWhenHumanDriven("No MySql Replaying completed");
+        switchToTab("tpm");
+        executeScript("getData('/api/protocols/mysql-01/plugins/replay-plugin/stop','GET',()=>reloadProtocolmysql01().then(()=>reloadWildcard()).then(()=>reloadActive()))");
+        Sleeper.sleep(1000);
+        alertWhenHumanDriven("Stopped mysql replaying");
+    }
+
+    private void recordingData() {
+        cleanBrowserCache();
+        newTab("tpm");
+        alertWhenHumanDriven("Starting the recording");
+        Sleeper.sleep(1000);
+        //Open tpm
+        navigateTo("http://net-core-tpm:8081/plugins");
+        Sleeper.sleep(1000);
+
+        executeScript("toggleAccordion('collapseWildcard')");
+        executeScript("getData('/api/protocols/all/plugins/record-plugin/start','GET',reloadAllPlugins)");
+        Sleeper.sleep(1000);
+        alertWhenHumanDriven("Executing operations to record");
+        switchToTab("main");
+
+        B_testNavigation();
+        switchToTab("tpm");
+        executeScript("getData('/api/protocols/all/plugins/record-plugin/stop','GET',reloadAllPlugins)");
+        Sleeper.sleep(1000);
+
+        alertWhenHumanDriven("Recording completed");
     }
 }
