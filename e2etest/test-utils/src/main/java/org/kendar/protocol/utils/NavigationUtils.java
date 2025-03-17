@@ -9,15 +9,19 @@ public class NavigationUtils {
         this.seleniumIntegration = seleniumIntegration;
     }
     public boolean navigateTo(String url) {
+        return this.navigateTo(url,true);
+    }
+
+    public boolean navigateTo(String url,boolean snapshot) {
         var driver = (WebDriver) Utils.getCache("driver");
         var current = driver.getCurrentUrl();
         if (current.equalsIgnoreCase(url)) {
             Sleeper.sleep(1000);
-            seleniumIntegration.takeSnapShot();
+            if(snapshot)seleniumIntegration.takeSnapShot();
             return true;
         }
         driver.get(url);
-        seleniumIntegration.takeSnapShot();
+        if(snapshot)seleniumIntegration.takeSnapShot();
         return false;
     }
 }

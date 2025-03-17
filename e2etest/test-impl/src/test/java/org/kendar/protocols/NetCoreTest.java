@@ -2,36 +2,37 @@ package org.kendar.protocols;
 
 import org.junit.jupiter.api.*;
 import org.kendar.protocol.utils.Sleeper;
-import org.testcontainers.containers.wait.strategy.Wait;
+import org.openqa.selenium.By;
+import org.openqa.selenium.WebElement;
 
-import java.time.Duration;
+import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertTrue;
 
-public class NetCoreTest extends BasicTest{
+
+public class NetCoreTest extends BasicTest {
     @AfterAll
     public static void tearDownAfterClass() throws Exception {
         tearDownAfterClassBase();
     }
+
     @BeforeAll
     public static void setUpBeforeClass() throws Exception {
         setupDirectories("net-core");
         var exposed = setupContainer("net-core-tpm");
         //TPM
-        exposed.withExposedService("net-core-tpm-mysql", 23306);
+        withExposedService("net-core-tpm", 3306);
 
         //MySQL server
-        exposed.withExposedService("net-core-mysql-mysql", 13306);
-        exposed.waitingFor("net-core-mysql-mysql",
-                Wait.forListeningPort().withStartupTimeout(Duration.ofSeconds(5)));
+        withExposedService("net-core-mysql", 3306);
 
         //Http server
-        exposed.withExposedService("net-core-http-http", 9080);
-        exposed.waitingFor("net-core-http-http",
-                Wait.forListeningPort().withStartupTimeout(Duration.ofSeconds(5)));
+        withExposedService("net-core-http", 80);
 
-        exposed.withExposedService("net-core-rest-http", 9081);
-        exposed.waitingFor("net-core-rest-http",
-                Wait.forListeningPort().withStartupTimeout(Duration.ofSeconds(5)));
-        exposed.start();
+        //With backend server
+        withExposedService("net-core-rest", 80);
+
+        startContainers();
+
     }
 
 
@@ -44,13 +45,60 @@ public class NetCoreTest extends BasicTest{
     public void beforeEach(TestInfo testInfo) throws Exception {
         beforeEachBase(testInfo);
     }
+
     @Test
-    void testNetCore() throws Exception {
-        getNavigation().navigateTo("http://net-core-tpm:8081/api/status");
-        Sleeper.sleep(200,()-> getDriver().getPageSource().contains("OK"),"Unreachable http://net-core-tpm:8081/api/status");
-        getNavigation().navigateTo("http://net-core-http/api/status");
-        Sleeper.sleep(200,()-> getDriver().getPageSource().contains("OK"),"Unreachable http://net-core-http/api/status");
-        getNavigation().navigateTo("http://net-core-rest/api/status");
-        Sleeper.sleep(200,()-> getDriver().getPageSource().contains("OK"),"Unreachable http://net-core-rest/api/status");
+    void testDockerIsUp() throws Exception {
+        navigateTo("http://net-core-tpm:8081/api/status", false);
+        assertTrue(
+                check(() -> getPageSource().contains("\"OK\"")),
+                "Unreachable http://net-core-tpm:8081/api/status");
+        navigateTo("http://net-core-http/status.html", false);
+        assertTrue(
+                check(() -> getPageSource().contains("\"OK\"")),
+                "Unreachable http://net-core-http/api/status");
+        navigateTo("http://net-core-rest/api/status", false);
+        assertTrue(
+                check(() -> !getPageSource().contains("\"OK\"")),
+                "Unreachable http://net-core-rest/api/status");
+    }
+
+    @Test
+    void testNavigation() {
+        navigateTo("http://net-core-http/index.html");
+
+        //Insert item
+        fillItem("taskName", "Laundry");
+        selectItem("addPriority", "High");
+        fillItem("notes", "Wash Cotton");
+
+        //Submit
+        clickItem("submitNewTask");
+        Sleeper.sleep(1000);
+
+        //Find the selected item
+        var tableBody = findElementById("listTableBody");
+        var tr = tableBody.findElements(By.xpath(".//tr")).get(0);
+        tr.findElement(By.xpath(".//td[contains(text(), \"Laundry\")]"));
+        tr.findElement(By.xpath(".//td[contains(text(), \"Wash Cotton\")]"));
+
+        //Modify the status
+        var status = tr.findElements(By.xpath(".//select")).get(1);
+        selectItem(status, "Completed");
+
+        //Update
+        var button = tr.findElements(By.xpath(".//button")).get(1);
+        button.click();
+        Sleeper.sleep(1000);
+
+        //Reload the stale element
+        tableBody = findElementById("listTableBody");
+        tr = tableBody.findElements(By.xpath(".//tr")).get(0);
+        button = tr.findElements(By.xpath(".//button")).get(1);
+        button.click();
+        Sleeper.sleep(1000);
+
+        //Set the archive
+        clickItem("setArchivedTasks");
+        Sleeper.sleep(1000);
     }
 }

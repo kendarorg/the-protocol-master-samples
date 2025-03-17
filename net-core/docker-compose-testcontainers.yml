@@ -7,15 +7,9 @@ services:
       dockerfile: Dockerfile
     image: "net-core-tpm"
     hostname: "net-core-tpm"
-    ports:
-      - '31044:5005'  # debug port
-      - '33306:3306'  # mysql-01 proxy port
-      - '28081:8081'  # admin api port
-      - '29000:9000'  # proxy port
-      - '20080:80'  # tpm port
     depends_on:
       net-core-mysql:
-        condition: service_started
+        condition: service_healthy
   # Frontend
   net-core-http:
     build:
@@ -49,5 +43,3 @@ services:
       MYSQL_USER: 'user'
       MYSQL_PASSWORD: 'password'
       MYSQL_ROOT_PASSWORD: 'password'
-    ports:
-      - '23306:3306'

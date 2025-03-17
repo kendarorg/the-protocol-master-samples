@@ -69,7 +69,7 @@ public class SeleniumIntegration {
         options.addArguments("--disable-dev-shm-usage"); // overcome limited resource problems
         options.addArguments("--no-sandbox"); // Bypass OS security model
 
-        //options.addArguments("--user-data-dir=/tmp/sticazzi2");
+
         driver = (ChromeDriver) WebDriverManager
                 .chromedriver()
                 .capabilities(options)
@@ -82,16 +82,13 @@ public class SeleniumIntegration {
         js = (JavascriptExecutor) driver;
         Utils.setCache("driver", driver);
         Utils.setCache("js", js);
-        Sleeper.sleep(1000);
         setupSize(driver);
-        Sleeper.sleep(1000);
     }
 
     public void resettingDriver() throws Exception {
-        driver.quit();
+        if(driver!=null)driver.quit();
         Utils.setCache("driver", null);
         Utils.setCache("js", null);
-        Sleeper.sleep(1000);
         seleniumInitialized();
     }
 
@@ -112,7 +109,7 @@ public class SeleniumIntegration {
 
             var dest = rootPath;
             if (!Files.exists(dest)) {
-                Files.createDirectory(dest);
+                rootPath.toFile().mkdirs();
             }
             counter++;
             TakesScreenshot scrShot = ((TakesScreenshot) Utils.getCache("driver"));
@@ -130,7 +127,7 @@ public class SeleniumIntegration {
         try {
             var dest = rootPath;
             if (!Files.exists(dest)) {
-                Files.createDirectory(dest);
+                rootPath.toFile().mkdirs();
             }
 
             counter++;
