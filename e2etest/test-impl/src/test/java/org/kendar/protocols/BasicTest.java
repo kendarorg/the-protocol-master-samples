@@ -8,15 +8,13 @@ import org.apache.hc.core5.http.HttpHost;
 import org.junit.jupiter.api.TestInfo;
 import org.kendar.protocol.utils.*;
 import org.openqa.selenium.*;
-import org.openqa.selenium.remote.RemoteWebDriver;
-import org.openqa.selenium.support.ui.ExpectedConditions;
 import org.openqa.selenium.support.ui.Select;
-import org.openqa.selenium.support.ui.WebDriverWait;
 import org.testcontainers.containers.ComposeContainer;
 import org.testcontainers.containers.wait.strategy.FakeStrategy;
 import org.testcontainers.containers.wait.strategy.PortWaitStrategy;
 
 import java.io.ByteArrayOutputStream;
+import java.io.File;
 import java.nio.file.Path;
 import java.time.Duration;
 import java.util.HashMap;
@@ -33,7 +31,6 @@ public class BasicTest {
     private static HashMap<String, Integer> toWaitFor;
     private Path storage;
     private SeleniumIntegration selenium;
-    private NavigationUtils navigation;
     private WebDriver driver;
     private String proxyHost;
     private Integer proxyPort;
@@ -166,14 +163,21 @@ public class BasicTest {
         return selenium;
     }
 
-    protected NavigationUtils getNavigation() {
-        return navigation;
-    }
 
     protected WebDriver getDriver() {
         return driver;
     }
 
+    public static void cleanDirectory(File dir) {
+        File[] files = dir.listFiles();
+        if(files != null) {
+            for (File file : files) {
+                if (file.isDirectory())
+                    cleanDirectory(file);
+                file.delete();
+            }
+        }
+    }
     protected void beforeEachBase(TestInfo testInfo) throws Exception {
         if (testInfo != null && testInfo.getTestClass().isPresent() &&
                 testInfo.getTestMethod().isPresent()) {
@@ -187,19 +191,19 @@ public class BasicTest {
                 storage = Path.of(getRoot().toString(), "target", "tests", className, method);
             }
         }
+        cleanDirectory(storage.toFile());
         Utils.getCache().clear();
         proxyHost = getEnvironment().getServiceHost(tpmHost, 9000);
         proxyPort = getEnvironment().getServicePort(tpmHost, 9000);
 
 
         selenium = new SeleniumIntegration(storage, proxyHost, proxyPort);
-        navigation = new NavigationUtils(selenium);
+        selenium.takeMessageSnapshot("Start of test");
         selenium.resettingDriver();
         driver = Utils.getCache("driver");
 
         Utils.setCache("selenium", selenium);
         Utils.setCache("storage", storage);
-        Utils.setCache("navigationUtils", navigation);
         Utils.setCache("driver", driver);
 
         //Utils.killApacheLogger();
@@ -223,11 +227,11 @@ public class BasicTest {
 
 
     public boolean navigateTo(String url) {
-        return getNavigation().navigateTo(url, true);
+        return getSelenium().navigateTo(url, true);
     }
 
     public boolean navigateTo(String url, boolean snapshot) {
-        return getNavigation().navigateTo(url, snapshot);
+        return getSelenium().navigateTo(url, snapshot);
     }
 
     public boolean check(BooleanSupplier supplier) {
@@ -353,6 +357,8 @@ public class BasicTest {
     }
 
     protected void alertWhenHumanDriven(String message) {
+
+        selenium.takeMessageSnapshot(message);
         if(System.getenv("HUMAN_DRIVEN") != null) {
             ((JavascriptExecutor)getDriver()).executeScript("alert('" + message + "')");
             var alert = driver.switchTo().alert();

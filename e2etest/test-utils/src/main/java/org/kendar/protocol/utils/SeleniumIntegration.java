@@ -28,6 +28,27 @@ public class SeleniumIntegration {
     private Map<String,String> windowHandles = new HashMap<>();
     private String currentTab;
 
+    public boolean navigateTo(String url) {
+        return this.navigateTo(url,true);
+    }
+
+    public boolean navigateTo(String url,boolean snapshot) {
+        var driver = (WebDriver) Utils.getCache("driver");
+        var current = driver.getCurrentUrl();
+        if (current.equalsIgnoreCase(url)) {
+            Sleeper.sleep(1000);
+            if(!getCurrentTab().equals("settings")) {
+                if(snapshot)takeSnapShot();
+            }
+            return true;
+        }
+        driver.get(url);
+        if(!getCurrentTab().equals("settings")) {
+            if(snapshot)takeSnapShot();
+        }
+        return false;
+    }
+
     public SeleniumIntegration(Path rootPath, String proxyHost, int proxyPort) {
         this.rootPath = rootPath;
         this.proxyHost = proxyHost;
@@ -122,7 +143,9 @@ public class SeleniumIntegration {
     public void takeSnapShot() {
 
         try {
-
+            if(driver.getCurrentUrl().startsWith("about:")) {
+                return;
+            }
             var dest = rootPath;
             if (!Files.exists(dest)) {
                 rootPath.toFile().mkdirs();
