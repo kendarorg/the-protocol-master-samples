@@ -7,11 +7,11 @@ import org.apache.hc.client5.http.impl.routing.DefaultProxyRoutePlanner;
 import org.apache.hc.core5.http.HttpHost;
 import org.junit.jupiter.api.TestInfo;
 import org.kendar.protocol.utils.*;
-import org.openqa.selenium.By;
-import org.openqa.selenium.JavascriptExecutor;
-import org.openqa.selenium.WebDriver;
-import org.openqa.selenium.WebElement;
+import org.openqa.selenium.*;
+import org.openqa.selenium.remote.RemoteWebDriver;
+import org.openqa.selenium.support.ui.ExpectedConditions;
 import org.openqa.selenium.support.ui.Select;
+import org.openqa.selenium.support.ui.WebDriverWait;
 import org.testcontainers.containers.ComposeContainer;
 import org.testcontainers.containers.wait.strategy.FakeStrategy;
 import org.testcontainers.containers.wait.strategy.PortWaitStrategy;
@@ -19,10 +19,10 @@ import org.testcontainers.containers.wait.strategy.PortWaitStrategy;
 import java.io.ByteArrayOutputStream;
 import java.nio.file.Path;
 import java.time.Duration;
-import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 import java.util.function.BooleanSupplier;
+import java.util.function.Function;
 
 @SuppressWarnings("resource")
 public class BasicTest {
@@ -37,30 +37,6 @@ public class BasicTest {
     private WebDriver driver;
     private String proxyHost;
     private Integer proxyPort;
-
-    protected CloseableHttpClient getHttpClient(){
-        var custom = HttpClients.custom();
-        var proxy = new HttpHost("http",proxyHost, proxyPort);
-        var routePlanner = new DefaultProxyRoutePlanner(proxy);
-        return custom.setRoutePlanner(routePlanner).build();
-    }
-
-    protected String httpGet(String path){
-        return new String(httpGetBinaryFile(path));
-    }
-
-    protected byte[] httpGetBinaryFile(String path){
-        try(var client=getHttpClient()){
-            var httpget = new HttpGet(path);
-            var httpresponse = client.execute(httpget);
-
-            var baos = new ByteArrayOutputStream();
-            httpresponse.getEntity().writeTo(baos);
-            return baos.toByteArray();
-        }catch (Exception e){
-            throw new RuntimeException(e);
-        }
-    }
 
     public static void tearDownAfterClassBase() {
         environment.stop();
@@ -104,6 +80,7 @@ public class BasicTest {
         for (var item : toWaitFor.entrySet()) {
             waitPortAvailable(item.getKey(), item.getValue());
         }
+        System.out.println("Containers started");
     }
 
     public static ComposeContainer withExposedService(String host, int ports) throws Exception {
@@ -135,6 +112,30 @@ public class BasicTest {
             }
         }, "Not started " + service + ":" + port);
 
+    }
+
+    protected CloseableHttpClient getHttpClient() {
+        var custom = HttpClients.custom();
+        var proxy = new HttpHost("http", proxyHost, proxyPort);
+        var routePlanner = new DefaultProxyRoutePlanner(proxy);
+        return custom.setRoutePlanner(routePlanner).build();
+    }
+
+    protected String httpGet(String path) {
+        return new String(httpGetBinaryFile(path));
+    }
+
+    protected byte[] httpGetBinaryFile(String path) {
+        try (var client = getHttpClient()) {
+            var httpget = new HttpGet(path);
+            var httpresponse = client.execute(httpget);
+
+            var baos = new ByteArrayOutputStream();
+            httpresponse.getEntity().writeTo(baos);
+            return baos.toByteArray();
+        } catch (Exception e) {
+            throw new RuntimeException(e);
+        }
     }
 
     protected void humanWait() {
@@ -191,7 +192,6 @@ public class BasicTest {
         proxyPort = getEnvironment().getServicePort(tpmHost, 9000);
 
 
-
         selenium = new SeleniumIntegration(storage, proxyHost, proxyPort);
         navigation = new NavigationUtils(selenium);
         selenium.resettingDriver();
@@ -205,19 +205,19 @@ public class BasicTest {
         //Utils.killApacheLogger();
     }
 
-    public void stopContainer(String host, int port) throws Exception {
-        var realHost = getEnvironment().getServiceHost(host, port);
+    public void stopContainer(String host) throws Exception {
+        var containerName = getEnvironment().getContainerByServiceName(host).get().getContainerInfo().getName().substring(1);
         var commandRunner = new CommandRunner(
                 getProjectRoot(),
-                "docker-compose", "-f", "docker-compose-testcontainers.yml", "stop", realHost);
+                "docker", "stop", containerName);
         commandRunner.run();
     }
 
-    public void startContainer(String host, int port) throws Exception {
-        var realHost = getEnvironment().getServiceHost(host, port);
+    public void startContainer(String host) throws Exception {
+        var containerName = getEnvironment().getContainerByServiceName(host).get().getContainerInfo().getName().substring(1);
         var commandRunner = new CommandRunner(
                 getProjectRoot(),
-                "docker-compose", "-f", "docker-compose-testcontainers.yml", "start", realHost);
+                "docker", "start", containerName);
         commandRunner.run();
     }
 
@@ -248,6 +248,19 @@ public class BasicTest {
 
     protected WebElement findElementById(String id) {
         return findElementById(2000, id);
+    }
+
+    protected WebElement findElementByXPath(String id) {
+        return findElementByXPath(2000, id);
+    }
+
+    protected WebElement findElementByXPath(int timeoutms, String id) {
+        var element = new ObjectContainer<WebElement>();
+        Sleeper.sleep(timeoutms, () -> {
+            element.setObject(getDriver().findElement(By.xpath(id)));
+            return element.getObject() != null;
+        });
+        return element.getObject();
     }
 
     protected List<WebElement> findElementsByXpath(String xpath) {
@@ -318,14 +331,89 @@ public class BasicTest {
         Sleeper.sleep(200);
     }
 
-    public void swithToTab(String id) {
-        getSelenium().swithToTab(id);
+
+    private String getCurrentTab() {
+        return getSelenium().getCurrentTab();
+    }
+
+    public void switchToTab(String id) {
+        getSelenium().switchToTab(id);
         Sleeper.sleep(200);
     }
 
     public void executeScript(String script) {
-        ((JavascriptExecutor) getDriver()).executeScript(script);
-        Sleeper.sleep(200);
-        takeSnapshot();
+        try {
+            check(() -> !getPageSource().contains(script));
+            ((JavascriptExecutor) getDriver()).executeScript(script);
+            Sleeper.sleep(200);
+            takeSnapshot();
+        } catch (Exception e) {
+            System.out.println("Script execution failed");
+        }
+    }
+
+    protected void alertWhenHumanDriven(String message) {
+        if(System.getenv("HUMAN_DRIVEN") != null) {
+            ((JavascriptExecutor)getDriver()).executeScript("alert('" + message + "')");
+            var alert = driver.switchTo().alert();
+            while(alert != null) {
+                try{
+                    alert = driver.switchTo().alert();
+                    Sleeper.sleep(200);
+                }catch (Exception e) {
+                    alert = null;
+                }
+            }
+            //System.out.println("Human driven alert");
+        }
+    }
+
+    protected void cleanBrowserCache() {
+        driver.manage().deleteAllCookies();
+        navigateTo("about:blank");
+
+        var currentTab = getCurrentTab();
+        if(!existsTab("settings")) {
+            newTab("settings");
+        }else{
+            switchToTab("settings");
+        }
+        driver.get("chrome://settings/clearBrowserData");
+        driver.findElement(By.xpath("//settings-ui")).sendKeys(Keys.ENTER);
+        Sleeper.sleep(500);
+        navigateTo("about:blank");
+        switchToTab(currentTab);
+
+    }
+
+    private boolean existsTab(String id) {
+        return getSelenium().existsTab(id);
+    }
+
+
+    public WebElement scrollFind(String id, long... extraLength) throws Exception {
+        var js = (JavascriptExecutor) getDriver();
+        var result = js.executeScript("return Math.max(" +
+                "document.body.scrollHeight," +
+                "document.body.offsetHeight," +
+                "document.body.clientHeight," +
+                "document.documentElement.scrollHeight," +
+                "document.documentElement.offsetHeight," +
+                "document.documentElement.clientHeight" +
+                ");").toString();
+        var length = Integer.parseInt(result);
+        for (int i = 0; i < length; i += 100) {
+            js.executeScript("window.scrollTo(0," + i + ")");
+            var we = getDriver().findElements(By.id(id)).size();
+            if (we == 0) {
+                continue;
+            }
+            if (extraLength.length > 0) {
+                js.executeScript("arguments[0].scrollIntoView(true);window.scrollBy(0,-100);", we);
+                //js.executeScript("window.scrollTo(0," + (i+extraLength[0]) + ")");
+            }
+            return getDriver().findElement(By.id(id));
+        }
+        throw new RuntimeException("Unable to find item!");
     }
 }

@@ -8,7 +8,6 @@ import org.openqa.selenium.*;
 import org.openqa.selenium.Dimension;
 import org.openqa.selenium.chrome.ChromeDriver;
 import org.openqa.selenium.chrome.ChromeOptions;
-import org.openqa.selenium.remote.DesiredCapabilities;
 
 import javax.imageio.ImageIO;
 import java.awt.*;
@@ -27,6 +26,7 @@ public class SeleniumIntegration {
     private ChromeDriver driver;
     private JavascriptExecutor js;
     private Map<String,String> windowHandles = new HashMap<>();
+    private String currentTab;
 
     public SeleniumIntegration(Path rootPath, String proxyHost, int proxyPort) {
         this.rootPath = rootPath;
@@ -87,15 +87,18 @@ public class SeleniumIntegration {
         Utils.setCache("js", js);
         setupSize(driver);
         windowHandles.put("main",driver.getWindowHandle());
+        currentTab="main";
     }
 
     public void newTab(String id) {
         driver.switchTo().newWindow(WindowType.TAB);
         windowHandles.put(id,driver.getWindowHandle());
+        currentTab=id;
     }
 
-    public void swithToTab(String id) {
+    public void switchToTab(String id) {
         driver.switchTo().window(windowHandles.get(id));
+        currentTab=id;
     }
 
     public void resettingDriver() throws Exception {
@@ -169,5 +172,13 @@ public class SeleniumIntegration {
         } catch (Exception ex) {
             System.out.println(ex);
         }
+    }
+
+    public String getCurrentTab() {
+        return currentTab;
+    }
+
+    public boolean existsTab(String id) {
+        return windowHandles.containsKey(id);
     }
 }
