@@ -2,7 +2,6 @@ package org.kendar.protocols;
 
 import org.junit.jupiter.api.*;
 import org.kendar.protocol.utils.Sleeper;
-import org.openqa.selenium.By;
 
 import static org.junit.jupiter.api.Assertions.*;
 
