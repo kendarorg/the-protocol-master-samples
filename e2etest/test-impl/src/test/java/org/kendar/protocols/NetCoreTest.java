@@ -3,10 +3,8 @@ package org.kendar.protocols;
 import org.junit.jupiter.api.*;
 import org.kendar.protocol.utils.Sleeper;
 import org.openqa.selenium.By;
-import org.testcontainers.shaded.org.bouncycastle.cert.jcajce.JcaAttributeCertificateIssuer;
 
-import static org.junit.jupiter.api.Assertions.assertEquals;
-import static org.junit.jupiter.api.Assertions.assertTrue;
+import static org.junit.jupiter.api.Assertions.*;
 
 @TestMethodOrder(MethodOrderer.MethodName.class)
 public class NetCoreTest extends BasicTest {
@@ -38,6 +36,7 @@ public class NetCoreTest extends BasicTest {
 
     @AfterEach
     public void tearDownAfterEach() throws Exception {
+        writeScenario();
         tearDownAfterEachBase();
     }
 
@@ -63,10 +62,11 @@ public class NetCoreTest extends BasicTest {
     }
 
     @Test
-    void B_testNavigation() {
+    void B_testNavigation() throws InterruptedException {
         navigateTo("about:blank");
         Sleeper.sleep(500);
         navigateTo("http://net-core-http/index.html");
+        Sleeper.sleep(6000);
 
         alertWhenHumanDriven("Inserting new task");
         //Insert item
@@ -77,46 +77,51 @@ public class NetCoreTest extends BasicTest {
         //Submit
         clickItem("submitNewTask");
         Sleeper.sleep(1000);
+        takeSnapshot();
         alertWhenHumanDriven("Inserting new task");
 
         //Find the selected item
-        var tableBody = findElementById("listTableBody");
-        var tr = findElementByXPath(tableBody,".//tr");
-        findElementByXPath(tr,".//td[contains(text(), \"Laundry\")]");
-        findElementByXPath(tr,".//td[contains(text(), \"Wash Cotton\")]");
+
+        assertNotNull(findElementByXPath("//tbody[@id='listTableBody']/tr/td[contains(text(), \"Laundry\")]"));
+        assertNotNull(findElementByXPath("//tbody[@id='listTableBody']/tr/td[contains(text(), \"Wash Cotton\")]"));
+        takeSnapshot();
+
+
 
         alertWhenHumanDriven("Completing task");
         //Modify the status
-        var status = tr.findElements(By.xpath(".//select")).get(1);
-        selectItem(status, "Completed");
+        var status = findElementsByXPath("//tbody[@id='listTableBody']/tr/td/select");
+        selectItem(status.get(1), "Completed");
+        Sleeper.sleep(1000);
+        takeSnapshot();
 
 
         //Update
-        var button = tr.findElements(By.xpath(".//button")).get(1);
-        button.click();
-        Sleeper.sleep(1000);
-        
-
-        alertWhenHumanDriven("Archiving the task");
-        //Reload the stale element
-        tableBody = findElementById("listTableBody");
-        tr = findElementByXPath(tableBody,".//tr");
-        button = tr.findElements(By.xpath(".//button")).get(1);
+        var button = findElementsByXPath("//tbody[@id='listTableBody']/tr/td/button").get(1);
         button.click();
         Sleeper.sleep(1000);
         takeSnapshot();
         
 
-        //Set the archive
-        clickItem("setArchivedTasks");
+        alertWhenHumanDriven("Archiving the task");
+        //Reload the stale element
+
+        button = findElementsByXPath("//tbody[@id='listTableBody']/tr/td/button").get(1);
+        button.click();
         Sleeper.sleep(1000);
+        takeSnapshot();
+
+        //Set the archive
+
+        clickItem("setArchivedTasks");
+        Sleeper.sleep(2000);
+        takeSnapshot();
         
 
         alertWhenHumanDriven("Clean up the task");
         //Delete old item
-        tableBody = findElementById("archivedTableBody");
-        tr = findElementByXPath(tableBody,".//tr");
-        button = findElementByXPath(tableBody,".//button");
+
+        button = findElementByXPath("//tbody[@id='archivedTableBody']/tr/td/button");
         button.click();
         Sleeper.sleep(1000);
         var yesButton = findElementByXPath(".//button[contains(text(), \"Yes, delete it!\")]");
@@ -136,9 +141,6 @@ public class NetCoreTest extends BasicTest {
 
         try{
             recordingData();
-
-            //Replaying without mysql
-            var data = httpGetBinaryFile("http://localhost:5005/api/global/storage");
 
             replayWithoutMysql();
 
@@ -199,7 +201,7 @@ public class NetCoreTest extends BasicTest {
         alertWhenHumanDriven("Stopped mysql replaying");
     }
 
-    private void recordingData() {
+    private void recordingData() throws InterruptedException {
         cleanBrowserCache();
         newTab("tpm");
         alertWhenHumanDriven("Starting the recording");

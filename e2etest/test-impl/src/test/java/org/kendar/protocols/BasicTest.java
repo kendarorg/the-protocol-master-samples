@@ -10,17 +10,21 @@ import org.kendar.protocol.utils.*;
 import org.openqa.selenium.*;
 import org.openqa.selenium.support.ui.Select;
 import org.testcontainers.containers.ComposeContainer;
+import org.testcontainers.containers.output.OutputFrame;
 import org.testcontainers.containers.wait.strategy.FakeStrategy;
 import org.testcontainers.containers.wait.strategy.PortWaitStrategy;
 
 import java.io.ByteArrayOutputStream;
 import java.io.File;
+import java.io.IOException;
+import java.nio.file.Files;
 import java.nio.file.Path;
 import java.time.Duration;
 import java.util.HashMap;
 import java.util.List;
+import java.util.concurrent.ConcurrentLinkedQueue;
 import java.util.function.BooleanSupplier;
-import java.util.function.Function;
+import java.util.function.Consumer;
 
 @SuppressWarnings("resource")
 public class BasicTest {
@@ -65,6 +69,7 @@ public class BasicTest {
         environment = new ComposeContainer(
                 Path.of(getProjectRoot().toString(), "docker-compose-testcontainers.yml").toFile()
         );
+
         toWaitFor.put(tpmHost, 8081);
         withExposedServiceHidden(tpmHost, 5005);
         withExposedService(tpmHost, 8081);
@@ -73,11 +78,29 @@ public class BasicTest {
         return environment;
     }
 
+    private static ConcurrentLinkedQueue logs = new ConcurrentLinkedQueue();
+
     protected static void startContainers() {
+        for (var item : toWaitFor.entrySet()) {
+            environment.withLogConsumer(item.getKey(), new Consumer<OutputFrame>() {
+                @Override
+                public void accept(OutputFrame outputFrame) {
+                    var data = outputFrame.getUtf8StringWithoutLineEnding();
+                    logs.add(data);
+                    if(outputFrame.getType()== OutputFrame.OutputType.STDERR) {
+                        System.err.println(data);
+                    }else{
+                        System.out.println(data);
+                    }
+                }
+            });
+        }
         environment.start();
         for (var item : toWaitFor.entrySet()) {
             waitPortAvailable(item.getKey(), item.getValue());
         }
+
+
         System.out.println("Containers started");
     }
 
@@ -87,6 +110,7 @@ public class BasicTest {
                 new PortWaitStrategy().
                         forPorts(ports).
                         withStartupTimeout(Duration.ofSeconds(5)));
+
         toWaitFor.put(host, ports);
         return environment;
     }
@@ -136,14 +160,6 @@ public class BasicTest {
         }
     }
 
-    protected void humanWait() {
-        if (System.getenv("HUMAN_WAIT_MS") != null) {
-            var humanWaitTime = Integer.parseInt(System.getenv("HUMAN_WAIT_MS"));
-            Sleeper.sleep(humanWaitTime * 1000L);
-        }
-        takeSnapshot();
-    }
-
     protected void takeSnapshot() {
         selenium.takeSnapShot();
     }
@@ -152,8 +168,32 @@ public class BasicTest {
         Utils.setCache("driver", null);
         Utils.setCache("js", null);
         selenium.takeMessageSnapshot("End of test");
-        driver.quit();
+        if(driver!=null)driver.quit();
+        if (!Files.exists(storage)) {
+            storage.toFile().mkdirs();
+        }
+        var alllogs = new StringBuffer();
+        for(var log:logs.stream().map(s->s+"\n").toList()){
+            alllogs.append(log);
+        }
+        try {
+            Files.writeString(Path.of(storage.toString(),"docker.log"),alllogs);
+        } catch (IOException e) {
+            System.err.println("Error writing docker.log log file on path: "+storage);
+        }
         driver = null;
+    }
+
+    protected void writeScenario(){
+        var data = httpGetBinaryFile("http://localhost:5005/api/global/storage");
+        if (!Files.exists(getStorage())) {
+            getStorage().toFile().mkdirs();
+        }
+        try {
+            Files.write(Path.of(getStorage().toString(),"scenario.zip"),data);
+        } catch (IOException e) {
+            System.err.println("Error writing docker.log log file on path: "+getStorage());
+        }
     }
 
     protected Path getStorage() {
@@ -180,6 +220,7 @@ public class BasicTest {
         }
     }
     protected void beforeEachBase(TestInfo testInfo) throws Exception {
+        logs.clear();
         if (testInfo != null && testInfo.getTestClass().isPresent() &&
                 testInfo.getTestMethod().isPresent()) {
             var className = testInfo.getTestClass().get().getSimpleName();
@@ -289,7 +330,7 @@ public class BasicTest {
         return element.getObject();
     }
 
-    protected List<WebElement> findElementsByXpath(String xpath) {
+    protected List<WebElement> findElementsByXPath(String xpath) {
         return getDriver().findElements(By.xpath(xpath));
     }
 
@@ -385,7 +426,7 @@ public class BasicTest {
     protected void alertWhenHumanDriven(String message) {
 
         selenium.takeMessageSnapshot(message);
-        if(System.getenv("HUMAN_DRIVEN") != null) {
+        if(System.getenv("HUMAN_DRIVEN") != null && System.getenv("RUN_HEADLESS")==null) {
             ((JavascriptExecutor)getDriver()).executeScript("alert('" + message + "')");
             var alert = driver.switchTo().alert();
             while(alert != null) {
@@ -403,20 +444,22 @@ public class BasicTest {
     }
 
     protected void cleanBrowserCache() {
-        driver.manage().deleteAllCookies();
         navigateTo("about:blank");
-
-        var currentTab = getCurrentTab();
-        if(!existsTab("settings")) {
-            newTab("settings");
-        }else{
-            switchToTab("settings");
-        }
-        driver.get("chrome://settings/clearBrowserData");
-        driver.findElement(By.xpath("//settings-ui")).sendKeys(Keys.ENTER);
-        Sleeper.sleep(500);
-        navigateTo("about:blank");
-        switchToTab(currentTab);
+        getSelenium().clearStatus();
+//        //driver.manage().deleteAllCookies();
+//
+//
+//        var currentTab = getCurrentTab();
+//        if(!existsTab("settings")) {
+//            newTab("settings");
+//        }else{
+//            switchToTab("settings");
+//        }
+//        driver.get("chrome://settings/clearBrowserData");
+//        driver.findElement(By.xpath("//settings-ui")).sendKeys(Keys.ENTER);
+//        Sleeper.sleep(500);
+//        navigateTo("about:blank");
+//        switchToTab(currentTab);
 
     }
 

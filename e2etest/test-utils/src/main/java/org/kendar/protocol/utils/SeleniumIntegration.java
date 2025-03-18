@@ -8,6 +8,7 @@ import org.openqa.selenium.*;
 import org.openqa.selenium.Dimension;
 import org.openqa.selenium.chrome.ChromeDriver;
 import org.openqa.selenium.chrome.ChromeOptions;
+import org.openqa.selenium.devtools.DevTools;
 
 import javax.imageio.ImageIO;
 import java.awt.*;
@@ -17,6 +18,7 @@ import java.nio.file.Files;
 import java.nio.file.Path;
 import java.util.HashMap;
 import java.util.Map;
+import java.util.concurrent.ConcurrentLinkedQueue;
 import java.util.stream.Collectors;
 
 public class SeleniumIntegration {
@@ -92,6 +94,10 @@ public class SeleniumIntegration {
         options.addArguments("--disable-gpu"); // applicable to windows os only
         options.addArguments("--disable-dev-shm-usage"); // overcome limited resource problems
         options.addArguments("--no-sandbox"); // Bypass OS security model
+        options.addArguments("--disk-cache-size=0");//Disable cache
+        if("true".equalsIgnoreCase(System.getenv("RUN_HEADLESS"))){
+            options.addArguments("--headless");//Disable cache
+        }
 
 
         driver = (ChromeDriver) WebDriverManager
@@ -100,7 +106,9 @@ public class SeleniumIntegration {
                 .clearDriverCache()
                 .clearResolutionCache()
                 .create();
-        driver.manage().deleteAllCookies();
+
+
+        //driver.manage().deleteAllCookies();
 
 
         js = (JavascriptExecutor) driver;
@@ -109,6 +117,8 @@ public class SeleniumIntegration {
         setupSize(driver);
         windowHandles.put("main",driver.getWindowHandle());
         currentTab="main";
+
+
     }
 
     public void newTab(String id) {
@@ -203,5 +213,9 @@ public class SeleniumIntegration {
 
     public boolean existsTab(String id) {
         return windowHandles.containsKey(id);
+    }
+
+    public void clearStatus() {
+        driver.manage().deleteAllCookies();
     }
 }
