@@ -60,6 +60,8 @@ public class NetCoreTest extends BasicTest {
                 "Unreachable http://net-core-rest/api/status");
     }
 
+    @Test
+    @Disabled("Only to run manually to verify the correctness")
     void B_testNavigation() throws InterruptedException {
         navigateTo("about:blank");
         Sleeper.sleep(500);
