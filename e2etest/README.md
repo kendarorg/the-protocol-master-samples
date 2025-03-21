@@ -1,4 +1,6 @@
 The tests can be run with several environment variables
 
-* HUMAN_DRIVEN: show blocking alert in the various phases
-* RUN_HEADLESS: run headless, precedence over `HUMAN_DRIVEN`
+By default no ui is shown
+
+* RUN_VISIBLE: Show the browser
+* HUMAN_DRIVEN: Show the browser AND show blocking messages in the various phases
