@@ -75,9 +75,11 @@
       "timeout": 30,
       "connectionString": "jdbc:mysql://net-core-mysql:3306/db",
       "plugins": {
-      "report-plugin": {
-        "active": true
-      },
+        "report-plugin": {
+          "active": true
+        },
+        "network-error-plugin": {
+        },
         "record-plugin": {},
         "replay-plugin": {}
       }
