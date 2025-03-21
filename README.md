@@ -1,4 +1,4 @@
-## The Protocol Master Sample
+## The Protocol Master Proxy Samples
 
 ![](protocolmaster_s.gif)
 
@@ -48,8 +48,8 @@ The project `net-core` can be run automatically with selenium and testcontainers
 project. If no env variable is set, the Chrome browser will run till the end of the test. Two environment variables can
 be used
 
-* HUMAN_DRIVEN: show blocking alert in the various phases
-* RUN_HEADLESS: run headless, precedence over `HUMAN_DRIVEN`
+* RUN_VISIBLE: Show the browser
+* HUMAN_DRIVEN: Show the browser AND show blocking messages in the various phases
 
 ### Machine Dependant Stuffs! Beware
 
@@ -343,7 +343,7 @@ Both the Docker and your phone must be on the same network and visible to each o
 
 * First replace in `mitm/docker-compose.yml` the `WG_HOST` variable with the one of your Docker Server
 * Run `docker-compose up` in `mitm` directory
-* Install the Wireguard client on your phone
+* Install the Wireguard client on your phone 
 * Navigate to the Wireguard interface http://YOUR_DOCKER_SERVER:51821/
 * And create a profile to install in Wireguard
 * Now going on the report plugin http://YOUR_DOCKER_SERVER:28081/plugins/global/report-plugin
