@@ -9,4 +9,12 @@ RUN dos2unix /tpmrunner.sh
 RUN chmod +x /tpmrunner.sh
 ENTRYPOINT ["/tpmrunner.sh"]
 
+EXPOSE 5005
+EXPOSE 3306
+EXPOSE 8081
+EXPOSE 1883
+EXPOSE 9000
+EXPOSE 80
+
+
 HEALTHCHECK --interval=3s --retries=30  CMD curl --fail http://localhost:8081/api/status || exit 1

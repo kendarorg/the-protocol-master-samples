@@ -6,7 +6,7 @@ services:
       context: Tpm/.
       dockerfile: Dockerfile
     image: "net-core-tpm"
-    container_name: net-core-tpm
+    hostname: "net-core-tpm"
     ports:
       - '31044:5005'  # debug port
       - '33306:3306'  # mysql-01 proxy port
@@ -22,7 +22,7 @@ services:
       context: HttpServer/.
       dockerfile: Dockerfile
     image: "net-core-http"
-    container_name: net-core-http
+    hostname: "net-core-http"
     depends_on:
       net-core-tpm:
         condition: service_healthy
@@ -32,7 +32,7 @@ services:
       context: RestServer/.
       dockerfile: Dockerfile
     image: "net-core-rest"
-    container_name: net-core-rest
+    hostname: "net-core-rest"
     depends_on:
       net-core-tpm:
         condition: service_healthy
@@ -41,7 +41,7 @@ services:
     build:
       context: MySQL/.
       dockerfile: Dockerfile
-    container_name: net-core-mysql
+    hostname: "net-core-mysql"
     image: "net-core-mysql"
     restart: always
     environment:

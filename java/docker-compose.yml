@@ -5,7 +5,7 @@ services:
       context: Tpm/.
       dockerfile: Dockerfile
     image: "java-tpm"
-    container_name: java-tpm
+    hostname: "java-tpm"
     ports:
       - '31044:5005'  # debug port
       - '31883:1883'  # mqtt-01 proxy port
@@ -23,7 +23,7 @@ services:
       context: RestServer/.
       dockerfile: Dockerfile
     image: "java-rest"
-    container_name: java-rest
+    hostname: "java-rest"
     depends_on:
       java-mysql:
         condition: service_started
@@ -36,7 +36,7 @@ services:
       context: QuoteGenerator/.
       dockerfile: Dockerfile
     image: "java-quote-generator"
-    container_name: java-quote-generator
+    hostname: "java-quote-generator"
     depends_on:
       java-rest:
         condition: service_healthy
@@ -46,7 +46,7 @@ services:
     build:
       context: MySQL/.
       dockerfile: Dockerfile
-    container_name: java-mysql
+    hostname: "java-mysql"
     image: "java-mysql"
     restart: always
     environment:
@@ -61,6 +61,6 @@ services:
       context: Mosquitto/.
       dockerfile: Dockerfile
     image: "java-mosquitto"
-    container_name: java-mosquitto
+    hostname: "java-mosquitto"
     ports:
       - '21883:1883'

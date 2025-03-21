@@ -27,6 +27,29 @@ application. We will mock without a line of code the database and a rest api of 
 * The Docker environment address (let's use DOCKER_SERVER for now)
 * To play with the applications as stand-alone you can replace all 192.168.131.20 addresses (my docker server) with your
   docker server address
+* All needed docker images loaded (if you wanna pre-setup everything)
+
+`
+docker image pull mysql:8
+docker image pull mcr.microsoft.com/dotnet/aspnet:8.0
+docker image pull amazoncorretto:17.0.7-alpine
+docker image pull docker.io/library/node:18-alpine
+docker image pull docker.io/library/node:lts-alpine
+docker image pull eclipse-mosquitto:2.0.20
+docker image pull adoptopenjdk/openjdk11:jdk-11.0.11_9-alpine-slim
+docker image pull postgres:9.6.18
+docker image pull golang:1.18-bullseye
+docker image pull python:3.9.13
+`
+
+### Automatic testing
+
+The project `net-core` can be run automatically with selenium and testcontainers starting the tests inside the `e2etest`
+project. If no env variable is set, the Chrome browser will run till the end of the test. Two environment variables can
+be used
+
+* RUN_VISIBLE: Show the browser
+* HUMAN_DRIVEN: Show the browser AND show blocking messages in the various phases
 
 ### Machine Dependant Stuffs! Beware
 

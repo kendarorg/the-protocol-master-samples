@@ -1,0 +1,45 @@
+
+services:
+  # TPM Application
+  net-core-tpm:
+    build:
+      context: Tpm/.
+      dockerfile: Dockerfile
+    image: "net-core-tpm"
+    hostname: "net-core-tpm"
+    depends_on:
+      net-core-mysql:
+        condition: service_healthy
+  # Frontend
+  net-core-http:
+    build:
+      context: HttpServer/.
+      dockerfile: Dockerfile
+    image: "net-core-http"
+    hostname: "net-core-http"
+    depends_on:
+      net-core-tpm:
+        condition: service_healthy
+  # Backend
+  net-core-rest:
+    build:
+      context: RestServer/.
+      dockerfile: Dockerfile
+    image: "net-core-rest"
+    hostname: "net-core-rest"
+    depends_on:
+      net-core-tpm:
+        condition: service_healthy
+  # Real mysql
+  net-core-mysql:
+    build:
+      context: MySQL/.
+      dockerfile: Dockerfile
+    hostname: "net-core-mysql"
+    image: "net-core-mysql"
+    restart: always
+    environment:
+      MYSQL_DATABASE: 'db'
+      MYSQL_USER: 'user'
+      MYSQL_PASSWORD: 'password'
+      MYSQL_ROOT_PASSWORD: 'password'
