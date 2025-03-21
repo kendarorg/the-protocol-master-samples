@@ -95,7 +95,7 @@ public class SeleniumIntegration {
         options.addArguments("--disable-dev-shm-usage"); // overcome limited resource problems
         options.addArguments("--no-sandbox"); // Bypass OS security model
         options.addArguments("--disk-cache-size=0");//Disable cache
-        if(System.getenv("HUMAN_DRIVEN") == null || System.getenv("RUN_VISIBLE")==null) {
+        if(System.getenv("HUMAN_DRIVEN") == null && System.getenv("RUN_VISIBLE")==null) {
             options.addArguments("--headless");//Disable cache
         }
 

@@ -426,7 +426,7 @@ public class BasicTest {
     protected void alertWhenHumanDriven(String message) {
 
         selenium.takeMessageSnapshot(message);
-        if(System.getenv("HUMAN_DRIVEN") != null || System.getenv("RUN_VISIBLE")!=null) {
+        if(System.getenv("HUMAN_DRIVEN") != null) {
             ((JavascriptExecutor)getDriver()).executeScript("alert('" + message + "')");
             var alert = driver.switchTo().alert();
             while(alert != null) {
