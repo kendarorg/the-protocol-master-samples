@@ -62,10 +62,28 @@ public class SeleniumIntegration {
     }
 
     private String retrieveBrowserVersion() {
-        ChromeDriverManager.getInstance().setup();
-        var versionDetector = new VersionDetector(ChromeDriverManager.getInstance().config(), null);
-        var version = Integer.parseInt(versionDetector.getBrowserVersionFromTheShell("chrome").get());
-        var available = ChromeDriverManager.getInstance().getDriverVersions().stream().
+        Optional<Path> browserPath = WebDriverManager.chromedriver()
+                .getBrowserPath();
+        WebDriverManager webDriverManager = null;
+        if (browserPath.isPresent()) {
+            webDriverManager = ChromeDriverManager.getInstance();
+        }else {
+            browserPath = WebDriverManager.chromiumdriver()
+                    .getBrowserPath();
+            if (browserPath.isPresent()) {
+                webDriverManager = ChromiumDriverManager.getInstance();
+            } else {
+                throw new RuntimeException("Chrome/chromium driver could not be setup");
+            }
+        }
+
+        var config = webDriverManager.config();
+        var versionDetector = new VersionDetector(config, null);
+        var optionalVersion = versionDetector.getBrowserVersionFromTheShell(
+                webDriverManager.getDriverManagerType().getBrowserNameLowerCase());
+
+        var version = Integer.parseInt(optionalVersion.get());
+        var available = webDriverManager.getDriverVersions().stream().
                 map(v -> Integer.parseInt(v.split("\\.")[0])).sorted().distinct().collect(Collectors.toList());
         var matching = available.get(available.size() - 1);
         if (available.stream().anyMatch(v -> v == (version))) {
