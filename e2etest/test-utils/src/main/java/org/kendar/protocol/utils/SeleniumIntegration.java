@@ -2,6 +2,7 @@ package org.kendar.protocol.utils;
 
 import io.github.bonigarcia.wdm.WebDriverManager;
 import io.github.bonigarcia.wdm.managers.ChromeDriverManager;
+import io.github.bonigarcia.wdm.managers.ChromiumDriverManager;
 import io.github.bonigarcia.wdm.versions.VersionDetector;
 import org.apache.commons.io.FileUtils;
 import org.openqa.selenium.*;
@@ -18,6 +19,7 @@ import java.nio.file.Files;
 import java.nio.file.Path;
 import java.util.HashMap;
 import java.util.Map;
+import java.util.Optional;
 import java.util.concurrent.ConcurrentLinkedQueue;
 import java.util.stream.Collectors;
 
@@ -25,10 +27,12 @@ public class SeleniumIntegration {
     private final Path rootPath;
     private final String proxyHost;
     private final int proxyPort;
-    private ChromeDriver driver;
+    private WebDriver driver;
     private JavascriptExecutor js;
     private Map<String,String> windowHandles = new HashMap<>();
     private String currentTab;
+
+    private Path browserPath;
 
     public boolean navigateTo(String url) {
         return this.navigateTo(url,true);
@@ -57,8 +61,17 @@ public class SeleniumIntegration {
         this.proxyPort = proxyPort;
     }
 
-    private void setupSize(ChromeDriver driver) {
+    private void setupSize(WebDriver driver) {
         driver.manage().window().setSize(new Dimension(1366, 900));
+    }
+    private boolean chromeNotChromium = false;
+
+    public boolean isChrome(){
+        return chromeNotChromium;
+    }
+
+    public boolean isChromium(){
+        return  !chromeNotChromium;
     }
 
     private String retrieveBrowserVersion() {
@@ -66,12 +79,16 @@ public class SeleniumIntegration {
                 .getBrowserPath();
         WebDriverManager webDriverManager = null;
         if (browserPath.isPresent()) {
+            this.browserPath = browserPath.get();
             webDriverManager = ChromeDriverManager.getInstance();
+            chromeNotChromium=true;
         }else {
             browserPath = WebDriverManager.chromiumdriver()
                     .getBrowserPath();
             if (browserPath.isPresent()) {
+                this.browserPath = browserPath.get();
                 webDriverManager = ChromiumDriverManager.getInstance();
+                chromeNotChromium=false;
             } else {
                 throw new RuntimeException("Chrome/chromium driver could not be setup");
             }
@@ -80,16 +97,21 @@ public class SeleniumIntegration {
         var config = webDriverManager.config();
         var versionDetector = new VersionDetector(config, null);
         var optionalVersion = versionDetector.getBrowserVersionFromTheShell(
-                webDriverManager.getDriverManagerType().getBrowserNameLowerCase());
+                webDriverManager.getDriverManagerType().getBrowserNameLowerCase(),browserPath.get().toAbsolutePath().toString());
 
-        var version = Integer.parseInt(optionalVersion.get());
-        var available = webDriverManager.getDriverVersions().stream().
-                map(v -> Integer.parseInt(v.split("\\.")[0])).sorted().distinct().collect(Collectors.toList());
-        var matching = available.get(available.size() - 1);
-        if (available.stream().anyMatch(v -> v == (version))) {
-            matching = version;
+        if(optionalVersion.isPresent()) {
+            Integer version = Integer.parseInt(optionalVersion.get());
+            var available = webDriverManager.getDriverVersions().stream().
+                    map(v -> Integer.parseInt(v.split("\\.")[0])).sorted().distinct().collect(Collectors.toList());
+            var matching = available.get(available.size() - 1);
+            if (available.stream().anyMatch(v -> v == (version))) {
+                matching = version;
+            }
+            return matching.toString();
+        }else{
+            return null;
         }
-        return matching.toString();
+
     }
 
     public void seleniumInitialized() throws Exception {
@@ -100,33 +122,49 @@ public class SeleniumIntegration {
         Proxy proxy = new Proxy();
         proxy.setHttpProxy(proxyHost+":"+proxyPort);
         proxy.setProxyType(Proxy.ProxyType.MANUAL);
-        //DesiredCapabilities desired = new DesiredCapabilities();
-        var options = new ChromeOptions();
-        options.setBrowserVersion(retrieveBrowserVersion());
-        options.setProxy(proxy);
-        options.setAcceptInsecureCerts(true);
-        options.addArguments("--remote-allow-origins=*");
+
+        ChromeOptions capabilities = null;
+        if(isChrome()) {
+            capabilities = (ChromeOptions)new TpmChromeDriverManager().retrieveCapabilities();
+        }else{
+            capabilities = (ChromeOptions)new TpmChromiumDriverManager().retrieveCapabilities();
+        }
+        var version = retrieveBrowserVersion();
+        if(version != null) {
+            capabilities.setBrowserVersion(version);
+        }
+
+        capabilities.setBinary(browserPath.toFile());
+        capabilities.setProxy(proxy);
+        capabilities.setAcceptInsecureCerts(true);
+        capabilities.addArguments("--remote-allow-origins=*");
         //options.addArguments("--disable-dev-shm-usage");
         //options.addArguments("disable-infobars"); // disabling infobars
         //options.addArguments("--disable-extensions"); // disabling extensions
-        options.addArguments("--disable-gpu"); // applicable to windows os only
-        options.addArguments("--disable-dev-shm-usage"); // overcome limited resource problems
-        options.addArguments("--no-sandbox"); // Bypass OS security model
-        options.addArguments("--disk-cache-size=0");//Disable cache
-        if(System.getenv("HUMAN_DRIVEN") == null && System.getenv("RUN_VISIBLE")==null) {
-            options.addArguments("--headless");//Disable cache
+        capabilities.addArguments("--disable-gpu"); // applicable to windows os only
+        capabilities.addArguments("--disable-dev-shm-usage"); // overcome limited resource problems
+        capabilities.addArguments("--no-sandbox"); // Bypass OS security model
+        capabilities.addArguments("--disk-cache-size=0");//Disable cache
+        if (System.getenv("HUMAN_DRIVEN") == null && System.getenv("RUN_VISIBLE") == null) {
+            capabilities.addArguments("--headless");//Disable cache
         }
 
 
-        driver = (ChromeDriver) WebDriverManager
-                .chromedriver()
-                .capabilities(options)
-                .clearDriverCache()
-                .clearResolutionCache()
-                .create();
-
-
-        //driver.manage().deleteAllCookies();
+        if(isChrome()) {
+            driver = WebDriverManager
+                    .chromedriver()
+                    .capabilities(capabilities)
+                    .clearDriverCache()
+                    .clearResolutionCache()
+                    .create();
+        }else{
+            driver = WebDriverManager
+                    .chromiumdriver()
+                    .capabilities(capabilities)
+                    .clearDriverCache()
+                    .clearResolutionCache()
+                    .create();
+        }
 
 
         js = (JavascriptExecutor) driver;
