@@ -1,6 +1,9 @@
 package org.kendar.protocols;
+import org.apache.hc.client5.http.classic.methods.HttpDelete;
 import org.junit.jupiter.api.*;
 import org.kendar.protocol.utils.Sleeper;
+
+import java.io.ByteArrayOutputStream;
 
 import static org.junit.jupiter.api.Assertions.*;
 
@@ -64,78 +67,123 @@ public class JavaTest extends BasicTest{
     }
 
     @Test
-    void B_testNavigation() throws InterruptedException {
+    void B_testNavigation() {
         navigateTo("about:blank");
         Sleeper.sleep(500);
         navigateTo("http://java-rest/index.html");//itemUpdateMETA
-        Sleeper.sleep(6000);
+        alertWhenHumanDriven("Waiting for META values to update");
+        Sleeper.sleep(6000,()-> getDriver().getPageSource().contains("META"));
+        newTab("chart");
+        navigateTo("http://java-rest/single.html");
+        alertWhenHumanDriven("Write some data on the db");
+        Sleeper.sleep(60000);
 
-//        alertWhenHumanDriven("Inserting new task");
-//        //Insert item
-//        fillItem("taskName", "Laundry");
-//        selectItem("addPriority", "High");
-//        fillItem("notes", "Wash Cotton");
-//
-//        //Submit
-//        clickItem("submitNewTask");
-//        Sleeper.sleep(1000);
-//        takeSnapshot();
-//        alertWhenHumanDriven("Inserting new task");
-//
-//        //Find the selected item
-//
-//        assertNotNull(findElementByXPath("//tbody[@id='listTableBody']/tr/td[contains(text(), \"Laundry\")]"));
-//        assertNotNull(findElementByXPath("//tbody[@id='listTableBody']/tr/td[contains(text(), \"Wash Cotton\")]"));
-//        takeSnapshot();
-//
-//
-//
-//        alertWhenHumanDriven("Completing task");
-//        //Modify the status
-//        var status = findElementsByXPath("//tbody[@id='listTableBody']/tr/td/select");
-//        selectItem(status.get(1), "Completed");
-//        Sleeper.sleep(1000);
-//        takeSnapshot();
-//
-//
-//        //Update
-//        var button = findElementsByXPath("//tbody[@id='listTableBody']/tr/td/button").get(1);
-//        button.click();
-//        Sleeper.sleep(1000);
-//        takeSnapshot();
-//
-//
-//        alertWhenHumanDriven("Archiving the task");
-//        //Reload the stale element
-//
-//        button = findElementsByXPath("//tbody[@id='listTableBody']/tr/td/button").get(1);
-//        button.click();
-//        Sleeper.sleep(1000);
-//        takeSnapshot();
-//
-//        //Set the archive
-//
-//        clickItem("setArchivedTasks");
-//        Sleeper.sleep(2000);
-//        takeSnapshot();
-//
-//
-//        alertWhenHumanDriven("Clean up the task");
-//        //Delete old item
-//
-//        button = findElementByXPath("//tbody[@id='archivedTableBody']/tr/td/button");
-//        button.click();
-//        Sleeper.sleep(1000);
-//        var yesButton = findElementByXPath(".//button[contains(text(), \"Yes, delete it!\")]");
-//        yesButton.click();
-//        Sleeper.sleep(1000);
-//
-//        var okButton = findElementByXPath(".//button[contains(text(), \"OK\")]");
-//        okButton.click();
-//        Sleeper.sleep(1000);
-//
-//        alertWhenHumanDriven("Operation completed");
-//        navigateTo("about:blank");
+        alertWhenHumanDriven("Verify the DB content");
+        //Direct sql call to verify the content of the DB
+
+        alertWhenHumanDriven("Navigation concluded");
     }
 
+    @Test
+    void C_testRecording() throws Exception {
+
+        try{
+            recordingData();
+
+            replayWithoutContainer("java-quote-generator");
+
+            sendFakeMessages();
+
+            replayWithoutContainer("java-mosquitto");
+        }catch(Exception ex){
+            System.out.println(ex.getMessage());
+            throw new RuntimeException(ex);
+        }
+    }
+
+    private void replayWithoutContainer(String container) throws Exception {
+        stopContainer(container);
+        alertWhenHumanDriven("Stopped "+container+" container");
+        Sleeper.sleep(1000);
+        scrollFind("mqtt01panel");
+        executeScript("toggleAccordion('collapseWildcard')");
+        executeScript("toggleAccordion('collapsemqtt01')");
+        executeScript("getData('/api/protocols/mqtt-01/plugins/replay-plugin/start','GET',()=>reloadProtocolmqtt01()." +
+                "then(()=>reloadWildcard()).then(()=>reloadActive()))");
+        Sleeper.sleep(1000);
+        alertWhenHumanDriven("Start replaying with fake mqtt");
+        switchToTab("main");
+
+        Sleeper.sleep(1000);
+        alertWhenHumanDriven("Cleaning cache and cookies");
+        cleanBrowserCache();
+        Sleeper.sleep(1000);
+        B_testNavigation();
+        alertWhenHumanDriven("No Mqtt Replaying completed");
+        switchToTab("tpm");
+        executeScript("getData('/api/protocols/mqtt-01/plugins/replay-plugin/stop','GET',()=>reloadProtocolmqtt01()." +
+                "then(()=>reloadWildcard()).then(()=>reloadActive()))");
+        Sleeper.sleep(1000);
+        alertWhenHumanDriven("Stopped mqtt replaying");
+    }
+
+    private void cleanUpDb(){
+        alertWhenHumanDriven("Cleaning up database");
+        try (var client = getHttpClient()) {
+            var httpget = new HttpDelete("http://java-rest/api/quotation/symbols");
+            var httpresponse = client.execute(httpget);
+
+            var baos = new ByteArrayOutputStream();
+            httpresponse.getEntity().writeTo(baos);
+            assertEquals(200,httpresponse.getCode());
+        } catch (Exception e) {
+            throw new RuntimeException(e);
+        }
+    }
+
+    private void recordingData() {
+        cleanBrowserCache();
+        cleanUpDb();
+        newTab("tpm");
+        alertWhenHumanDriven("Starting the recording");
+        Sleeper.sleep(1000);
+        //Open tpm
+        navigateTo("http://net-core-tpm:8081/plugins");
+        Sleeper.sleep(1000);
+
+        executeScript("toggleAccordion('collapseWildcard')");
+        executeScript("getData('/api/protocols/all/plugins/record-plugin/start','GET',reloadAllPlugins)");
+        Sleeper.sleep(1000);
+        alertWhenHumanDriven("Executing operations to record");
+        switchToTab("main");
+
+        B_testNavigation();
+        switchToTab("tpm");
+        executeScript("getData('/api/protocols/all/plugins/record-plugin/stop','GET',reloadAllPlugins)");
+        Sleeper.sleep(1000);
+
+        alertWhenHumanDriven("Recording completed");
+    }
+
+
+
+    private void sendFakeMessages() {
+        cleanBrowserCache();
+        cleanUpDb();
+        switchToTab("tpm");
+        //Open tpm
+        navigateTo("http://localhost:8095/plugins/mqtt-01/publish-plugin");
+        Sleeper.sleep(1000);
+        executeScript("toggleAccordion('collapseSpecificPlugin')");
+        selectItem("contentType", "application/json");
+        fillItem("body", "{ajson}");
+        executeScript("sendQueueData()");
+        Sleeper.sleep(1000);
+        //Check on the quotations
+        switchToTab("main");
+        navigateTo("http://java-rest/index.html");//itemUpdateMETA
+        alertWhenHumanDriven("Waiting for META values to update");
+        Sleeper.sleep(6000,()-> getDriver().getPageSource().contains("META"));
+
+    }
 }

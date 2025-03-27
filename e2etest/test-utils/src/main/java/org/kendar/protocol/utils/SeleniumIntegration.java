@@ -178,6 +178,10 @@ public class SeleniumIntegration {
     }
 
     public void newTab(String id) {
+        if(windowHandles.containsKey(id)) {
+            switchToTab(id);
+            return;
+        }
         driver.switchTo().newWindow(WindowType.TAB);
         windowHandles.put(id,driver.getWindowHandle());
         currentTab=id;
