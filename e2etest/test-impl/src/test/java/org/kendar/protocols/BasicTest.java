@@ -1,5 +1,6 @@
 package org.kendar.protocols;
 
+import com.github.dockerjava.api.model.ContainerNetwork;
 import org.apache.hc.client5.http.classic.methods.HttpGet;
 import org.apache.hc.client5.http.impl.classic.CloseableHttpClient;
 import org.apache.hc.client5.http.impl.classic.HttpClients;
@@ -22,6 +23,7 @@ import java.nio.file.Path;
 import java.time.Duration;
 import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 import java.util.concurrent.ConcurrentLinkedQueue;
 import java.util.function.BooleanSupplier;
 import java.util.function.Consumer;
@@ -33,6 +35,7 @@ public class BasicTest {
     private static ComposeContainer environment;
     private static String tpmHost;
     private static HashMap<String, Integer> toWaitFor;
+    private static Map<String, ContainerNetwork> networks;
     private Path storage;
     private SeleniumIntegration selenium;
     private WebDriver driver;
@@ -42,6 +45,12 @@ public class BasicTest {
 
     public static void tearDownAfterClassBase() {
         environment.stop();
+        for(var network : networks.keySet()) {
+            var commandRunner = new CommandRunner(
+                    getProjectRoot(),
+                    "docker", "network","rm", network,"-f");
+            commandRunner.run();
+        }
     }
 
     public static ComposeContainer getEnvironment() {
@@ -99,7 +108,8 @@ public class BasicTest {
         for (var item : toWaitFor.entrySet()) {
             waitPortAvailable(item.getKey(), item.getValue());
         }
-
+        var container = environment.getContainerByServiceName(toWaitFor.keySet().stream().toList().get(0));
+        networks = container.get().getContainerInfo().getNetworkSettings().getNetworks();
 
         System.out.println("Containers started");
     }
@@ -121,6 +131,10 @@ public class BasicTest {
                 new FakeStrategy());
         toWaitFor.put(host, ports);
         return environment;
+    }
+
+    public String getProxyHost() {
+        return proxyHost;
     }
 
     public static void waitPortAvailable(String service, int port) {
@@ -438,6 +452,9 @@ public class BasicTest {
                 }
             }
             Sleeper.sleep(1000);
+        }else{
+            ((JavascriptExecutor)getDriver()).executeScript("document.title='" + message + "'");
+
         }
     }
 
