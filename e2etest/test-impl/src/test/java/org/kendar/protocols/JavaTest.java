@@ -133,10 +133,11 @@ public class JavaTest extends BasicTest{
         Sleeper.sleep(1000);
 
         sendFakeMessageUi("7777","8888");
-        var itemsCount = countItems();
-        assertEquals(1,itemsCount);
         alertWhenHumanDriven("Waiting for META values to update");
         Sleeper.sleep(6000,()-> getDriver().getPageSource().contains("META"));
+
+        var itemsCount = countItems();
+        assertEquals(1,itemsCount);
         switchToTab("chart");
         Sleeper.sleep(1000);
         switchToTab("main");
