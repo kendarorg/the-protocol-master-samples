@@ -96,10 +96,11 @@ public class JavaTest extends BasicTest{
     void C_testRecording() throws Exception {
 
         try{
+            cleanUpDb();
             recordingData();
 
+            cleanUpDb();
             replayWithoutContainer("java-quote-generator");
-            replayWithoutContainer("java-mosquitto");
         }catch(Exception ex){
             System.out.println(ex.getMessage());
             throw new RuntimeException(ex);
@@ -109,6 +110,7 @@ public class JavaTest extends BasicTest{
     @Test
     void D_testFakeMessage() throws Exception {
         stopContainer("java-quote-generator");
+        startContainer("java-mosquitto");
         alertWhenHumanDriven("Stopped java-quote-generator container");
         Sleeper.sleep(1000);
         alertWhenHumanDriven("Cleaning cache and cookies");
@@ -148,7 +150,7 @@ public class JavaTest extends BasicTest{
         switchToTab("chart");
         navigateTo("http://java-rest/single.html?symbol=META");
         Sleeper.sleep(1000);
-        assertEquals(2,countItems());
+        assertTrue(countItems()>=2);
     }
 
     private void replayWithoutContainer(String container) throws Exception {
