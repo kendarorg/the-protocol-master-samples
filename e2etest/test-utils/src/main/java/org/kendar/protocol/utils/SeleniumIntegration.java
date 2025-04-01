@@ -121,6 +121,7 @@ public class SeleniumIntegration {
 
         Proxy proxy = new Proxy();
         proxy.setHttpProxy(proxyHost+":"+proxyPort);
+        proxy.setSslProxy(proxyHost+":"+proxyPort);
         proxy.setProxyType(Proxy.ProxyType.MANUAL);
 
         ChromeOptions capabilities = null;
@@ -134,6 +135,7 @@ public class SeleniumIntegration {
             capabilities.setBrowserVersion(version);
         }
 
+        capabilities.setAcceptInsecureCerts(true);
         capabilities.setBinary(browserPath.toFile());
         capabilities.setProxy(proxy);
         capabilities.setAcceptInsecureCerts(true);
