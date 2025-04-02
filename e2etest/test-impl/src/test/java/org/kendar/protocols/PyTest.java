@@ -1,14 +1,16 @@
 package org.kendar.protocols;
+
 import org.apache.hc.client5.http.classic.methods.HttpDelete;
 import org.junit.jupiter.api.*;
 import org.kendar.protocol.utils.Sleeper;
 
 import java.io.ByteArrayOutputStream;
 
-import static org.junit.jupiter.api.Assertions.*;
+import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertTrue;
 
 @TestMethodOrder(MethodOrderer.MethodName.class)
-public class JavaTest extends BasicTest{
+public class PyTest extends BasicTest{
     @AfterAll
     public static void tearDownAfterClass() throws Exception {
         tearDownAfterClassBase();
@@ -19,18 +21,18 @@ public class JavaTest extends BasicTest{
         setupDirectories("java");
         var exposed = setupContainer("java-tpm");
         //TPM
-        withExposedService("java-tpm", 3306);
-        withExposedService("java-tpm", 1883);
+        withExposedService("py-tpm", 3306);
+        withExposedService("py-tpm", 1883);
 
         //MySQL server
-        withExposedService("java-mysql", 3306);
+        withExposedService("py-mysql", 3306);
 
         //Http server
-        withExposedService("java-quote-generator", 80);
+        withExposedService("py-quote-generator", 80);
 
         //With backend server
-        withExposedService("java-rest", 80);
-        withExposedService("java-mosquitto", 1883);
+        withExposedService("py-rest", 80);
+        withExposedService("py-mosquitto", 1883);
 
         startContainers();
 
@@ -50,31 +52,31 @@ public class JavaTest extends BasicTest{
 
     @Test
     void A_testDockerIsUp() throws Exception {
-        navigateTo("http://java-tpm:8081/api/status", false);
+        navigateTo("http://py-tpm:8081/api/status", false);
         assertTrue(
                 check(() -> getPageSource().contains("\"OK\"")),
-                "Unreachable http://java-tpm:8081/api/status");
+                "Unreachable http://py-tpm:8081/api/status");
 
-        navigateTo("http://java-rest/api/status", false);
+        navigateTo("http://py-rest/api/status", false);
         assertTrue(
                 check(() -> !getPageSource().contains("\"OK\"")),
-                "Unreachable http://java-rest/api/status");
+                "Unreachable http://py-rest/api/status");
 
-        navigateTo("http://java-quote-generator/api/status", false);
+        navigateTo("http://py-quote-generator/api/status", false);
         assertTrue(
                 check(() -> !getPageSource().contains("\"OK\"")),
-                "Unreachable http://java-rest/api/status");
+                "Unreachable http://py-rest/api/status");
     }
 
     @Test
     void B_testNavigation() {
         navigateTo("about:blank");
         Sleeper.sleep(500);
-        navigateTo("http://java-rest/index.html");//itemUpdateMETA
+        navigateTo("http://py-rest/index.html");//itemUpdateMETA
         alertWhenHumanDriven("Waiting for META values to update");
         Sleeper.sleep(6000,()-> getDriver().getPageSource().contains("META"));
         newTab("chart");
-        navigateTo("http://java-rest/single.html");
+        navigateTo("http://py-rest/single.html");
         alertWhenHumanDriven("Write some data on the db");
         Sleeper.sleep(60000);
 
@@ -90,11 +92,11 @@ public class JavaTest extends BasicTest{
         try{
             recordingData();
 
-            replayWithoutContainer("java-quote-generator");
+            replayWithoutContainer("py-quote-generator");
 
             sendFakeMessages();
 
-            replayWithoutContainer("java-mosquitto");
+            replayWithoutContainer("py-mosquitto");
         }catch(Exception ex){
             System.out.println(ex.getMessage());
             throw new RuntimeException(ex);
@@ -130,7 +132,7 @@ public class JavaTest extends BasicTest{
     private void cleanUpDb(){
         alertWhenHumanDriven("Cleaning up database");
         try (var client = getHttpClient()) {
-            var httpget = new HttpDelete("http://java-rest/api/quotation/symbols");
+            var httpget = new HttpDelete("http://py-rest/api/quotation/symbols");
             var httpresponse = client.execute(httpget);
 
             var baos = new ByteArrayOutputStream();
@@ -148,7 +150,7 @@ public class JavaTest extends BasicTest{
         alertWhenHumanDriven("Starting the recording");
         Sleeper.sleep(1000);
         //Open tpm
-        navigateTo("http://java-tpm:8081/plugins");
+        navigateTo("http://py-tpm:8081/plugins");
         Sleeper.sleep(1000);
 
         executeScript("toggleAccordion('collapseWildcard')");
@@ -172,7 +174,7 @@ public class JavaTest extends BasicTest{
         cleanUpDb();
         switchToTab("tpm");
         //Open tpm
-        navigateTo("http://java-tpm:8081/plugins/mqtt-01/publish-plugin");
+        navigateTo("http://py-tpm:8081/plugins/mqtt-01/publish-plugin");
         Sleeper.sleep(1000);
         executeScript("toggleAccordion('collapseSpecificPlugin')");
         selectItem("contentType", "application/json");
@@ -181,7 +183,7 @@ public class JavaTest extends BasicTest{
         Sleeper.sleep(1000);
         //Check on the quotations
         switchToTab("main");
-        navigateTo("http://java-rest/index.html");//itemUpdateMETA
+        navigateTo("http://py-rest/index.html");//itemUpdateMETA
         alertWhenHumanDriven("Waiting for META values to update");
         Sleeper.sleep(6000,()-> getDriver().getPageSource().contains("META"));
 

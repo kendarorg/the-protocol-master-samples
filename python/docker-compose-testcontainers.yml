@@ -6,13 +6,6 @@ services:
       dockerfile: Dockerfile
     image: "py-tpm"
     hostname: "py-tpm"
-    ports:
-      - '31044:5005'  # debug port
-      - '31883:5672'  # amqp-01 proxy port
-      - '33306:3306'  # mysql-01 proxy port
-      - '28081:8081'  # admin api port
-      - '29000:9000'  # proxy port
-      - '20080:80'  # tpm port
     depends_on:
       py-mysql:
         condition: service_started
@@ -54,8 +47,6 @@ services:
       MYSQL_USER: 'user'
       MYSQL_PASSWORD: 'password'
       MYSQL_ROOT_PASSWORD: 'password'
-    ports:
-      - '23306:3306'
   py-rabbit:
     image: "rabbitmq:3-management"
     hostname: "py-rabbit"
