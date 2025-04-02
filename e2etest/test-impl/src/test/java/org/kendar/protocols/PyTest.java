@@ -18,11 +18,11 @@ public class PyTest extends BasicTest{
 
     @BeforeAll
     public static void setUpBeforeClass() throws Exception {
-        setupDirectories("java");
-        var exposed = setupContainer("java-tpm");
+        setupDirectories("python");
+        var exposed = setupContainer("py-tpm");
         //TPM
         withExposedService("py-tpm", 3306);
-        withExposedService("py-tpm", 1883);
+        withExposedService("py-tpm", 5672);
 
         //MySQL server
         withExposedService("py-mysql", 3306);
@@ -32,7 +32,7 @@ public class PyTest extends BasicTest{
 
         //With backend server
         withExposedService("py-rest", 80);
-        withExposedService("py-mosquitto", 1883);
+        withExposedService("py-rabbit", 5672);
 
         startContainers();
 
@@ -96,7 +96,7 @@ public class PyTest extends BasicTest{
 
             sendFakeMessages();
 
-            replayWithoutContainer("py-mosquitto");
+            replayWithoutContainer("py-rabbit");
         }catch(Exception ex){
             System.out.println(ex.getMessage());
             throw new RuntimeException(ex);
@@ -107,13 +107,13 @@ public class PyTest extends BasicTest{
         stopContainer(container);
         alertWhenHumanDriven("Stopped "+container+" container");
         Sleeper.sleep(1000);
-        scrollFind("mqtt01panel");
+        scrollFind("amqp01panel");
         executeScript("toggleAccordion('collapseWildcard')");
-        executeScript("toggleAccordion('collapsemqtt01')");
-        executeScript("getData('/api/protocols/mqtt-01/plugins/replay-plugin/start','GET',()=>reloadProtocolmqtt01()." +
+        executeScript("toggleAccordion('collapseamqp01')");
+        executeScript("getData('/api/protocols/amqp-01/plugins/replay-plugin/start','GET',()=>reloadProtocolamqp01()." +
                 "then(()=>reloadWildcard()).then(()=>reloadActive()))");
         Sleeper.sleep(1000);
-        alertWhenHumanDriven("Start replaying with fake mqtt");
+        alertWhenHumanDriven("Start replaying with fake amqp");
         switchToTab("main");
 
         Sleeper.sleep(1000);
@@ -121,12 +121,12 @@ public class PyTest extends BasicTest{
         cleanBrowserCache();
         Sleeper.sleep(1000);
         B_testNavigation();
-        alertWhenHumanDriven("No Mqtt Replaying completed");
+        alertWhenHumanDriven("No amqp Replaying completed");
         switchToTab("tpm");
-        executeScript("getData('/api/protocols/mqtt-01/plugins/replay-plugin/stop','GET',()=>reloadProtocolmqtt01()." +
+        executeScript("getData('/api/protocols/amqp-01/plugins/replay-plugin/stop','GET',()=>reloadProtocolamqp01()." +
                 "then(()=>reloadWildcard()).then(()=>reloadActive()))");
         Sleeper.sleep(1000);
-        alertWhenHumanDriven("Stopped mqtt replaying");
+        alertWhenHumanDriven("Stopped amqp replaying");
     }
 
     private void cleanUpDb(){
@@ -174,7 +174,7 @@ public class PyTest extends BasicTest{
         cleanUpDb();
         switchToTab("tpm");
         //Open tpm
-        navigateTo("http://py-tpm:8081/plugins/mqtt-01/publish-plugin");
+        navigateTo("http://py-tpm:8081/plugins/amqp-01/publish-plugin");
         Sleeper.sleep(1000);
         executeScript("toggleAccordion('collapseSpecificPlugin')");
         selectItem("contentType", "application/json");
