@@ -50,8 +50,6 @@ services:
   py-rabbit:
     image: "rabbitmq:3-management"
     hostname: "py-rabbit"
-    ports:
-      - '25672:5672'
     environment:
       RABBITMQ_DEFAULT_USER: root
       RABBITMQ_DEFAULT_PASS: password
