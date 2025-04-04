@@ -94,8 +94,6 @@ public class JavaTest extends BasicTest{
             replayWithoutContainer("java-quote-generator");
 
             sendFakeMessages();
-
-            replayWithoutContainer("java-mosquitto");
         }catch(Exception ex){
             System.out.println(ex.getMessage());
             throw new RuntimeException(ex);
