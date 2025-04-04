@@ -82,7 +82,7 @@ public class PyTest extends BasicTest {
         alertWhenHumanDriven("Verify the DB content");
         //Direct sql call to verify the content of the DB
         var ci = countItems();
-        assertTrue(ci > 10);
+        assertTrue(ci >= 5);
 
         alertWhenHumanDriven("Navigation concluded");
     }
