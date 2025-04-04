@@ -137,6 +137,7 @@ public class PyTest extends BasicTest{
             var baos = new ByteArrayOutputStream();
             httpresponse.getEntity().writeTo(baos);
             assertEquals(200,httpresponse.getCode());
+            Sleeper.sleep(1000);
         } catch (Exception e) {
             throw new RuntimeException(e);
         }

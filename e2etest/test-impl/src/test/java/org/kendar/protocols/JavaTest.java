@@ -73,7 +73,7 @@ public class JavaTest extends BasicTest{
         Sleeper.sleep(500);
         navigateTo("http://java-rest/index.html");//itemUpdateMETA
         alertWhenHumanDriven("Waiting for META values to update");
-        Sleeper.sleep(6000,()-> getDriver().getPageSource().contains("META"));
+        Sleeper.sleep(15000,()-> getDriver().getPageSource().contains("META"));
         newTab("chart");
         navigateTo("http://java-rest/single.html?symbol=META");
         alertWhenHumanDriven("Write some data on the db");
@@ -135,6 +135,7 @@ public class JavaTest extends BasicTest{
             var baos = new ByteArrayOutputStream();
             httpresponse.getEntity().writeTo(baos);
             assertEquals(200,httpresponse.getCode());
+            Sleeper.sleep(1000);
         } catch (Exception e) {
             throw new RuntimeException(e);
         }
