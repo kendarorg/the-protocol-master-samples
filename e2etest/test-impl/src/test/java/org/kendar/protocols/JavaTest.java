@@ -66,7 +66,7 @@ public class JavaTest extends BasicTest {
                 "Unreachable http://java-rest/api/status");
     }
 
-    //@Test
+    @Test
     void B_testNavigation() {
         cleanUpDb();
         navigateTo("about:blank");
