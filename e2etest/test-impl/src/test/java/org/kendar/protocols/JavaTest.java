@@ -70,12 +70,15 @@ public class JavaTest extends BasicTest {
     void B_testNavigation() {
         cleanUpDb();
         navigateTo("about:blank");
-        Sleeper.sleep(500);
+        Sleeper.sleep(1000);
         navigateTo("http://java-rest/index.html");//itemUpdateMETA
         alertWhenHumanDriven("Waiting for META values to update");
         Sleeper.sleep(15000, () -> getDriver().getPageSource().contains("META"));
         alertWhenHumanDriven("Quotation found");
+        Sleeper.sleep(1000);
         newTab("chart");
+        navigateTo("about:blank");
+        Sleeper.sleep(1000);
         navigateTo("http://java-rest/single.html?symbol=META");
         alertWhenHumanDriven("Write some data on the db");
         Sleeper.sleep(60000);
