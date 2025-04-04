@@ -150,6 +150,8 @@ function initializeQuotations(id){
 
         }catch(error){
             console.warn(error)
+            setTimeout(()=>initializeQuotations(id), 1000);
+            return;
         }
         setTimeout(nextQuotations, 1000);
     });

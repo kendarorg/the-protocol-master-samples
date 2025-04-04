@@ -1,16 +1,15 @@
 package org.kendar.protocols;
 
-import org.apache.hc.client5.http.classic.methods.HttpDelete;
 import org.junit.jupiter.api.*;
 import org.kendar.protocol.utils.Sleeper;
 
-import java.io.ByteArrayOutputStream;
+import java.sql.DriverManager;
+import java.sql.ResultSet;
 
-import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertTrue;
 
 @TestMethodOrder(MethodOrderer.MethodName.class)
-public class PyTest extends BasicTest{
+public class PyTest extends BasicTest {
     @AfterAll
     public static void tearDownAfterClass() throws Exception {
         tearDownAfterClassBase();
@@ -37,7 +36,6 @@ public class PyTest extends BasicTest{
         startContainers();
 
     }
-
 
     @AfterEach
     public void tearDownAfterEach() throws Exception {
@@ -69,13 +67,13 @@ public class PyTest extends BasicTest{
     }
 
     @Test
-    @Disabled("Only to run manually to verify the correctness")
     void B_testNavigation() {
+        cleanUpDb();
         navigateTo("about:blank");
         Sleeper.sleep(500);
         navigateTo("http://py-rest/index.html");//itemUpdateMETA
         alertWhenHumanDriven("Waiting for META values to update");
-        Sleeper.sleep(15000,()-> getDriver().getPageSource().contains("META"));
+        Sleeper.sleep(15000, () -> getDriver().getPageSource().contains("META"));
         newTab("chart");
         navigateTo("http://py-rest/single.html?symbol=META");
         alertWhenHumanDriven("Write some data on the db");
@@ -83,20 +81,62 @@ public class PyTest extends BasicTest{
 
         alertWhenHumanDriven("Verify the DB content");
         //Direct sql call to verify the content of the DB
+        var ci = countItems();
+        assertTrue(ci > 10);
 
         alertWhenHumanDriven("Navigation concluded");
+    }
+
+    private void cleanUpDb() {
+        alertWhenHumanDriven("Cleaning up database");
+        try {
+            var mySqlHost = getEnvironment().getServiceHost("py-mysql", 3306);
+            var mySqlPort = getEnvironment().getServicePort("py-mysql", 3306);
+            Class.forName("com.mysql.cj.jdbc.Driver");
+            var c = DriverManager
+                    .getConnection(String.format("jdbc:mysql://%s:%d/db", mySqlHost, mySqlPort),
+                            "root", "password");
+            var stmt = c.createStatement();
+            stmt.execute("DELETE FROM quotation");
+            stmt.close();
+            c.close();
+        } catch (Exception e) {
+            throw new RuntimeException(e);
+        }
+    }
+
+    private int countItems() {
+        try {
+            var mySqlHost = getEnvironment().getServiceHost("py-mysql", 3306);
+            var mySqlPort = getEnvironment().getServicePort("py-mysql", 3306);
+            Class.forName("com.mysql.cj.jdbc.Driver");
+            var c = DriverManager
+                    .getConnection(String.format("jdbc:mysql://%s:%d/db", mySqlHost, mySqlPort),
+                            "root", "password");
+            var stmt = c.createStatement();
+            ResultSet rs = stmt.executeQuery("SELECT COUNT(*) FROM quotation");
+            //Retrieving the result
+            rs.next();
+            int count = rs.getInt(1);
+            rs.close();
+            stmt.close();
+            c.close();
+            return count;
+        } catch (Exception e) {
+            throw new RuntimeException(e);
+        }
     }
 
     @Test
     void C_testRecording() throws Exception {
 
-        try{
+        try {
             recordingData();
 
             replayWithoutContainer("py-quote-generator");
 
             sendFakeMessages();
-        }catch(Exception ex){
+        } catch (Exception ex) {
             System.out.println(ex.getMessage());
             throw new RuntimeException(ex);
         }
@@ -104,7 +144,7 @@ public class PyTest extends BasicTest{
 
     private void replayWithoutContainer(String container) throws Exception {
         stopContainer(container);
-        alertWhenHumanDriven("Stopped "+container+" container");
+        alertWhenHumanDriven("Stopped " + container + " container");
         Sleeper.sleep(1000);
         scrollFind("amqp01panel");
         executeScript("toggleAccordion('collapseWildcard')");
@@ -128,20 +168,6 @@ public class PyTest extends BasicTest{
         alertWhenHumanDriven("Stopped amqp replaying");
     }
 
-    private void cleanUpDb(){
-        alertWhenHumanDriven("Cleaning up database");
-        try (var client = getHttpClient()) {
-            var httpget = new HttpDelete("http://py-rest/api/quotation/symbols");
-            var httpresponse = client.execute(httpget);
-
-            var baos = new ByteArrayOutputStream();
-            httpresponse.getEntity().writeTo(baos);
-            assertEquals(200,httpresponse.getCode());
-            Sleeper.sleep(1000);
-        } catch (Exception e) {
-            throw new RuntimeException(e);
-        }
-    }
 
     private void recordingData() {
         cleanBrowserCache();
@@ -168,7 +194,6 @@ public class PyTest extends BasicTest{
     }
 
 
-
     private void sendFakeMessages() {
         cleanBrowserCache();
         cleanUpDb();
@@ -185,7 +210,7 @@ public class PyTest extends BasicTest{
         switchToTab("main");
         navigateTo("http://py-rest/index.html");//itemUpdateMETA
         alertWhenHumanDriven("Waiting for META values to update");
-        Sleeper.sleep(6000,()-> getDriver().getPageSource().contains("META"));
+        Sleeper.sleep(6000, () -> getDriver().getPageSource().contains("META"));
 
     }
 }
