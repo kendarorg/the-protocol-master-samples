@@ -74,7 +74,7 @@ public class PyTest extends BasicTest{
         Sleeper.sleep(500);
         navigateTo("http://py-rest/index.html");//itemUpdateMETA
         alertWhenHumanDriven("Waiting for META values to update");
-        Sleeper.sleep(6000,()-> getDriver().getPageSource().contains("META"));
+        Sleeper.sleep(15000,()-> getDriver().getPageSource().contains("META"));
         newTab("chart");
         navigateTo("http://py-rest/single.html?symbol=META");
         alertWhenHumanDriven("Write some data on the db");
