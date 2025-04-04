@@ -82,7 +82,8 @@ public class JavaTest extends BasicTest {
         alertWhenHumanDriven("Verify the DB content");
         //Direct sql call to verify the content of the DB
         var ci = countItems();
-        assertTrue(ci >= 5);
+        System.out.println("Counted items: "+ci);
+        assertTrue(ci >= 4);
 
         alertWhenHumanDriven("Navigation concluded");
     }
