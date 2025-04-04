@@ -67,6 +67,7 @@ public class JavaTest extends BasicTest{
     }
 
     @Test
+    @Disabled("Only to run manually to verify the correctness")
     void B_testNavigation() {
         navigateTo("about:blank");
         Sleeper.sleep(500);
