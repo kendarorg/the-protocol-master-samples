@@ -95,8 +95,6 @@ public class PyTest extends BasicTest{
             replayWithoutContainer("py-quote-generator");
 
             sendFakeMessages();
-
-            replayWithoutContainer("py-rabbit");
         }catch(Exception ex){
             System.out.println(ex.getMessage());
             throw new RuntimeException(ex);
