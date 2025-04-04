@@ -97,7 +97,7 @@
       "password": "password",
       "timeout": 30,
       "connectionString": "jdbc:mysql://py-mysql:3306/db",
-      "force3BytesOkPacketInfoasdfasd": true,
+      "force3BytesOkPacketInfo": true,
       "plugins": {
         "report-plugin": {
           "active": true

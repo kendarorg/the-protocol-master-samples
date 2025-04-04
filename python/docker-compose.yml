@@ -8,16 +8,11 @@ services:
     hostname: "py-tpm"
     ports:
       - '31044:5005'  # debug port
-      - '31883:5672'  # amqp-01 proxy port
+      - '35672:5672'  # amqp-01 proxy port
       - '33306:3306'  # mysql-01 proxy port
       - '28081:8081'  # admin api port
       - '29000:9000'  # proxy port
       - '20080:80'  # tpm port
-    depends_on:
-      py-mysql:
-        condition: service_started
-      py-rabbit:
-        condition: service_started
   py-rest:
     build:
       context: RestServer/.
@@ -40,8 +35,8 @@ services:
     image: "py-quote-generator"
     hostname: "py-quote-generator"
     depends_on:
-      py-rabbit:
-        condition: service_started
+      py-tpm:
+        condition: service_healthy
   py-mysql:
     build:
       context: MySQL/.

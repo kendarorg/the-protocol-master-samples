@@ -24,6 +24,8 @@ services:
         condition: service_healthy
       py-rabbit:
         condition: service_started
+      py-quote-generator:
+        condition: service_healthy
   py-quote-generator:
     build:
       context: QuoteGenerator/.
@@ -31,10 +33,8 @@ services:
     image: "py-quote-generator"
     hostname: "py-quote-generator"
     depends_on:
-      py-rest:
+      py-tpm:
         condition: service_healthy
-      py-rabbit:
-        condition: service_started
   py-mysql:
     build:
       context: MySQL/.
