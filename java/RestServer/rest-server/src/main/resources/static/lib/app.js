@@ -129,6 +129,7 @@ function initializeQuotations(id) {
     getData("/api/quotation/symbols", "GET", (code, response) => {
         try{
             symbolsArray = JSON.parse(response)
+            if(symbolsArray.length==0) throw new Error("No data yet");
             for (i = 0; i < symbolsArray.length; i++) {
                 let symbol = symbolsArray[i]['symbol'];
                 allSymbols.push(symbol);
