@@ -74,6 +74,7 @@ public class PyTest extends BasicTest {
         navigateTo("http://py-rest/index.html");//itemUpdateMETA
         alertWhenHumanDriven("Waiting for META values to update");
         Sleeper.sleep(15000, () -> getDriver().getPageSource().contains("META"));
+        alertWhenHumanDriven("Quotation found");
         newTab("chart");
         navigateTo("http://py-rest/single.html?symbol=META");
         alertWhenHumanDriven("Write some data on the db");
@@ -83,7 +84,7 @@ public class PyTest extends BasicTest {
         //Direct sql call to verify the content of the DB
         var ci = countItems();
         System.out.println("Counted items: "+ci);
-        assertTrue(ci >= 4);
+        assertTrue(ci >= 5);
 
         alertWhenHumanDriven("Navigation concluded");
     }
