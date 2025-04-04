@@ -70,7 +70,6 @@ function nextSymbolQuotation() {
             if (changed) {
                 chart.update();
             }
-
         } catch (error) {
             console.warn(error)
         }
@@ -127,9 +126,10 @@ var allSymbols = [];
 function initializeQuotations(id) {
     const table = document.getElementById(id);
     getData("/api/quotation/symbols", "GET", (code, response) => {
-        try{
+        console.log("initialize quotations");
+        try {
             symbolsArray = JSON.parse(response)
-            if(symbolsArray.length==0) throw new Error("No data yet");
+            if (symbolsArray.length == 0) throw new Error("No data yet");
             for (i = 0; i < symbolsArray.length; i++) {
                 let symbol = symbolsArray[i]['symbol'];
                 allSymbols.push(symbol);
@@ -150,9 +150,9 @@ function initializeQuotations(id) {
                 table.appendChild(row);
             }
 
-        }catch(error){
+        } catch (error) {
             console.warn(error)
-            setTimeout(()=>initializeQuotations(id), 1000);
+            setTimeout(() => initializeQuotations(id), 1000);
             return;
         }
         setTimeout(nextQuotations, 1000);
