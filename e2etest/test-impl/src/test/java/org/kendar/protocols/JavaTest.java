@@ -68,7 +68,6 @@ public class JavaTest extends BasicTest {
 
     @Test
     void B_testNavigation() {
-        cleanUpDb();
         navigateTo("about:blank");
         Sleeper.sleep(1000);
         navigateTo("http://java-rest/index.html");//itemUpdateMETA
@@ -194,6 +193,7 @@ public class JavaTest extends BasicTest {
         switchToTab("tpm");
         executeScript("getData('/api/protocols/all/plugins/record-plugin/stop','GET',reloadAllPlugins)");
         Sleeper.sleep(1000);
+        cleanUpDb();
 
         alertWhenHumanDriven("Recording completed");
     }

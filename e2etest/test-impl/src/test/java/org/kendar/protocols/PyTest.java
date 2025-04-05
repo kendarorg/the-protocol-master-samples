@@ -68,7 +68,6 @@ public class PyTest extends BasicTest {
 
     @Test
     void B_testNavigation() {
-        cleanUpDb();
         navigateTo("about:blank");
         Sleeper.sleep(1000);
         navigateTo("http://py-rest/index.html");//itemUpdateMETA
@@ -194,6 +193,7 @@ public class PyTest extends BasicTest {
         switchToTab("tpm");
         executeScript("getData('/api/protocols/all/plugins/record-plugin/stop','GET',reloadAllPlugins)");
         Sleeper.sleep(1000);
+        cleanUpDb();
 
         alertWhenHumanDriven("Recording completed");
     }
