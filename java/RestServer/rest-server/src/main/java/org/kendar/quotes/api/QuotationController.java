@@ -27,8 +27,8 @@ public class QuotationController {
     List<QuotationSymbol> findAllSymbols() {
 
         return repository.findAllSymbols().stream()
-                .map(s->{
-                    var res =new QuotationSymbol();
+                .map(s -> {
+                    var res = new QuotationSymbol();
                     res.setSymbol(s);
                     return res;
                 }).collect(Collectors.toList());

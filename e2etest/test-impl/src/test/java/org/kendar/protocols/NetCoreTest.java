@@ -107,7 +107,6 @@ public class NetCoreTest extends BasicTest {
         takeSnapshot();
 
 
-
         alertWhenHumanDriven("Completing task");
         //Modify the status
         var status = findElementsByXPath("//tbody[@id='listTableBody']/tr/td/select");
@@ -121,7 +120,7 @@ public class NetCoreTest extends BasicTest {
         button.click();
         Sleeper.sleep(1000);
         takeSnapshot();
-        
+
 
         alertWhenHumanDriven("Archiving the task");
         //Reload the stale element
@@ -136,7 +135,7 @@ public class NetCoreTest extends BasicTest {
         clickItem("setArchivedTasks");
         Sleeper.sleep(2000);
         takeSnapshot();
-        
+
 
         alertWhenHumanDriven("Clean up the task");
         //Delete old item
@@ -147,7 +146,7 @@ public class NetCoreTest extends BasicTest {
         var yesButton = findElementByXPath(".//button[contains(text(), \"Yes, delete it!\")]");
         yesButton.click();
         Sleeper.sleep(1000);
-        
+
         var okButton = findElementByXPath(".//button[contains(text(), \"OK\")]");
         okButton.click();
         Sleeper.sleep(1000);
@@ -159,13 +158,13 @@ public class NetCoreTest extends BasicTest {
     @Test
     void C_testRecording() throws Exception {
 
-        try{
+        try {
             recordingData();
 
             replayWithoutMysql();
 
             replayWIthoutBackend();
-        }catch(Exception ex){
+        } catch (Exception ex) {
             System.out.println(ex.getMessage());
             throw new RuntimeException(ex);
         }
