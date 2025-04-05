@@ -46,6 +46,7 @@ public class JavaTest extends BasicTest {
     @BeforeEach
     public void beforeEach(TestInfo testInfo) throws Exception {
         beforeEachBase(testInfo);
+        cleanUpDb();
     }
 
     @Test

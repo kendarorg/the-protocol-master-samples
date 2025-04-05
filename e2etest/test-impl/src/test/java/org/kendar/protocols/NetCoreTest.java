@@ -3,6 +3,8 @@ package org.kendar.protocols;
 import org.junit.jupiter.api.*;
 import org.kendar.protocol.utils.Sleeper;
 
+import java.sql.DriverManager;
+
 import static org.junit.jupiter.api.Assertions.*;
 
 @TestMethodOrder(MethodOrderer.MethodName.class)
@@ -42,6 +44,25 @@ public class NetCoreTest extends BasicTest {
     @BeforeEach
     public void beforeEach(TestInfo testInfo) throws Exception {
         beforeEachBase(testInfo);
+        cleanUpDb();
+    }
+
+    private void cleanUpDb() {
+        alertWhenHumanDriven("Cleaning up database");
+        try {
+            var mySqlHost = getEnvironment().getServiceHost("net-core-mysql", 3306);
+            var mySqlPort = getEnvironment().getServicePort("net-core-mysql", 3306);
+            Class.forName("com.mysql.cj.jdbc.Driver");
+            var c = DriverManager
+                    .getConnection(String.format("jdbc:mysql://%s:%d/db", mySqlHost, mySqlPort),
+                            "root", "password");
+            var stmt = c.createStatement();
+            stmt.execute("DELETE FROM task");
+            stmt.close();
+            c.close();
+        } catch (Exception e) {
+            throw new RuntimeException(e);
+        }
     }
 
     @Test
