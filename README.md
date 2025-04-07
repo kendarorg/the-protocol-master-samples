@@ -235,6 +235,7 @@ Now your environment is ready for a real test!
 * Amqp simulation... done!
 * Stop on Amqp the [replay-plugin](http://py-tpm:8081/plugins/amqp-01/replay-plugin)
 
+<!--
 ### Faking a message
 
 * Activate the Amqp  [publish-plugin](http://py-tpm:8081/plugins/amqp-01/publish-plugin)
@@ -249,7 +250,7 @@ Now your environment is ready for a real test!
 ```
 
 * Look on your message on the graph! Here it is your fake message
-
+-->
 
 <a id="gca"></a>
 
