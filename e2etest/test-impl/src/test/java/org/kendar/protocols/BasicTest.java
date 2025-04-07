@@ -1,5 +1,6 @@
 package org.kendar.protocols;
 
+import com.github.dockerjava.api.model.ContainerNetwork;
 import org.apache.hc.client5.http.classic.methods.HttpGet;
 import org.apache.hc.client5.http.impl.classic.CloseableHttpClient;
 import org.apache.hc.client5.http.impl.classic.HttpClients;
@@ -41,7 +42,6 @@ public class BasicTest {
     private WebDriver driver;
     private String proxyHost;
     private Integer proxyPort;
-    private static int defaultTimeout = 5000;
 
     public static void tearDownAfterClassBase() {
         environment.stop();

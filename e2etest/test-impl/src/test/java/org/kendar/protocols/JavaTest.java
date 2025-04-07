@@ -215,7 +215,7 @@ public class JavaTest extends BasicTest {
         selectItem("contentType", "application/json");
         var body = "{ \"symbol\" : \"META\", \"date\" : " +
                 System.currentTimeMillis() +
-                ",\"price\" : "+price+",  \"volume\" : "+volume+" }";
+                ",\"price\" : 2000,  \"volume\" : 2000 }";
         fillItem("body",body);
         fillItem("topic","quotations");
         executeScript("sendQueueData()");
