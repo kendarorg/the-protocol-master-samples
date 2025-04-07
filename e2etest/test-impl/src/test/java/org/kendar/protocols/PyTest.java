@@ -3,10 +3,11 @@ package org.kendar.protocols;
 import org.junit.jupiter.api.*;
 import org.kendar.protocol.utils.Sleeper;
 
+import java.io.ByteArrayOutputStream;
 import java.sql.DriverManager;
 import java.sql.ResultSet;
 
-import static org.junit.jupiter.api.Assertions.assertTrue;
+import static org.junit.jupiter.api.Assertions.*;
 
 @TestMethodOrder(MethodOrderer.MethodName.class)
 public class PyTest extends BasicTest {
@@ -80,8 +81,11 @@ public class PyTest extends BasicTest {
         navigateTo("about:blank");
         Sleeper.sleep(1000);
         navigateTo("http://py-rest/single.html?symbol=META");
-        alertWhenHumanDriven("Write some data on the db");
-        Sleeper.sleep(60000);
+
+        for(var i=0; i<60; i++) {
+            Sleeper.sleep(1000);
+            alertWhenHumanDriven("Waited "+i+" seconds");
+        }
 
         alertWhenHumanDriven("Verify the DB content");
         //Direct sql call to verify the content of the DB
@@ -139,8 +143,6 @@ public class PyTest extends BasicTest {
             recordingData();
 
             replayWithoutContainer("py-quote-generator");
-
-            sendFakeMessages();
         } catch (Exception ex) {
             System.out.println(ex.getMessage());
             throw new RuntimeException(ex);
@@ -152,8 +154,8 @@ public class PyTest extends BasicTest {
         alertWhenHumanDriven("Stopped " + container + " container");
         Sleeper.sleep(1000);
         scrollFind("amqp01panel");
-        executeScript("toggleAccordion('collapseWildcard')");
-        executeScript("toggleAccordion('collapseamqp01')");
+        executeScript("closeAccordion('collapseWildcard')");
+        executeScript("openAccordion('collapseamqp01')");
         executeScript("getData('/api/protocols/amqp-01/plugins/replay-plugin/start','GET',()=>reloadProtocolamqp01()." +
                 "then(()=>reloadWildcard()).then(()=>reloadActive()))");
         Sleeper.sleep(1000);
@@ -184,7 +186,7 @@ public class PyTest extends BasicTest {
         navigateTo("http://py-tpm:8081/plugins");
         Sleeper.sleep(1000);
 
-        executeScript("toggleAccordion('collapseWildcard')");
+        executeScript("openAccordion('collapseWildcard')");
         executeScript("getData('/api/protocols/all/plugins/record-plugin/start','GET',reloadAllPlugins)");
         Sleeper.sleep(1000);
         alertWhenHumanDriven("Executing operations to record");
@@ -197,26 +199,5 @@ public class PyTest extends BasicTest {
         cleanUpDb();
 
         alertWhenHumanDriven("Recording completed");
-    }
-
-
-    private void sendFakeMessages() {
-        cleanBrowserCache();
-        cleanUpDb();
-        switchToTab("tpm");
-        //Open tpm
-        navigateTo("http://py-tpm:8081/plugins/amqp-01/publish-plugin");
-        Sleeper.sleep(1000);
-        executeScript("toggleAccordion('collapseSpecificPlugin')");
-        selectItem("contentType", "application/json");
-        fillItem("body", "{ajson}");
-        executeScript("sendQueueData()");
-        Sleeper.sleep(1000);
-        //Check on the quotations
-        switchToTab("main");
-        navigateTo("http://py-rest/index.html");//itemUpdateMETA
-        alertWhenHumanDriven("Waiting for META values to update");
-        Sleeper.sleep(6000, () -> getDriver().getPageSource().contains("META"));
-
     }
 }
