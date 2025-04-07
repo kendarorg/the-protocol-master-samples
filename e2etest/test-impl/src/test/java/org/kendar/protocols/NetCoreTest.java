@@ -3,6 +3,8 @@ package org.kendar.protocols;
 import org.junit.jupiter.api.*;
 import org.kendar.protocol.utils.Sleeper;
 
+import java.sql.DriverManager;
+
 import static org.junit.jupiter.api.Assertions.*;
 
 @TestMethodOrder(MethodOrderer.MethodName.class)
@@ -42,6 +44,25 @@ public class NetCoreTest extends BasicTest {
     @BeforeEach
     public void beforeEach(TestInfo testInfo) throws Exception {
         beforeEachBase(testInfo);
+        cleanUpDb();
+    }
+
+    private void cleanUpDb() {
+        alertWhenHumanDriven("Cleaning up database");
+        try {
+            var mySqlHost = getEnvironment().getServiceHost("net-core-mysql", 3306);
+            var mySqlPort = getEnvironment().getServicePort("net-core-mysql", 3306);
+            Class.forName("com.mysql.cj.jdbc.Driver");
+            var c = DriverManager
+                    .getConnection(String.format("jdbc:mysql://%s:%d/db", mySqlHost, mySqlPort),
+                            "root", "password");
+            var stmt = c.createStatement();
+            stmt.execute("DELETE FROM task");
+            stmt.close();
+            c.close();
+        } catch (Exception e) {
+            throw new RuntimeException(e);
+        }
     }
 
     @Test
@@ -60,8 +81,7 @@ public class NetCoreTest extends BasicTest {
                 "Unreachable http://net-core-rest/api/status");
     }
 
-    @Test
-    @Disabled("Only to run manually to verify the correctness")
+    //@Test
     void B_testNavigation() throws InterruptedException {
         navigateTo("about:blank");
         Sleeper.sleep(500);
@@ -87,7 +107,6 @@ public class NetCoreTest extends BasicTest {
         takeSnapshot();
 
 
-
         alertWhenHumanDriven("Completing task");
         //Modify the status
         var status = findElementsByXPath("//tbody[@id='listTableBody']/tr/td/select");
@@ -101,7 +120,7 @@ public class NetCoreTest extends BasicTest {
         button.click();
         Sleeper.sleep(1000);
         takeSnapshot();
-        
+
 
         alertWhenHumanDriven("Archiving the task");
         //Reload the stale element
@@ -116,7 +135,7 @@ public class NetCoreTest extends BasicTest {
         clickItem("setArchivedTasks");
         Sleeper.sleep(2000);
         takeSnapshot();
-        
+
 
         alertWhenHumanDriven("Clean up the task");
         //Delete old item
@@ -127,7 +146,7 @@ public class NetCoreTest extends BasicTest {
         var yesButton = findElementByXPath(".//button[contains(text(), \"Yes, delete it!\")]");
         yesButton.click();
         Sleeper.sleep(1000);
-        
+
         var okButton = findElementByXPath(".//button[contains(text(), \"OK\")]");
         okButton.click();
         Sleeper.sleep(1000);
@@ -139,13 +158,13 @@ public class NetCoreTest extends BasicTest {
     @Test
     void C_testRecording() throws Exception {
 
-        try{
+        try {
             recordingData();
 
             replayWithoutMysql();
 
             replayWIthoutBackend();
-        }catch(Exception ex){
+        } catch (Exception ex) {
             System.out.println(ex.getMessage());
             throw new RuntimeException(ex);
         }
@@ -157,8 +176,8 @@ public class NetCoreTest extends BasicTest {
         Sleeper.sleep(1000);
         alertWhenHumanDriven("Stopped backend container");
         scrollFind("http01panel");
-        executeScript("toggleAccordion('collapsemysql01')");
-        executeScript("toggleAccordion('collapsehttp01')");
+        executeScript("closeAccordion('collapsemysql01')");
+        executeScript("openAccordion('collapsehttp01')");
         executeScript("getData('/api/protocols/http-01/plugins/replay-plugin/start','GET',()=>reloadProtocolmysql01().then(()=>reloadWildcard()).then(()=>reloadActive()))");
         Sleeper.sleep(1000);
         alertWhenHumanDriven("Start replaying with fake backend");
@@ -182,8 +201,8 @@ public class NetCoreTest extends BasicTest {
         alertWhenHumanDriven("Stopped mysql container");
         Sleeper.sleep(1000);
         scrollFind("mysql01panel");
-        executeScript("toggleAccordion('collapseWildcard')");
-        executeScript("toggleAccordion('collapsemysql01')");
+        executeScript("closeAccordion('collapseWildcard')");
+        executeScript("opneAccordion('collapsemysql01')");
         executeScript("getData('/api/protocols/mysql-01/plugins/replay-plugin/start','GET',()=>reloadProtocolmysql01().then(()=>reloadWildcard()).then(()=>reloadActive()))");
         Sleeper.sleep(1000);
         alertWhenHumanDriven("Start replaying with fake mysql");
@@ -210,7 +229,7 @@ public class NetCoreTest extends BasicTest {
         navigateTo("http://net-core-tpm:8081/plugins");
         Sleeper.sleep(1000);
 
-        executeScript("toggleAccordion('collapseWildcard')");
+        executeScript("openAccordion('collapseWildcard')");
         executeScript("getData('/api/protocols/all/plugins/record-plugin/start','GET',reloadAllPlugins)");
         Sleeper.sleep(1000);
         alertWhenHumanDriven("Executing operations to record");

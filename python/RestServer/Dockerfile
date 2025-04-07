@@ -11,4 +11,6 @@ RUN pip install -r requirements.txt
 
 CMD ["python", "main.py"]
 
+EXPOSE 80
+
 HEALTHCHECK --interval=10s --retries=30 CMD curl --fail http://localhost:80/api/status || exit 1

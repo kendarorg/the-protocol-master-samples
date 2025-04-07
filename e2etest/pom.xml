@@ -24,6 +24,7 @@
         <webdrivermanager.version>6.0.0</webdrivermanager.version>
         <commons.lang.version>2.6</commons.lang.version>
         <testcontainers.version>1.20.1</testcontainers.version>
+        <mysql.version>8.2.0</mysql.version>
     </properties>
 
 

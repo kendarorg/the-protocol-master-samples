@@ -10,7 +10,7 @@ import java.sql.ResultSet;
 import static org.junit.jupiter.api.Assertions.*;
 
 @TestMethodOrder(MethodOrderer.MethodName.class)
-public class JavaTest extends BasicTest {
+public class PyTest extends BasicTest {
     @AfterAll
     public static void tearDownAfterClass() throws Exception {
         tearDownAfterClassBase();
@@ -18,21 +18,21 @@ public class JavaTest extends BasicTest {
 
     @BeforeAll
     public static void setUpBeforeClass() throws Exception {
-        setupDirectories("java");
-        var exposed = setupContainer("java-tpm");
+        setupDirectories("python");
+        var exposed = setupContainer("py-tpm");
         //TPM
-        withExposedService("java-tpm", 3306);
-        withExposedService("java-tpm", 1883);
+        withExposedService("py-tpm", 3306);
+        withExposedService("py-tpm", 5672);
 
         //MySQL server
-        withExposedService("java-mysql", 3306);
+        withExposedService("py-mysql", 3306);
 
         //Http server
-        withExposedService("java-quote-generator", 80);
+        withExposedService("py-quote-generator", 80);
 
         //With backend server
-        withExposedService("java-rest", 80);
-        withExposedService("java-mosquitto", 1883);
+        withExposedService("py-rest", 80);
+        withExposedService("py-rabbit", 5672);
 
         startContainers();
 
@@ -52,27 +52,27 @@ public class JavaTest extends BasicTest {
 
     @Test
     void A_testDockerIsUp() throws Exception {
-        navigateTo("http://java-tpm:8081/api/status", false);
+        navigateTo("http://py-tpm:8081/api/status", false);
         assertTrue(
                 check(() -> getPageSource().contains("\"OK\"")),
-                "Unreachable http://java-tpm:8081/api/status");
+                "Unreachable http://py-tpm:8081/api/status");
 
-        navigateTo("http://java-rest/api/status", false);
+        navigateTo("http://py-rest/api/status", false);
         assertTrue(
                 check(() -> !getPageSource().contains("\"OK\"")),
-                "Unreachable http://java-rest/api/status");
+                "Unreachable http://py-rest/api/status");
 
-        navigateTo("http://java-quote-generator/api/status", false);
+        navigateTo("http://py-quote-generator/api/status", false);
         assertTrue(
                 check(() -> !getPageSource().contains("\"OK\"")),
-                "Unreachable http://java-rest/api/status");
+                "Unreachable http://py-rest/api/status");
     }
 
     @Test
     void B_testNavigation() {
         navigateTo("about:blank");
         Sleeper.sleep(1000);
-        navigateTo("http://java-rest/index.html");//itemUpdateMETA
+        navigateTo("http://py-rest/index.html");//itemUpdateMETA
         alertWhenHumanDriven("Waiting for META values to update");
         Sleeper.sleep(15000, () -> getDriver().getPageSource().contains("META"));
         alertWhenHumanDriven("Quotation found");
@@ -80,7 +80,7 @@ public class JavaTest extends BasicTest {
         newTab("chart");
         navigateTo("about:blank");
         Sleeper.sleep(1000);
-        navigateTo("http://java-rest/single.html?symbol=META");
+        navigateTo("http://py-rest/single.html?symbol=META");
 
         for(var i=0; i<60; i++) {
             Sleeper.sleep(1000);
@@ -99,8 +99,8 @@ public class JavaTest extends BasicTest {
     private void cleanUpDb() {
         alertWhenHumanDriven("Cleaning up database");
         try {
-            var mySqlHost = getEnvironment().getServiceHost("java-mysql", 3306);
-            var mySqlPort = getEnvironment().getServicePort("java-mysql", 3306);
+            var mySqlHost = getEnvironment().getServiceHost("py-mysql", 3306);
+            var mySqlPort = getEnvironment().getServicePort("py-mysql", 3306);
             Class.forName("com.mysql.cj.jdbc.Driver");
             var c = DriverManager
                     .getConnection(String.format("jdbc:mysql://%s:%d/db", mySqlHost, mySqlPort),
@@ -116,8 +116,8 @@ public class JavaTest extends BasicTest {
 
     private int countItems() {
         try {
-            var mySqlHost = getEnvironment().getServiceHost("java-mysql", 3306);
-            var mySqlPort = getEnvironment().getServicePort("java-mysql", 3306);
+            var mySqlHost = getEnvironment().getServiceHost("py-mysql", 3306);
+            var mySqlPort = getEnvironment().getServicePort("py-mysql", 3306);
             Class.forName("com.mysql.cj.jdbc.Driver");
             var c = DriverManager
                     .getConnection(String.format("jdbc:mysql://%s:%d/db", mySqlHost, mySqlPort),
@@ -142,9 +142,7 @@ public class JavaTest extends BasicTest {
         try {
             recordingData();
 
-            replayWithoutContainer("java-quote-generator");
-
-            sendFakeMessages();
+            replayWithoutContainer("py-quote-generator");
         } catch (Exception ex) {
             System.out.println(ex.getMessage());
             throw new RuntimeException(ex);
@@ -155,13 +153,13 @@ public class JavaTest extends BasicTest {
         stopContainer(container);
         alertWhenHumanDriven("Stopped " + container + " container");
         Sleeper.sleep(1000);
-        scrollFind("mqtt01panel");
+        scrollFind("amqp01panel");
         executeScript("closeAccordion('collapseWildcard')");
-        executeScript("openAccordion('collapsemqtt01')");
-        executeScript("getData('/api/protocols/mqtt-01/plugins/replay-plugin/start','GET',()=>reloadProtocolmqtt01()." +
+        executeScript("openAccordion('collapseamqp01')");
+        executeScript("getData('/api/protocols/amqp-01/plugins/replay-plugin/start','GET',()=>reloadProtocolamqp01()." +
                 "then(()=>reloadWildcard()).then(()=>reloadActive()))");
         Sleeper.sleep(1000);
-        alertWhenHumanDriven("Start replaying with fake mqtt");
+        alertWhenHumanDriven("Start replaying with fake amqp");
         switchToTab("main");
 
         Sleeper.sleep(1000);
@@ -169,12 +167,12 @@ public class JavaTest extends BasicTest {
         cleanBrowserCache();
         Sleeper.sleep(1000);
         B_testNavigation();
-        alertWhenHumanDriven("No Mqtt Replaying completed");
+        alertWhenHumanDriven("No amqp Replaying completed");
         switchToTab("tpm");
-        executeScript("getData('/api/protocols/mqtt-01/plugins/replay-plugin/stop','GET',()=>reloadProtocolmqtt01()." +
+        executeScript("getData('/api/protocols/amqp-01/plugins/replay-plugin/stop','GET',()=>reloadProtocolamqp01()." +
                 "then(()=>reloadWildcard()).then(()=>reloadActive()))");
         Sleeper.sleep(1000);
-        alertWhenHumanDriven("Stopped mqtt replaying");
+        alertWhenHumanDriven("Stopped amqp replaying");
     }
 
 
@@ -185,7 +183,7 @@ public class JavaTest extends BasicTest {
         alertWhenHumanDriven("Starting the recording");
         Sleeper.sleep(1000);
         //Open tpm
-        navigateTo("http://java-tpm:8081/plugins");
+        navigateTo("http://py-tpm:8081/plugins");
         Sleeper.sleep(1000);
 
         executeScript("openAccordion('collapseWildcard')");
@@ -201,30 +199,5 @@ public class JavaTest extends BasicTest {
         cleanUpDb();
 
         alertWhenHumanDriven("Recording completed");
-    }
-
-
-    private void sendFakeMessages() {
-        cleanBrowserCache();
-        cleanUpDb();
-        switchToTab("tpm");
-        //Open tpm
-        navigateTo("http://java-tpm:8081/plugins/mqtt-01/publish-plugin");
-        Sleeper.sleep(1000);
-        executeScript("openAccordion('collapseSpecificPlugin')");
-        selectItem("contentType", "application/json");
-        var body = "{ \"symbol\" : \"META\", \"date\" : " +
-                System.currentTimeMillis() +
-                ",\"price\" : "+price+",  \"volume\" : "+volume+" }";
-        fillItem("body",body);
-        fillItem("topic","quotations");
-        executeScript("sendQueueData()");
-        Sleeper.sleep(1000);
-        //Check on the quotations
-        switchToTab("main");
-        navigateTo("http://java-rest/index.html");//itemUpdateMETA
-        alertWhenHumanDriven("Waiting for META values to update");
-        Sleeper.sleep(6000, () -> getDriver().getPageSource().contains("META"));
-
     }
 }

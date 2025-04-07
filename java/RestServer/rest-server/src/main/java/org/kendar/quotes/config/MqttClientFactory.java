@@ -19,7 +19,7 @@ public class MqttClientFactory {
     }
 
     public IMqttClient connect() throws MqttException {
-        if(clientId==null||clientId.isEmpty()){
+        if (clientId == null || clientId.isEmpty()) {
             return new NullMqtt();
         }
         IMqttClient mqttClient =

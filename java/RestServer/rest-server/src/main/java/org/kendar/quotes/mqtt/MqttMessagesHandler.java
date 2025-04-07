@@ -29,7 +29,7 @@ public class MqttMessagesHandler {
         this.topic = topic;
     }
 
-    private MqttCallback connect(IMqttClient connection){
+    private MqttCallback connect(IMqttClient connection) {
         return new MqttCallbackExtended() {
             @Override
             public void connectComplete(boolean reconnect, String serverURI) {
@@ -37,7 +37,7 @@ public class MqttMessagesHandler {
                 try {
                     connection.subscribe(topic, qos);
                 } catch (MqttException e) {
-                    throw new RuntimeException("UNABLE TO SUBSCRIBE",e);
+                    throw new RuntimeException("UNABLE TO SUBSCRIBE", e);
                 }
             }
 
@@ -68,7 +68,7 @@ public class MqttMessagesHandler {
                     System.err.println("SUBSCRIBED POST RECONNECT");
                     connection.close();
                 } catch (Exception e) {
-                    System.err.println("SUBSCRIBED POST RECONNECT"+e.getMessage());
+                    System.err.println("SUBSCRIBED POST RECONNECT" + e.getMessage());
                 }
                 //}
             }

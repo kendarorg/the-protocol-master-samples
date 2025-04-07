@@ -6,13 +6,11 @@ services:
       dockerfile: Dockerfile
     image: "py-tpm"
     hostname: "py-tpm"
-    ports:
-      - '31044:5005'  # debug port
-      - '35672:5672'  # amqp-01 proxy port
-      - '33306:3306'  # mysql-01 proxy port
-      - '28081:8081'  # admin api port
-      - '29000:9000'  # proxy port
-      - '20080:80'  # tpm port
+    depends_on:
+      py-mysql:
+        condition: service_started
+      py-rabbit:
+        condition: service_started
   py-rest:
     build:
       context: RestServer/.
@@ -24,10 +22,10 @@ services:
         condition: service_started
       py-tpm:
         condition: service_healthy
-      py-quote-generator:
-        condition: service_healthy
       py-rabbit:
         condition: service_started
+      py-quote-generator:
+        condition: service_healthy
   py-quote-generator:
     build:
       context: QuoteGenerator/.
@@ -49,13 +47,9 @@ services:
       MYSQL_USER: 'user'
       MYSQL_PASSWORD: 'password'
       MYSQL_ROOT_PASSWORD: 'password'
-    ports:
-      - '23306:3306'
   py-rabbit:
     image: "rabbitmq:3-management"
     hostname: "py-rabbit"
-    ports:
-      - '25672:5672'
     environment:
       RABBITMQ_DEFAULT_USER: root
       RABBITMQ_DEFAULT_PASS: password

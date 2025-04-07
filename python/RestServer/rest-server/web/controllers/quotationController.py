@@ -18,6 +18,12 @@ class MessagesController(Controller):
         response.content_type = 'application/json'
         return jsons.dumps(data)
 
+    @qroute("/api/quotation/symbols", verb='DELETE')
+    def delete_all(self):
+        Quotation.delete()
+        response.content_type = 'application/json'
+        return "OK"
+
     @qroute("/api/quotation/quotes/<identifier>")
     def get_by_id(self, identifier: str):
         data = list(Quotation.select().

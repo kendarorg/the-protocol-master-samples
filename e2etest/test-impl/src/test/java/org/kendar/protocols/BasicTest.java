@@ -22,6 +22,7 @@ import java.nio.file.Path;
 import java.time.Duration;
 import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 import java.util.concurrent.ConcurrentLinkedQueue;
 import java.util.function.BooleanSupplier;
 import java.util.function.Consumer;
@@ -33,6 +34,8 @@ public class BasicTest {
     private static ComposeContainer environment;
     private static String tpmHost;
     private static HashMap<String, Integer> toWaitFor;
+    private static int defaultTimeout = 5000;
+    private static Map<String, ContainerNetwork> networks;
     private Path storage;
     private SeleniumIntegration selenium;
     private WebDriver driver;
@@ -42,6 +45,12 @@ public class BasicTest {
 
     public static void tearDownAfterClassBase() {
         environment.stop();
+        for(var network : networks.keySet()) {
+            var commandRunner = new CommandRunner(
+                    getProjectRoot(),
+                    "docker", "network","rm", network,"-f");
+            commandRunner.run();
+        }
     }
 
     public static ComposeContainer getEnvironment() {
@@ -87,9 +96,9 @@ public class BasicTest {
                 public void accept(OutputFrame outputFrame) {
                     var data = outputFrame.getUtf8StringWithoutLineEnding();
                     logs.add(data);
-                    if(outputFrame.getType()== OutputFrame.OutputType.STDERR) {
+                    if (outputFrame.getType() == OutputFrame.OutputType.STDERR) {
                         System.err.println(data);
-                    }else{
+                    } else {
                         System.out.println(data);
                     }
                 }
@@ -99,7 +108,8 @@ public class BasicTest {
         for (var item : toWaitFor.entrySet()) {
             waitPortAvailable(item.getKey(), item.getValue());
         }
-
+        var container = environment.getContainerByServiceName(toWaitFor.keySet().stream().toList().get(0));
+        networks = container.get().getContainerInfo().getNetworkSettings().getNetworks();
 
         System.out.println("Containers started");
     }
@@ -136,6 +146,17 @@ public class BasicTest {
 
     }
 
+    public static void cleanDirectory(File dir) {
+        File[] files = dir.listFiles();
+        if (files != null) {
+            for (File file : files) {
+                if (file.isDirectory())
+                    cleanDirectory(file);
+                file.delete();
+            }
+        }
+    }
+
     protected CloseableHttpClient getHttpClient() {
         var custom = HttpClients.custom();
         var proxy = new HttpHost("http", proxyHost, proxyPort);
@@ -168,31 +189,31 @@ public class BasicTest {
         Utils.setCache("driver", null);
         Utils.setCache("js", null);
         selenium.takeMessageSnapshot("End of test");
-        if(driver!=null)driver.quit();
+        if (driver != null) driver.quit();
         if (!Files.exists(storage)) {
             storage.toFile().mkdirs();
         }
         var alllogs = new StringBuffer();
-        for(var log:logs.stream().map(s->s+"\n").toList()){
+        for (var log : logs.stream().map(s -> s + "\n").toList()) {
             alllogs.append(log);
         }
         try {
-            Files.writeString(Path.of(storage.toString(),"docker.log"),alllogs);
+            Files.writeString(Path.of(storage.toString(), "docker.log"), alllogs);
         } catch (IOException e) {
-            System.err.println("Error writing docker.log log file on path: "+storage);
+            System.err.println("Error writing docker.log log file on path: " + storage);
         }
         driver = null;
     }
 
-    protected void writeScenario(){
+    protected void writeScenario() {
         var data = httpGetBinaryFile("http://localhost:5005/api/global/storage");
         if (!Files.exists(getStorage())) {
             getStorage().toFile().mkdirs();
         }
         try {
-            Files.write(Path.of(getStorage().toString(),"scenario.zip"),data);
+            Files.write(Path.of(getStorage().toString(), "scenario.zip"), data);
         } catch (IOException e) {
-            System.err.println("Error writing docker.log log file on path: "+getStorage());
+            System.err.println("Error writing docker.log log file on path: " + getStorage());
         }
     }
 
@@ -204,21 +225,10 @@ public class BasicTest {
         return selenium;
     }
 
-
     protected WebDriver getDriver() {
         return driver;
     }
 
-    public static void cleanDirectory(File dir) {
-        File[] files = dir.listFiles();
-        if(files != null) {
-            for (File file : files) {
-                if (file.isDirectory())
-                    cleanDirectory(file);
-                file.delete();
-            }
-        }
-    }
     protected void beforeEachBase(TestInfo testInfo) throws Exception {
         logs.clear();
         if (testInfo != null && testInfo.getTestClass().isPresent() &&
@@ -300,17 +310,17 @@ public class BasicTest {
         return findElementByXPath(defaultTimeout, id);
     }
 
-    protected WebElement findElementByXPath(WebElement from,String id) {
-        return findElementByXPath(defaultTimeout,from, id);
+    protected WebElement findElementByXPath(WebElement from, String id) {
+        return findElementByXPath(defaultTimeout, from, id);
     }
 
-    protected WebElement findElementByXPath(int timeoutms,WebElement from, String id) {
+    protected WebElement findElementByXPath(int timeoutms, WebElement from, String id) {
         var element = new ObjectContainer<WebElement>();
         Sleeper.sleep(timeoutms, () -> {
             try {
                 element.setObject(from.findElement(By.xpath(id)));
                 return element.getObject() != null;
-            }catch (Exception e) {
+            } catch (Exception e) {
                 return false;
             }
         });
@@ -323,7 +333,7 @@ public class BasicTest {
             try {
                 element.setObject(getDriver().findElement(By.xpath(id)));
                 return element.getObject() != null;
-            }catch (Exception e) {
+            } catch (Exception e) {
                 return false;
             }
         });
@@ -341,7 +351,7 @@ public class BasicTest {
             try {
                 element.setObject(getDriver().findElement(By.id(id)));
                 return element.getObject() != null;
-            }catch (Exception e) {
+            } catch (Exception e) {
                 return false;
             }
         });
@@ -426,18 +436,21 @@ public class BasicTest {
     protected void alertWhenHumanDriven(String message) {
 
         selenium.takeMessageSnapshot(message);
-        if(System.getenv("HUMAN_DRIVEN") != null) {
-            ((JavascriptExecutor)getDriver()).executeScript("alert('" + message + "')");
+        if (System.getenv("HUMAN_DRIVEN") != null) {
+            ((JavascriptExecutor) getDriver()).executeScript("alert('" + message + "')");
             var alert = driver.switchTo().alert();
-            while(alert != null) {
-                try{
+            while (alert != null) {
+                try {
                     alert = driver.switchTo().alert();
                     Sleeper.sleep(200);
-                }catch (Exception e) {
+                } catch (Exception e) {
                     alert = null;
                 }
             }
             Sleeper.sleep(1000);
+        }else{
+            ((JavascriptExecutor)getDriver()).executeScript("document.title='" + message + "'");
+
         }
     }
 

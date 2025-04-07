@@ -29,31 +29,12 @@ public class SeleniumIntegration {
     private final int proxyPort;
     private WebDriver driver;
     private JavascriptExecutor js;
-    private Map<String,String> windowHandles = new HashMap<>();
+    private Map<String, String> windowHandles = new HashMap<>();
     private String currentTab;
 
     private Path browserPath;
-
-    public boolean navigateTo(String url) {
-        return this.navigateTo(url,true);
-    }
-
-    public boolean navigateTo(String url,boolean snapshot) {
-        var driver = (WebDriver) Utils.getCache("driver");
-        var current = driver.getCurrentUrl();
-        if (current.equalsIgnoreCase(url)) {
-            Sleeper.sleep(1000);
-            if(!getCurrentTab().equals("settings")) {
-                if(snapshot)takeSnapShot();
-            }
-            return true;
-        }
-        driver.get(url);
-        if(!getCurrentTab().equals("settings")) {
-            if(snapshot)takeSnapShot();
-        }
-        return false;
-    }
+    private boolean chromeNotChromium = false;
+    private int counter = 0;
 
     public SeleniumIntegration(Path rootPath, String proxyHost, int proxyPort) {
         this.rootPath = rootPath;
@@ -61,17 +42,37 @@ public class SeleniumIntegration {
         this.proxyPort = proxyPort;
     }
 
+    public boolean navigateTo(String url) {
+        return this.navigateTo(url, true);
+    }
+
+    public boolean navigateTo(String url, boolean snapshot) {
+        var driver = (WebDriver) Utils.getCache("driver");
+        var current = driver.getCurrentUrl();
+        if (current.equalsIgnoreCase(url)) {
+            Sleeper.sleep(1000);
+            if (!getCurrentTab().equals("settings")) {
+                if (snapshot) takeSnapShot();
+            }
+            return true;
+        }
+        driver.get(url);
+        if (!getCurrentTab().equals("settings")) {
+            if (snapshot) takeSnapShot();
+        }
+        return false;
+    }
+
     private void setupSize(WebDriver driver) {
         driver.manage().window().setSize(new Dimension(1366, 900));
     }
-    private boolean chromeNotChromium = false;
 
-    public boolean isChrome(){
+    public boolean isChrome() {
         return chromeNotChromium;
     }
 
-    public boolean isChromium(){
-        return  !chromeNotChromium;
+    public boolean isChromium() {
+        return !chromeNotChromium;
     }
 
     private String retrieveBrowserVersion() {
@@ -81,14 +82,14 @@ public class SeleniumIntegration {
         if (browserPath.isPresent()) {
             this.browserPath = browserPath.get();
             webDriverManager = ChromeDriverManager.getInstance();
-            chromeNotChromium=true;
-        }else {
+            chromeNotChromium = true;
+        } else {
             browserPath = WebDriverManager.chromiumdriver()
                     .getBrowserPath();
             if (browserPath.isPresent()) {
                 this.browserPath = browserPath.get();
                 webDriverManager = ChromiumDriverManager.getInstance();
-                chromeNotChromium=false;
+                chromeNotChromium = false;
             } else {
                 throw new RuntimeException("Chrome/chromium driver could not be setup");
             }
@@ -97,9 +98,9 @@ public class SeleniumIntegration {
         var config = webDriverManager.config();
         var versionDetector = new VersionDetector(config, null);
         var optionalVersion = versionDetector.getBrowserVersionFromTheShell(
-                webDriverManager.getDriverManagerType().getBrowserNameLowerCase(),browserPath.get().toAbsolutePath().toString());
+                webDriverManager.getDriverManagerType().getBrowserNameLowerCase(), browserPath.get().toAbsolutePath().toString());
 
-        if(optionalVersion.isPresent()) {
+        if (optionalVersion.isPresent()) {
             Integer version = Integer.parseInt(optionalVersion.get());
             var available = webDriverManager.getDriverVersions().stream().
                     map(v -> Integer.parseInt(v.split("\\.")[0])).sorted().distinct().collect(Collectors.toList());
@@ -108,7 +109,7 @@ public class SeleniumIntegration {
                 matching = version;
             }
             return matching.toString();
-        }else{
+        } else {
             return null;
         }
 
@@ -120,18 +121,18 @@ public class SeleniumIntegration {
         //var chromeExecutable = SeleniumBase.findchrome();
 
         Proxy proxy = new Proxy();
-        proxy.setHttpProxy(proxyHost+":"+proxyPort);
-        proxy.setSslProxy(proxyHost+":"+proxyPort);
+        proxy.setHttpProxy(proxyHost + ":" + proxyPort);
+        proxy.setSslProxy(proxyHost + ":" + proxyPort);
         proxy.setProxyType(Proxy.ProxyType.MANUAL);
 
         ChromeOptions capabilities = null;
-        if(isChrome()) {
-            capabilities = (ChromeOptions)new TpmChromeDriverManager().retrieveCapabilities();
-        }else{
-            capabilities = (ChromeOptions)new TpmChromiumDriverManager().retrieveCapabilities();
+        if (isChrome()) {
+            capabilities = (ChromeOptions) new TpmChromeDriverManager().retrieveCapabilities();
+        } else {
+            capabilities = (ChromeOptions) new TpmChromiumDriverManager().retrieveCapabilities();
         }
         var version = retrieveBrowserVersion();
-        if(version != null) {
+        if (version != null) {
             capabilities.setBrowserVersion(version);
         }
 
@@ -152,14 +153,14 @@ public class SeleniumIntegration {
         }
 
 
-        if(isChrome()) {
+        if (isChrome()) {
             driver = WebDriverManager
                     .chromedriver()
                     .capabilities(capabilities)
                     .clearDriverCache()
                     .clearResolutionCache()
                     .create();
-        }else{
+        } else {
             driver = WebDriverManager
                     .chromiumdriver()
                     .capabilities(capabilities)
@@ -173,34 +174,33 @@ public class SeleniumIntegration {
         Utils.setCache("driver", driver);
         Utils.setCache("js", js);
         setupSize(driver);
-        windowHandles.put("main",driver.getWindowHandle());
-        currentTab="main";
+        windowHandles.put("main", driver.getWindowHandle());
+        currentTab = "main";
 
 
     }
 
     public void newTab(String id) {
-        if(windowHandles.containsKey(id)) {
+        if (windowHandles.containsKey(id)) {
             switchToTab(id);
             return;
         }
         driver.switchTo().newWindow(WindowType.TAB);
-        windowHandles.put(id,driver.getWindowHandle());
-        currentTab=id;
+        windowHandles.put(id, driver.getWindowHandle());
+        currentTab = id;
     }
 
     public void switchToTab(String id) {
         driver.switchTo().window(windowHandles.get(id));
-        currentTab=id;
+        currentTab = id;
     }
 
     public void resettingDriver() throws Exception {
-        if(driver!=null)driver.quit();
+        if (driver != null) driver.quit();
         Utils.setCache("driver", null);
         Utils.setCache("js", null);
         seleniumInitialized();
     }
-
 
     public void quitSelenium() throws Exception {
         driver.quit();
@@ -210,12 +210,10 @@ public class SeleniumIntegration {
         takeMessageSnapshot("End of test");
     }
 
-    private int counter=0;
-
     public void takeSnapShot() {
 
         try {
-            if(driver.getCurrentUrl().startsWith("about:")) {
+            if (driver.getCurrentUrl().startsWith("about:")) {
                 return;
             }
             var dest = rootPath;

@@ -4,7 +4,7 @@ services:
     build:
       context: MySQL/.
       dockerfile: Dockerfile
-    container_name: py-mysql
+    hostname: "py-mysql"
     image: "py-mysql"
     restart: always
     environment:
@@ -16,7 +16,7 @@ services:
       - '23306:3306'
   py-rabbit:
     image: "rabbitmq:3-management"
-    container_name: py-rabbit
+    hostname: "py-rabbit"
     ports:
       - '25672:5672'
       - '15672:15672'
