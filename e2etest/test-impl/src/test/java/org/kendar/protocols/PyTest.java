@@ -230,7 +230,7 @@ public class PyTest extends BasicTest {
         Sleeper.sleep(1000);
         //Check on the quotations
         switchToTab("main");
-        navigateTo("http://java-rest/index.html");//itemUpdateMETA
+        navigateTo("http://py-rest/index.html");//itemUpdateMETA
         alertWhenHumanDriven("Waiting for META values to update");
         Sleeper.sleep(6000, () -> getDriver().getPageSource().contains("META"));
         assertEquals(1,countItems());
