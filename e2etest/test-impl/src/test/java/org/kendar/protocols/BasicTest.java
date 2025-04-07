@@ -22,6 +22,7 @@ import java.nio.file.Path;
 import java.time.Duration;
 import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 import java.util.concurrent.ConcurrentLinkedQueue;
 import java.util.function.BooleanSupplier;
 import java.util.function.Consumer;
@@ -34,15 +35,22 @@ public class BasicTest {
     private static String tpmHost;
     private static HashMap<String, Integer> toWaitFor;
     private static int defaultTimeout = 5000;
-    private static ConcurrentLinkedQueue logs = new ConcurrentLinkedQueue();
+    private static Map<String, ContainerNetwork> networks;
     private Path storage;
     private SeleniumIntegration selenium;
     private WebDriver driver;
     private String proxyHost;
     private Integer proxyPort;
+    private static int defaultTimeout = 5000;
 
     public static void tearDownAfterClassBase() {
         environment.stop();
+        for(var network : networks.keySet()) {
+            var commandRunner = new CommandRunner(
+                    getProjectRoot(),
+                    "docker", "network","rm", network,"-f");
+            commandRunner.run();
+        }
     }
 
     public static ComposeContainer getEnvironment() {
@@ -79,6 +87,8 @@ public class BasicTest {
         return environment;
     }
 
+    private static ConcurrentLinkedQueue logs = new ConcurrentLinkedQueue();
+
     protected static void startContainers() {
         for (var item : toWaitFor.entrySet()) {
             environment.withLogConsumer(item.getKey(), new Consumer<OutputFrame>() {
@@ -98,7 +108,8 @@ public class BasicTest {
         for (var item : toWaitFor.entrySet()) {
             waitPortAvailable(item.getKey(), item.getValue());
         }
-
+        var container = environment.getContainerByServiceName(toWaitFor.keySet().stream().toList().get(0));
+        networks = container.get().getContainerInfo().getNetworkSettings().getNetworks();
 
         System.out.println("Containers started");
     }
@@ -437,6 +448,9 @@ public class BasicTest {
                 }
             }
             Sleeper.sleep(1000);
+        }else{
+            ((JavascriptExecutor)getDriver()).executeScript("document.title='" + message + "'");
+
         }
     }
 

@@ -3,10 +3,11 @@ package org.kendar.protocols;
 import org.junit.jupiter.api.*;
 import org.kendar.protocol.utils.Sleeper;
 
+import java.io.ByteArrayOutputStream;
 import java.sql.DriverManager;
 import java.sql.ResultSet;
 
-import static org.junit.jupiter.api.Assertions.assertTrue;
+import static org.junit.jupiter.api.Assertions.*;
 
 @TestMethodOrder(MethodOrderer.MethodName.class)
 public class JavaTest extends BasicTest {
@@ -80,8 +81,11 @@ public class JavaTest extends BasicTest {
         navigateTo("about:blank");
         Sleeper.sleep(1000);
         navigateTo("http://java-rest/single.html?symbol=META");
-        alertWhenHumanDriven("Write some data on the db");
-        Sleeper.sleep(60000);
+
+        for(var i=0; i<60; i++) {
+            Sleeper.sleep(1000);
+            alertWhenHumanDriven("Waited "+i+" seconds");
+        }
 
         alertWhenHumanDriven("Verify the DB content");
         //Direct sql call to verify the content of the DB
@@ -152,8 +156,8 @@ public class JavaTest extends BasicTest {
         alertWhenHumanDriven("Stopped " + container + " container");
         Sleeper.sleep(1000);
         scrollFind("mqtt01panel");
-        executeScript("toggleAccordion('collapseWildcard')");
-        executeScript("toggleAccordion('collapsemqtt01')");
+        executeScript("closeAccordion('collapseWildcard')");
+        executeScript("openAccordion('collapsemqtt01')");
         executeScript("getData('/api/protocols/mqtt-01/plugins/replay-plugin/start','GET',()=>reloadProtocolmqtt01()." +
                 "then(()=>reloadWildcard()).then(()=>reloadActive()))");
         Sleeper.sleep(1000);
@@ -184,7 +188,7 @@ public class JavaTest extends BasicTest {
         navigateTo("http://java-tpm:8081/plugins");
         Sleeper.sleep(1000);
 
-        executeScript("toggleAccordion('collapseWildcard')");
+        executeScript("openAccordion('collapseWildcard')");
         executeScript("getData('/api/protocols/all/plugins/record-plugin/start','GET',reloadAllPlugins)");
         Sleeper.sleep(1000);
         alertWhenHumanDriven("Executing operations to record");
@@ -207,9 +211,13 @@ public class JavaTest extends BasicTest {
         //Open tpm
         navigateTo("http://java-tpm:8081/plugins/mqtt-01/publish-plugin");
         Sleeper.sleep(1000);
-        executeScript("toggleAccordion('collapseSpecificPlugin')");
+        executeScript("openAccordion('collapseSpecificPlugin')");
         selectItem("contentType", "application/json");
-        fillItem("body", "{ajson}");
+        var body = "{ \"symbol\" : \"META\", \"date\" : " +
+                System.currentTimeMillis() +
+                ",\"price\" : "+price+",  \"volume\" : "+volume+" }";
+        fillItem("body",body);
+        fillItem("topic","quotations");
         executeScript("sendQueueData()");
         Sleeper.sleep(1000);
         //Check on the quotations

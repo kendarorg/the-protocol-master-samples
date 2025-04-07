@@ -176,8 +176,8 @@ public class NetCoreTest extends BasicTest {
         Sleeper.sleep(1000);
         alertWhenHumanDriven("Stopped backend container");
         scrollFind("http01panel");
-        executeScript("toggleAccordion('collapsemysql01')");
-        executeScript("toggleAccordion('collapsehttp01')");
+        executeScript("closeAccordion('collapsemysql01')");
+        executeScript("openAccordion('collapsehttp01')");
         executeScript("getData('/api/protocols/http-01/plugins/replay-plugin/start','GET',()=>reloadProtocolmysql01().then(()=>reloadWildcard()).then(()=>reloadActive()))");
         Sleeper.sleep(1000);
         alertWhenHumanDriven("Start replaying with fake backend");
@@ -201,8 +201,8 @@ public class NetCoreTest extends BasicTest {
         alertWhenHumanDriven("Stopped mysql container");
         Sleeper.sleep(1000);
         scrollFind("mysql01panel");
-        executeScript("toggleAccordion('collapseWildcard')");
-        executeScript("toggleAccordion('collapsemysql01')");
+        executeScript("closeAccordion('collapseWildcard')");
+        executeScript("opneAccordion('collapsemysql01')");
         executeScript("getData('/api/protocols/mysql-01/plugins/replay-plugin/start','GET',()=>reloadProtocolmysql01().then(()=>reloadWildcard()).then(()=>reloadActive()))");
         Sleeper.sleep(1000);
         alertWhenHumanDriven("Start replaying with fake mysql");
@@ -229,7 +229,7 @@ public class NetCoreTest extends BasicTest {
         navigateTo("http://net-core-tpm:8081/plugins");
         Sleeper.sleep(1000);
 
-        executeScript("toggleAccordion('collapseWildcard')");
+        executeScript("openAccordion('collapseWildcard')");
         executeScript("getData('/api/protocols/all/plugins/record-plugin/start','GET',reloadAllPlugins)");
         Sleeper.sleep(1000);
         alertWhenHumanDriven("Executing operations to record");
