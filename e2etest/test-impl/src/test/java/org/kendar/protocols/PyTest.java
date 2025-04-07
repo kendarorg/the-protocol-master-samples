@@ -6,6 +6,8 @@ import org.kendar.protocol.utils.Sleeper;
 import java.io.ByteArrayOutputStream;
 import java.sql.DriverManager;
 import java.sql.ResultSet;
+import java.time.LocalDateTime;
+import java.time.format.DateTimeFormatter;
 
 import static org.junit.jupiter.api.Assertions.*;
 
@@ -143,11 +145,14 @@ public class PyTest extends BasicTest {
             recordingData();
 
             replayWithoutContainer("py-quote-generator");
+            sendFakeMessages();
         } catch (Exception ex) {
             System.out.println(ex.getMessage());
             throw new RuntimeException(ex);
         }
     }
+
+
 
     private void replayWithoutContainer(String container) throws Exception {
         stopContainer(container);
@@ -199,5 +204,36 @@ public class PyTest extends BasicTest {
         cleanUpDb();
 
         alertWhenHumanDriven("Recording completed");
+    }
+
+    private static String getCurrentLocalDateTimeStamp() {
+        return LocalDateTime.now()
+                .format(DateTimeFormatter.ofPattern("yyyy-MM-dd HH:mm:ss"));
+    }
+
+    private void sendFakeMessages() {
+        cleanBrowserCache();
+        cleanUpDb();
+        switchToTab("tpm");
+        //Open tpm
+        navigateTo("http://py-tpm:8081/plugins/amqp-01/publish-plugin");
+        Sleeper.sleep(1000);
+        executeScript("openAccordion('collapseSpecificPlugin')");
+        selectItem("contentType", "application/json");
+        var body = "{ \"symbol\" : \"META\", \"date\" : " +
+                getCurrentLocalDateTimeStamp() +
+                ",\"price\" : 2000,  \"volume\" : 2000 }";
+        fillItem("body",body);
+        fillItem("queue","quotations");
+        fillItem("exchange","stock");
+        executeScript("sendQueueData()");
+        Sleeper.sleep(1000);
+        //Check on the quotations
+        switchToTab("main");
+        navigateTo("http://java-rest/index.html");//itemUpdateMETA
+        alertWhenHumanDriven("Waiting for META values to update");
+        Sleeper.sleep(6000, () -> getDriver().getPageSource().contains("META"));
+        assertEquals(1,countItems());
+
     }
 }

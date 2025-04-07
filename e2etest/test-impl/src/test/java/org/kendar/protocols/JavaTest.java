@@ -143,7 +143,6 @@ public class JavaTest extends BasicTest {
             recordingData();
 
             replayWithoutContainer("java-quote-generator");
-
             sendFakeMessages();
         } catch (Exception ex) {
             System.out.println(ex.getMessage());
@@ -225,6 +224,7 @@ public class JavaTest extends BasicTest {
         navigateTo("http://java-rest/index.html");//itemUpdateMETA
         alertWhenHumanDriven("Waiting for META values to update");
         Sleeper.sleep(6000, () -> getDriver().getPageSource().contains("META"));
+        assertEquals(1,countItems());
 
     }
 }
