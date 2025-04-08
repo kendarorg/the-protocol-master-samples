@@ -30,7 +30,7 @@ application. We will mock without a line of code the database and a rest api of 
 * All needed docker images loaded (if you wanna pre-setup everything)
 
 `
-docker image pull mysql:8
+docker image pull mysql:8.0.40
 docker image pull mcr.microsoft.com/dotnet/aspnet:8.0
 docker image pull amazoncorretto:17.0.7-alpine
 docker image pull docker.io/library/node:18-alpine

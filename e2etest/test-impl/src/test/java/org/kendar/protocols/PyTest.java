@@ -4,6 +4,9 @@ import org.junit.jupiter.api.*;
 import org.kendar.protocol.utils.Sleeper;
 
 import java.io.ByteArrayOutputStream;
+import java.io.IOException;
+import java.nio.file.Files;
+import java.nio.file.Path;
 import java.sql.DriverManager;
 import java.sql.ResultSet;
 import java.time.LocalDateTime;
@@ -37,6 +40,7 @@ public class PyTest extends BasicTest {
         withExposedService("py-rabbit", 5672);
 
         startContainers();
+        Sleeper.sleep(1000);
 
     }
 
@@ -50,6 +54,10 @@ public class PyTest extends BasicTest {
     public void beforeEach(TestInfo testInfo) throws Exception {
         beforeEachBase(testInfo);
         cleanUpDb();
+
+        var debugHost = getEnvironment().getServiceHost("py-tpm", 5005);
+        var debugPort = getEnvironment().getServicePort("py-tpm", 5005);
+        System.err.println("[IMPORTANT] "+debugHost + ":" + debugPort);
     }
 
     @Test
@@ -204,6 +212,12 @@ public class PyTest extends BasicTest {
         cleanUpDb();
 
         alertWhenHumanDriven("Recording completed");
+        var fileContent = httpGetBinaryFile("http://py-tpm:8081/api/global/storage");
+        try {
+            Files.write(Path.of("target","NetCoreTests.zip"),fileContent);
+        } catch (IOException e) {
+            throw new RuntimeException(e);
+        }
     }
 
     private static String getCurrentLocalDateTimeStamp() {
@@ -230,9 +244,11 @@ public class PyTest extends BasicTest {
         Sleeper.sleep(1000);
         //Check on the quotations
         switchToTab("main");
+        navigateTo("about:blank");//itemUpdateMETA
         navigateTo("http://py-rest/index.html");//itemUpdateMETA
         alertWhenHumanDriven("Waiting for META values to update");
         Sleeper.sleep(6000, () -> getDriver().getPageSource().contains("META"));
+        Sleeper.sleep(1000);
         assertEquals(1,countItems());
 
     }

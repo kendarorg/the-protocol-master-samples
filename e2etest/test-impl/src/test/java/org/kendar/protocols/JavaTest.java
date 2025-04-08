@@ -4,6 +4,9 @@ import org.junit.jupiter.api.*;
 import org.kendar.protocol.utils.Sleeper;
 
 import java.io.ByteArrayOutputStream;
+import java.io.IOException;
+import java.nio.file.Files;
+import java.nio.file.Path;
 import java.sql.DriverManager;
 import java.sql.ResultSet;
 
@@ -200,6 +203,12 @@ public class JavaTest extends BasicTest {
         cleanUpDb();
 
         alertWhenHumanDriven("Recording completed");
+        var fileContent = httpGetBinaryFile("http://java-tpm:8081/api/global/storage");
+        try {
+            Files.write(Path.of("NetCoreTests.zip"),fileContent);
+        } catch (IOException e) {
+            throw new RuntimeException(e);
+        }
     }
 
 

@@ -1,4 +1,5 @@
 import logging
+import uuid
 
 from kombu import Queue, Consumer
 import jsons
@@ -23,6 +24,7 @@ class Worker(ConsumerMixin):
         return [Consumer(queues=[Queue(self.queue_name,
                                        exchange=self.exchange_name,
                                        routing_key=self.queue_name)],
+                         tag_prefix=f'consumer-{uuid.uuid4()}',
                          channel=channel,
                          callbacks=[self.on_message],
                          accept=["application/json"])]

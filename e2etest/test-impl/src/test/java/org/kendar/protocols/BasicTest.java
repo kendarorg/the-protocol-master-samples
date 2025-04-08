@@ -457,21 +457,6 @@ public class BasicTest {
     protected void cleanBrowserCache() {
         navigateTo("about:blank");
         getSelenium().clearStatus();
-//        //driver.manage().deleteAllCookies();
-//
-//
-//        var currentTab = getCurrentTab();
-//        if(!existsTab("settings")) {
-//            newTab("settings");
-//        }else{
-//            switchToTab("settings");
-//        }
-//        driver.get("chrome://settings/clearBrowserData");
-//        driver.findElement(By.xpath("//settings-ui")).sendKeys(Keys.ENTER);
-//        Sleeper.sleep(500);
-//        navigateTo("about:blank");
-//        switchToTab(currentTab);
-
     }
 
     private boolean existsTab(String id) {

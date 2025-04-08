@@ -35,6 +35,8 @@ services:
     depends_on:
       py-tpm:
         condition: service_healthy
+      py-rabbit:
+        condition: service_started
   py-mysql:
     build:
       context: MySQL/.
