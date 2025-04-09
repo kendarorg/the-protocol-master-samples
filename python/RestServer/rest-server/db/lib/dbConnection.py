@@ -5,6 +5,13 @@ from db.lib.entity import EntityFactory
 from utils.appSettings import AppSettings
 from utils.autostart import Autostart
 
+from peewee import *
+from playhouse.shortcuts import ReconnectMixin
+
+
+class ReconnectMySQLDatabase(ReconnectMixin, MySQLDatabase):
+    pass
+
 
 @component
 class DbConnection(Autostart):
@@ -13,9 +20,9 @@ class DbConnection(Autostart):
         try:
             if entities is None:
                 return
-            db_connection = MySQLDatabase(app_settings.db_database, host=app_settings.db_host,
-                                          port=app_settings.db_port,
-                                          user=app_settings.db_user, password=app_settings.db_password)
+            db_connection = ReconnectMySQLDatabase(app_settings.db_database, host=app_settings.db_host,
+                                                   port=app_settings.db_port,
+                                                   user=app_settings.db_user, password=app_settings.db_password)
             db_connection.connect()
             for entity in entities:
                 basic_entity = entity.build_entity()

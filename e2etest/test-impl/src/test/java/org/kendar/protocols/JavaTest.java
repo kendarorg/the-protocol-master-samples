@@ -9,6 +9,8 @@ import java.nio.file.Files;
 import java.nio.file.Path;
 import java.sql.DriverManager;
 import java.sql.ResultSet;
+import java.time.LocalDateTime;
+import java.time.format.DateTimeFormatter;
 
 import static org.junit.jupiter.api.Assertions.*;
 
@@ -87,7 +89,8 @@ public class JavaTest extends BasicTest {
 
         for(var i=0; i<60; i++) {
             Sleeper.sleep(1000);
-            alertWhenHumanDriven("Waited "+i+" seconds");
+            var ci = countItems();
+            alertWhenHumanDriven("Waited "+i+" seconds - items: "+ci);
         }
 
         alertWhenHumanDriven("Verify the DB content");
@@ -96,7 +99,7 @@ public class JavaTest extends BasicTest {
         System.out.println("Counted items: " + ci);
         assertTrue(ci >= 5);
 
-        alertWhenHumanDriven("Navigation concluded");
+        alertWhenHumanDriven("Navigation concluded with "+ci);
     }
 
     private void cleanUpDb() {
@@ -157,6 +160,11 @@ public class JavaTest extends BasicTest {
         stopContainer(container);
         alertWhenHumanDriven("Stopped " + container + " container");
         Sleeper.sleep(1000);
+        switchToTab("main");
+        navigateTo("about:blank");
+        switchToTab("chart");
+        navigateTo("about:blank");
+        switchToTab("tpm");
         scrollFind("mqtt01panel");
         executeScript("closeAccordion('collapseWildcard')");
         executeScript("openAccordion('collapsemqtt01')");
@@ -205,19 +213,28 @@ public class JavaTest extends BasicTest {
         alertWhenHumanDriven("Recording completed");
         var fileContent = httpGetBinaryFile("http://java-tpm:8081/api/global/storage");
         try {
-            Files.write(Path.of("NetCoreTests.zip"),fileContent);
+            Files.write(Path.of("target","JavaTests.zip"),fileContent);
         } catch (IOException e) {
             throw new RuntimeException(e);
         }
     }
 
+    private static String getCurrentLocalDateTimeStamp() {
+        return LocalDateTime.now()
+                .format(DateTimeFormatter.ofPattern("yyyy-MM-dd HH:mm:ss"));
+    }
 
     private void sendFakeMessages() {
         cleanBrowserCache();
         cleanUpDb();
+
+        switchToTab("main");
+        navigateTo("about:blank");//itemUpdateMETA
+        navigateTo("http://py-rest/index.html");//itemUpdateMETA
         switchToTab("tpm");
         //Open tpm
         navigateTo("http://java-tpm:8081/plugins/mqtt-01/publish-plugin");
+        executeScript("getData('/api/protocols/mqtt-01/plugins/publish-plugin/start','GET',()=>location.reload())");
         Sleeper.sleep(1000);
         executeScript("openAccordion('collapseSpecificPlugin')");
         selectItem("contentType", "application/json");
@@ -229,9 +246,10 @@ public class JavaTest extends BasicTest {
         executeScript("sendQueueData()");
         Sleeper.sleep(1000);
         //Check on the quotations
+        alertWhenHumanDriven("Waiting for META values to update");
+
         switchToTab("main");
         navigateTo("http://java-rest/index.html");//itemUpdateMETA
-        alertWhenHumanDriven("Waiting for META values to update");
         Sleeper.sleep(6000, () -> getDriver().getPageSource().contains("META"));
         assertEquals(1,countItems());
 

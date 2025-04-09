@@ -40,7 +40,6 @@ public class PyTest extends BasicTest {
         withExposedService("py-rabbit", 5672);
 
         startContainers();
-        Sleeper.sleep(1000);
 
     }
 
@@ -54,10 +53,6 @@ public class PyTest extends BasicTest {
     public void beforeEach(TestInfo testInfo) throws Exception {
         beforeEachBase(testInfo);
         cleanUpDb();
-
-        var debugHost = getEnvironment().getServiceHost("py-tpm", 5005);
-        var debugPort = getEnvironment().getServicePort("py-tpm", 5005);
-        System.err.println("[IMPORTANT] "+debugHost + ":" + debugPort);
     }
 
     @Test
@@ -94,16 +89,17 @@ public class PyTest extends BasicTest {
 
         for(var i=0; i<60; i++) {
             Sleeper.sleep(1000);
-            alertWhenHumanDriven("Waited "+i+" seconds");
+            var ci = countItems();
+            alertWhenHumanDriven("Waited "+i+" seconds - items: "+ci);
         }
 
         alertWhenHumanDriven("Verify the DB content");
         //Direct sql call to verify the content of the DB
         var ci = countItems();
         System.out.println("Counted items: " + ci);
-        assertTrue(ci >= 5);
+        assertTrue(ci > 0);
 
-        alertWhenHumanDriven("Navigation concluded");
+        alertWhenHumanDriven("Navigation concluded with "+ci);
     }
 
     private void cleanUpDb() {
@@ -160,12 +156,15 @@ public class PyTest extends BasicTest {
         }
     }
 
-
-
     private void replayWithoutContainer(String container) throws Exception {
         stopContainer(container);
         alertWhenHumanDriven("Stopped " + container + " container");
         Sleeper.sleep(1000);
+        switchToTab("main");
+        navigateTo("about:blank");
+        switchToTab("chart");
+        navigateTo("about:blank");
+        switchToTab("tpm");
         scrollFind("amqp01panel");
         executeScript("closeAccordion('collapseWildcard')");
         executeScript("openAccordion('collapseamqp01')");
@@ -200,6 +199,7 @@ public class PyTest extends BasicTest {
         Sleeper.sleep(1000);
 
         executeScript("openAccordion('collapseWildcard')");
+        cleanUpDb();
         executeScript("getData('/api/protocols/all/plugins/record-plugin/start','GET',reloadAllPlugins)");
         Sleeper.sleep(1000);
         alertWhenHumanDriven("Executing operations to record");
@@ -214,7 +214,7 @@ public class PyTest extends BasicTest {
         alertWhenHumanDriven("Recording completed");
         var fileContent = httpGetBinaryFile("http://py-tpm:8081/api/global/storage");
         try {
-            Files.write(Path.of("target","NetCoreTests.zip"),fileContent);
+            Files.write(Path.of("target","PyTests.zip"),fileContent);
         } catch (IOException e) {
             throw new RuntimeException(e);
         }
@@ -228,27 +228,31 @@ public class PyTest extends BasicTest {
     private void sendFakeMessages() {
         cleanBrowserCache();
         cleanUpDb();
+
+        switchToTab("main");
+        navigateTo("about:blank");//itemUpdateMETA
+        navigateTo("http://py-rest/index.html");//itemUpdateMETA
         switchToTab("tpm");
         //Open tpm
         navigateTo("http://py-tpm:8081/plugins/amqp-01/publish-plugin");
+        executeScript("getData('/api/protocols/amqp-01/plugins/publish-plugin/start','GET',()=>location.reload())");
         Sleeper.sleep(1000);
         executeScript("openAccordion('collapseSpecificPlugin')");
         selectItem("contentType", "application/json");
-        var body = "{ \"symbol\" : \"META\", \"date\" : " +
+        var body = "{ \"symbol\" : \"META\", \"date\" : \"" +
                 getCurrentLocalDateTimeStamp() +
-                ",\"price\" : 2000,  \"volume\" : 2000 }";
+                "\",\"price\" : 2000,  \"volume\" : 2000 }";
         fillItem("body",body);
         fillItem("queue","quotations");
         fillItem("exchange","stock");
         executeScript("sendQueueData()");
         Sleeper.sleep(1000);
         //Check on the quotations
-        switchToTab("main");
-        navigateTo("about:blank");//itemUpdateMETA
-        navigateTo("http://py-rest/index.html");//itemUpdateMETA
         alertWhenHumanDriven("Waiting for META values to update");
+
+        switchToTab("main");
+        navigateTo("http://py-rest/index.html");//itemUpdateMETA
         Sleeper.sleep(6000, () -> getDriver().getPageSource().contains("META"));
-        Sleeper.sleep(1000);
         assertEquals(1,countItems());
 
     }

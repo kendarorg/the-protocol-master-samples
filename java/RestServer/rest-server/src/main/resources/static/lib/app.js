@@ -118,7 +118,7 @@ function initializeChart(elem) {
             }
         }
     });
-    setTimeout(nextSymbolQuotation, 1000);
+    nextSymbolQuotation();
 }
 
 var allSymbols = [];
@@ -149,6 +149,7 @@ function initializeQuotations(id) {
   </td>`;
                 table.appendChild(row);
             }
+            loadQuotationsForNext();
 
         } catch (error) {
             console.warn(error)
@@ -159,7 +160,7 @@ function initializeQuotations(id) {
     });
 }
 
-function nextQuotations() {
+function loadQuotationsForNext(){
     for (var i = 0; i < allSymbols.length; i++) {
         let symbol = allSymbols[i];
         getData("/api/quotation/quote/" + symbol, "GET", (code, response) => {
@@ -172,5 +173,9 @@ function nextQuotations() {
             update.innerHTML = parseDate(ob["date"]);
         });
     }
+}
+
+function nextQuotations() {
+    loadQuotationsForNext();
     setTimeout(nextQuotations, 2000);
 }
