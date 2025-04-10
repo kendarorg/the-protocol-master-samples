@@ -44,11 +44,30 @@ function deepClone(obj) {
     return JSON.parse(JSON.stringify(obj));
 }
 
-function nextSymbolQuotation() {
-    getData("/api/quotation/quote/" + params.symbol, "GET", (code, response) => {
+function loadQuotationsForChart() {
+    getData("/api/quotation/quotes/" + params.symbol, "GET", (code, response) => {
         try {
-            let ob = JSON.parse(response);
+            let obs = JSON.parse(response);
+            var datasetsChanged = false;
             chart.data.datasets.forEach((dataset) => {
+                var newDatasetData =[];//This is an array
+                let label = dataset.label;
+                var singleDatasetChanged = false;
+                for(i=0;i<obs.length;i++){
+                    datasetsChanged = true;
+                    singleDatasetChanged = true;
+                    let ob = obs[i];
+                    let value = ob["price"];
+                    let time = parseDate(ob["date"]);
+                    if (label.localeCompare("Volume") === 0) {
+                        value = ob["volume"];
+                    }
+                    newDatasetData.push({x: time, y: value})
+                }
+                if(singleDatasetChanged){
+                    dataset.data = newDatasetData;
+                }
+                /*
                 let label = dataset.label;
                 let oldDataset = deepClone(dataset.data);
                 let value = ob["price"];
@@ -65,16 +84,17 @@ function nextSymbolQuotation() {
                     oldDataset.push({x: time, y: value});
                     changed = true;
                     dataset.data = oldDataset;
-                }
+                }*/
             });
-            if (changed) {
+            if (datasetsChanged) {
+
                 chart.update();
             }
         } catch (error) {
             console.warn(error)
         }
 
-        setTimeout(nextSymbolQuotation, 1000);
+        setTimeout(loadQuotationsForChart, 1000);
     });
 }
 
@@ -118,7 +138,7 @@ function initializeChart(elem) {
             }
         }
     });
-    nextSymbolQuotation();
+    loadQuotationsForChart();
 }
 
 var allSymbols = [];
