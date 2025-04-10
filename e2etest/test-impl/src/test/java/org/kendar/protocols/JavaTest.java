@@ -10,6 +10,8 @@ import java.sql.DriverManager;
 import java.sql.ResultSet;
 import java.time.Instant;
 import java.time.LocalDateTime;
+import java.time.ZoneId;
+import java.time.ZonedDateTime;
 import java.time.format.DateTimeFormatter;
 import java.util.Date;
 
@@ -238,7 +240,7 @@ public class JavaTest extends BasicTest {
         Sleeper.sleep(1000);
         var ld = LocalDateTime.now();
         var expectedTime = ld.format(DateTimeFormatter.ofPattern("yyyy-MM-dd HH:mm:ss"));
-        var millis = Instant.from(ld).toEpochMilli();
+        var millis = ZonedDateTime.of(ld, ZoneId.systemDefault()).toInstant().toEpochMilli();
         switchToTab("main");
         navigateTo("about:blank");//itemUpdateMETA
         navigateTo("http://java-rest/index.html");//itemUpdateMETA
