@@ -92,6 +92,7 @@ public class JavaTest extends BasicTest {
         for(var i=0; i<60; i++) {
             Sleeper.sleep(1000);
             var ci = countItems();
+            if(ci>5)break;
             alertWhenHumanDriven("Waited "+i+" seconds - items: "+ci);
         }
 

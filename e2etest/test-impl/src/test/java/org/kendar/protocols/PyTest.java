@@ -90,6 +90,7 @@ public class PyTest extends BasicTest {
         for(var i=0; i<200; i++) {
             Sleeper.sleep(1000);
             var ci = countItems();
+            if(ci>5)break;
             alertWhenHumanDriven("Waited "+i+" seconds - items: "+ci);
         }
 
