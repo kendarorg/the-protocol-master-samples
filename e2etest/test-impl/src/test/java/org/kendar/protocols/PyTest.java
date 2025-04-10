@@ -90,7 +90,6 @@ public class PyTest extends BasicTest {
         for(var i=0; i<200; i++) {
             Sleeper.sleep(1000);
             var ci = countItems();
-            if(ci>5)break;
             alertWhenHumanDriven("Waited "+i+" seconds - items: "+ci);
         }
 
@@ -98,7 +97,7 @@ public class PyTest extends BasicTest {
         //Direct sql call to verify the content of the DB
         var ci = countItems();
         System.out.println("Counted items: " + ci);
-        assertTrue(ci > 0);
+        assertTrue(ci >= 5);
 
         alertWhenHumanDriven("Navigation concluded with "+ci);
     }
@@ -230,16 +229,13 @@ public class PyTest extends BasicTest {
         }
     }
 
-    private static String getCurrentLocalDateTimeStamp() {
-        return LocalDateTime.now()
-                .format(DateTimeFormatter.ofPattern("yyyy-MM-dd HH:mm:ss"));
-    }
 
     private void sendFakeMessages() {
         cleanBrowserCache();
         cleanUpDb();
         Sleeper.sleep(1000);
-        var expectedTime = getCurrentLocalDateTimeStamp();
+        var ld = LocalDateTime.now();
+        var expectedTime = ld.format(DateTimeFormatter.ofPattern("yyyy-MM-dd HH:mm:ss"));
         switchToTab("main");
         navigateTo("about:blank");//itemUpdateMETA
         navigateTo("http://py-rest/index.html");//itemUpdateMETA
@@ -251,7 +247,7 @@ public class PyTest extends BasicTest {
         executeScript("openAccordion('collapseSpecificPlugin')");
         selectItem("contentType", "application/json");
         var body = "{ \"symbol\" : \"META\", \"date\" : \"" +
-                getCurrentLocalDateTimeStamp() +
+                expectedTime +
                 "\",\"price\" : 2000,  \"volume\" : 2000 }";
         fillItem("body",body);
         fillItem("queue","quotations");

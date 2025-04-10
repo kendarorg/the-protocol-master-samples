@@ -9,8 +9,10 @@ import java.nio.file.Files;
 import java.nio.file.Path;
 import java.sql.DriverManager;
 import java.sql.ResultSet;
+import java.time.Instant;
 import java.time.LocalDateTime;
 import java.time.format.DateTimeFormatter;
+import java.util.Date;
 
 import static org.junit.jupiter.api.Assertions.*;
 
@@ -120,16 +122,20 @@ public class JavaTest extends BasicTest {
         }
     }
 
-    private int countItems() {
+    private int countItems(String dateTime){
         try {
-            var mySqlHost = getEnvironment().getServiceHost("java-mysql", 3306);
-            var mySqlPort = getEnvironment().getServicePort("java-mysql", 3306);
+            var query = "SELECT COUNT(*) FROM quotation";
+            if(dateTime!=null){
+                query = query + " WHERE `date` >= '" + dateTime + "'";
+            }
+            var mySqlHost = getEnvironment().getServiceHost("py-mysql", 3306);
+            var mySqlPort = getEnvironment().getServicePort("py-mysql", 3306);
             Class.forName("com.mysql.cj.jdbc.Driver");
             var c = DriverManager
                     .getConnection(String.format("jdbc:mysql://%s:%d/db", mySqlHost, mySqlPort),
                             "root", "password");
             var stmt = c.createStatement();
-            ResultSet rs = stmt.executeQuery("SELECT COUNT(*) FROM quotation");
+            ResultSet rs = stmt.executeQuery(query);
             //Retrieving the result
             rs.next();
             int count = rs.getInt(1);
@@ -140,6 +146,11 @@ public class JavaTest extends BasicTest {
         } catch (Exception e) {
             throw new RuntimeException(e);
         }
+    }
+
+    private int countItems() {
+        return countItems(null);
+
     }
 
     @Test
@@ -199,6 +210,7 @@ public class JavaTest extends BasicTest {
         Sleeper.sleep(1000);
 
         executeScript("openAccordion('collapseWildcard')");
+        cleanUpDb();
         executeScript("getData('/api/protocols/all/plugins/record-plugin/start','GET',reloadAllPlugins)");
         Sleeper.sleep(1000);
         alertWhenHumanDriven("Executing operations to record");
@@ -219,15 +231,14 @@ public class JavaTest extends BasicTest {
         }
     }
 
-    private static String getCurrentLocalDateTimeStamp() {
-        return LocalDateTime.now()
-                .format(DateTimeFormatter.ofPattern("yyyy-MM-dd HH:mm:ss"));
-    }
 
     private void sendFakeMessages() {
         cleanBrowserCache();
         cleanUpDb();
-
+        Sleeper.sleep(1000);
+        var ld = LocalDateTime.now();
+        var expectedTime = ld.format(DateTimeFormatter.ofPattern("yyyy-MM-dd HH:mm:ss"));
+        var millis = Instant.from(ld).toEpochMilli();
         switchToTab("main");
         navigateTo("about:blank");//itemUpdateMETA
         navigateTo("http://py-rest/index.html");//itemUpdateMETA
@@ -239,7 +250,7 @@ public class JavaTest extends BasicTest {
         executeScript("openAccordion('collapseSpecificPlugin')");
         selectItem("contentType", "application/json");
         var body = "{ \"symbol\" : \"META\", \"date\" : " +
-                System.currentTimeMillis() +
+                millis +
                 ",\"price\" : 2000,  \"volume\" : 2000 }";
         fillItem("body",body);
         fillItem("topic","quotations");
@@ -251,7 +262,7 @@ public class JavaTest extends BasicTest {
         switchToTab("main");
         navigateTo("http://java-rest/index.html");//itemUpdateMETA
         Sleeper.sleep(6000, () -> getDriver().getPageSource().contains("META"));
-        assertEquals(1,countItems());
+        assertEquals(1,countItems(expectedTime));
 
     }
 }
