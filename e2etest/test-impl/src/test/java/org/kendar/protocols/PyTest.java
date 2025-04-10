@@ -238,6 +238,7 @@ public class PyTest extends BasicTest {
     private void sendFakeMessages() {
         cleanBrowserCache();
         cleanUpDb();
+        Sleeper.sleep(1000);
         var expectedTime = getCurrentLocalDateTimeStamp();
         switchToTab("main");
         navigateTo("about:blank");//itemUpdateMETA
