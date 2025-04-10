@@ -3,12 +3,13 @@ package org.kendar.protocols;
 import org.junit.jupiter.api.*;
 import org.kendar.protocol.utils.Sleeper;
 
-import java.io.ByteArrayOutputStream;
+
 import java.io.IOException;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.sql.DriverManager;
 import java.sql.ResultSet;
+import java.time.Instant;
 import java.time.LocalDateTime;
 import java.time.format.DateTimeFormatter;
 
@@ -87,7 +88,7 @@ public class PyTest extends BasicTest {
         Sleeper.sleep(1000);
         navigateTo("http://py-rest/single.html?symbol=META");
 
-        for(var i=0; i<200; i++) {
+        for(var i=0; i<60; i++) {
             Sleeper.sleep(1000);
             var ci = countItems();
             if(ci>5)break;
@@ -253,6 +254,7 @@ public class PyTest extends BasicTest {
         fillItem("body",body);
         fillItem("queue","quotations");
         fillItem("exchange","stock");
+        cleanUpDb();
         executeScript("sendQueueData()");
         Sleeper.sleep(1000);
         //Check on the quotations

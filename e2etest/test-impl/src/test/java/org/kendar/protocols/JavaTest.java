@@ -3,7 +3,6 @@ package org.kendar.protocols;
 import org.junit.jupiter.api.*;
 import org.kendar.protocol.utils.Sleeper;
 
-import java.io.ByteArrayOutputStream;
 import java.io.IOException;
 import java.nio.file.Files;
 import java.nio.file.Path;
@@ -129,8 +128,8 @@ public class JavaTest extends BasicTest {
             if(dateTime!=null){
                 query = query + " WHERE `date` >= '" + dateTime + "'";
             }
-            var mySqlHost = getEnvironment().getServiceHost("py-mysql", 3306);
-            var mySqlPort = getEnvironment().getServicePort("py-mysql", 3306);
+            var mySqlHost = getEnvironment().getServiceHost("java-mysql", 3306);
+            var mySqlPort = getEnvironment().getServicePort("java-mysql", 3306);
             Class.forName("com.mysql.cj.jdbc.Driver");
             var c = DriverManager
                     .getConnection(String.format("jdbc:mysql://%s:%d/db", mySqlHost, mySqlPort),
@@ -235,14 +234,14 @@ public class JavaTest extends BasicTest {
 
     private void sendFakeMessages() {
         cleanBrowserCache();
-
-            cleanUpDb();
+        cleanUpDb();
+        Sleeper.sleep(1000);
         var ld = LocalDateTime.now();
         var expectedTime = ld.format(DateTimeFormatter.ofPattern("yyyy-MM-dd HH:mm:ss"));
         var millis = Instant.from(ld).toEpochMilli();
         switchToTab("main");
         navigateTo("about:blank");//itemUpdateMETA
-        navigateTo("http://py-rest/index.html");//itemUpdateMETA
+        navigateTo("http://java-rest/index.html");//itemUpdateMETA
         switchToTab("tpm");
         //Open tpm
         navigateTo("http://java-tpm:8081/plugins/mqtt-01/publish-plugin");
