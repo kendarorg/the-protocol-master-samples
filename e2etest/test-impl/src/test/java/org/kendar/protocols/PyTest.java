@@ -121,8 +121,12 @@ public class PyTest extends BasicTest {
         }
     }
 
-    private int countItems() {
+    private int countItems(String dateTime){
         try {
+            var query = "SELECT COUNT(*) FROM quotation";
+            if(dateTime!=null){
+                query = query + " WHERE `date` >= '" + dateTime + "'";
+            }
             var mySqlHost = getEnvironment().getServiceHost("py-mysql", 3306);
             var mySqlPort = getEnvironment().getServicePort("py-mysql", 3306);
             Class.forName("com.mysql.cj.jdbc.Driver");
@@ -130,7 +134,7 @@ public class PyTest extends BasicTest {
                     .getConnection(String.format("jdbc:mysql://%s:%d/db", mySqlHost, mySqlPort),
                             "root", "password");
             var stmt = c.createStatement();
-            ResultSet rs = stmt.executeQuery("SELECT COUNT(*) FROM quotation");
+            ResultSet rs = stmt.executeQuery(query);
             //Retrieving the result
             rs.next();
             int count = rs.getInt(1);
@@ -141,6 +145,11 @@ public class PyTest extends BasicTest {
         } catch (Exception e) {
             throw new RuntimeException(e);
         }
+    }
+
+    private int countItems() {
+        return countItems(null);
+
     }
 
     @Test
@@ -229,7 +238,7 @@ public class PyTest extends BasicTest {
     private void sendFakeMessages() {
         cleanBrowserCache();
         cleanUpDb();
-
+        var expectedTime = getCurrentLocalDateTimeStamp();
         switchToTab("main");
         navigateTo("about:blank");//itemUpdateMETA
         navigateTo("http://py-rest/index.html");//itemUpdateMETA
@@ -254,7 +263,7 @@ public class PyTest extends BasicTest {
         switchToTab("main");
         navigateTo("http://py-rest/index.html");//itemUpdateMETA
         Sleeper.sleep(6000, () -> getDriver().getPageSource().contains("META"));
-        assertEquals(1,countItems());
+        assertEquals(1,countItems(expectedTime));
 
     }
 }
