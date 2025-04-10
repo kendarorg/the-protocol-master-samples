@@ -235,8 +235,8 @@ public class JavaTest extends BasicTest {
 
     private void sendFakeMessages() {
         cleanBrowserCache();
-        cleanUpDb();
-        Sleeper.sleep(1000);
+
+            cleanUpDb();
         var ld = LocalDateTime.now();
         var expectedTime = ld.format(DateTimeFormatter.ofPattern("yyyy-MM-dd HH:mm:ss"));
         var millis = Instant.from(ld).toEpochMilli();
@@ -255,6 +255,7 @@ public class JavaTest extends BasicTest {
                 ",\"price\" : 2000,  \"volume\" : 2000 }";
         fillItem("body",body);
         fillItem("topic","quotations");
+        cleanUpDb();
         executeScript("sendQueueData()");
         Sleeper.sleep(1000);
         //Check on the quotations
