@@ -259,9 +259,8 @@ public class PyTest extends BasicTest {
         alertWhenHumanDriven("Waiting for META values to update");
 
         switchToTab("main");
-        navigateTo("http://py-rest/index.html");//itemUpdateMETA
-        Sleeper.sleep(6000, () -> getDriver().getPageSource().contains("META"));
-        assertEquals(1,countItems(expectedTime));
+        navigateTo("http://py-rest/api/quotation/quotes/META");//itemUpdateMETA
+        Sleeper.sleep(6000, () -> getDriver().getPageSource().contains("META") && getDriver().getPageSource().contains(expectedTime));
 
     }
 }
