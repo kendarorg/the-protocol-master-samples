@@ -264,7 +264,9 @@ public class PyTest extends BasicTest {
         navigateTo("http://py-rest/api/quotation/quotes/META");//itemUpdateMETA
         Sleeper.sleep(6000, () -> {
             executeScript("location.reload()");
-            return getDriver().getPageSource().contains("META") && getDriver().getPageSource().contains(expectedTime.replace(' ','T'));
+            Sleeper.sleep(100);
+            var source = getDriver().getPageSource();
+            return source.contains("META") && source.contains(expectedTime.replace(' ','T'));
         });
 
     }

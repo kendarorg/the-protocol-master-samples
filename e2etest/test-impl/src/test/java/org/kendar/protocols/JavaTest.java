@@ -266,8 +266,9 @@ public class JavaTest extends BasicTest {
         navigateTo("http://java-rest/api/quotation/quotes/META");//itemUpdateMETA
         Sleeper.sleep(6000, () -> {
             executeScript("location.reload()");
-            System.out.println(getDriver().getPageSource());
-            return getDriver().getPageSource().contains("META") && getDriver().getPageSource().contains(expectedTime.replace(' ','T'));
+            Sleeper.sleep(100);
+            var source = getDriver().getPageSource();
+            return source.contains("META") && source.contains(expectedTime.replace(' ','T'));
         });
 
     }
