@@ -12,6 +12,7 @@ import java.sql.ResultSet;
 import java.time.Instant;
 import java.time.LocalDateTime;
 import java.time.format.DateTimeFormatter;
+import java.util.concurrent.atomic.AtomicInteger;
 
 import static org.junit.jupiter.api.Assertions.*;
 
@@ -261,14 +262,12 @@ public class PyTest extends BasicTest {
         alertWhenHumanDriven("Waiting for META values to update");
 
         switchToTab("main");
-        var reload=0;
-        //itemUpdateMETA
+        AtomicInteger reload=new AtomicInteger(0);
         Sleeper.sleep(6000, () -> {
-            navigateTo("http://py-rest/api/quotation/quotes/META?ld="+reload);
+            navigateTo("http://py-rest/api/quotation/quotes/META?ld="+reload.getAndIncrement());
             Sleeper.sleep(100);
             var source = getDriver().getPageSource();
             return source.contains("META") && source.contains(expectedTime.replace(' ','T'));
         });
-
     }
 }

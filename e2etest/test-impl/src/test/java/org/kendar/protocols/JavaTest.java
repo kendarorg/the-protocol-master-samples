@@ -14,6 +14,7 @@ import java.time.ZoneId;
 import java.time.ZonedDateTime;
 import java.time.format.DateTimeFormatter;
 import java.util.Date;
+import java.util.concurrent.atomic.AtomicInteger;
 
 import static org.junit.jupiter.api.Assertions.*;
 
@@ -263,9 +264,9 @@ public class JavaTest extends BasicTest {
         alertWhenHumanDriven("Waiting for META values to update");
 
         switchToTab("main");
-        var reload=0;
+        AtomicInteger reload=new AtomicInteger(0);
         Sleeper.sleep(6000, () -> {
-            navigateTo("http://py-rest/api/quotation/quotes/META?ld="+reload);
+            navigateTo("http://java-rest/api/quotation/quotes/META?ld="+reload.getAndIncrement());
             Sleeper.sleep(100);
             var source = getDriver().getPageSource();
             return source.contains("META") && source.contains(expectedTime.replace(' ','T'));
