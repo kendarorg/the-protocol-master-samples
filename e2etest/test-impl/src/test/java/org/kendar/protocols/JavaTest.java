@@ -263,9 +263,9 @@ public class JavaTest extends BasicTest {
         alertWhenHumanDriven("Waiting for META values to update");
 
         switchToTab("main");
-        navigateTo("http://java-rest/api/quotation/quotes/META");//itemUpdateMETA
+        var reload=0;
         Sleeper.sleep(6000, () -> {
-            executeScript("location.reload()");
+            navigateTo("http://py-rest/api/quotation/quotes/META?ld="+reload);
             Sleeper.sleep(100);
             var source = getDriver().getPageSource();
             return source.contains("META") && source.contains(expectedTime.replace(' ','T'));
