@@ -233,7 +233,7 @@ public class JavaTest extends BasicTest {
     }
 
     private ZoneId getServerTimeZone() {
-        var data = httpGet("http://java-rest/api/timezone");
+        var data = httpGet("http://java-rest/api/quotation/timezone");
         return ZoneId.of(data);
     }
 
