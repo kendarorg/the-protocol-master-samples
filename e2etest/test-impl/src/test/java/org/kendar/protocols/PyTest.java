@@ -266,11 +266,13 @@ public class PyTest extends BasicTest {
         alertWhenHumanDriven("Waiting for META values to update");
 
         switchToTab("main");
+        System.out.println(expectedTime);
         AtomicInteger reload = new AtomicInteger(0);
         Sleeper.sleep(6000, () -> {
             navigateTo("http://py-rest/api/quotation/quotes/META?ld=" + reload.getAndIncrement());
             Sleeper.sleep(100);
             var source = getDriver().getPageSource();
+            System.out.println("TEST SOURCE "+source);
             return source.contains("META") && source.contains(expectedTime) && source.contains("7777");
         });
     }
