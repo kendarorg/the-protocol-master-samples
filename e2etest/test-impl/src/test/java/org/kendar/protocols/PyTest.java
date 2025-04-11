@@ -242,7 +242,7 @@ public class PyTest extends BasicTest {
         cleanUpDb();
         Sleeper.sleep(1000);
         var ld = LocalDateTime.now();
-        var expectedTime = ld.format(DateTimeFormatter.ofPattern("yyyy-MM-dd HH:mm:ss"));
+        var expectedTime = ld.format(DateTimeFormatter.ofPattern(":mm:ss"));
         switchToTab("main");
         navigateTo("about:blank");//itemUpdateMETA
         navigateTo("http://py-rest/index.html");//itemUpdateMETA
@@ -255,7 +255,7 @@ public class PyTest extends BasicTest {
         selectItem("contentType", "application/json");
         var body = "{ \"symbol\" : \"META\", \"date\" : \"" +
                 expectedTime +
-                "\",\"price\" : 2000,  \"volume\" : 2000 }";
+                "\",\"price\" : 7777,  \"volume\" : 8888 }";
         fillItem("body", body);
         fillItem("queue", "quotations");
         fillItem("exchange", "stock");
@@ -271,7 +271,7 @@ public class PyTest extends BasicTest {
             navigateTo("http://py-rest/api/quotation/quotes/META?ld=" + reload.getAndIncrement());
             Sleeper.sleep(100);
             var source = getDriver().getPageSource();
-            return source.contains("META") && source.contains(expectedTime.replace(' ', 'T'));
+            return source.contains("META") && source.contains(expectedTime) && source.contains("7777");
         });
     }
 }

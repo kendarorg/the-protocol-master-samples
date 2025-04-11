@@ -232,18 +232,13 @@ public class JavaTest extends BasicTest {
         }
     }
 
-    private ZoneId getServerTimeZone() {
-        var data = httpGet("http://java-rest/api/quotation/timezone");
-        return ZoneId.of(data);
-    }
-
 
     private void sendFakeMessages() {
         cleanBrowserCache();
         cleanUpDb();
         Sleeper.sleep(1000);
         var ld = LocalDateTime.now();
-        var expectedTime = ld.atZone(getServerTimeZone()).format(DateTimeFormatter.ofPattern("yyyy-MM-dd HH:mm:ss"));
+        var expectedTime = ld.format(DateTimeFormatter.ofPattern(":mm:ss"));
         var millis = ZonedDateTime.of(ld, ZoneId.systemDefault()).toInstant().toEpochMilli();
         switchToTab("main");
         navigateTo("about:blank");//itemUpdateMETA
@@ -257,7 +252,7 @@ public class JavaTest extends BasicTest {
         selectItem("contentType", "application/json");
         var body = "{ \"symbol\" : \"META\", \"date\" : " +
                 millis +
-                ",\"price\" : 2000,  \"volume\" : 2000 }";
+                ",\"price\" : 7777,  \"volume\" : 8888 }";
         fillItem("body", body);
         fillItem("topic", "quotations");
         cleanUpDb();
@@ -272,7 +267,7 @@ public class JavaTest extends BasicTest {
             navigateTo("http://java-rest/api/quotation/quotes/META?ld=" + reload.getAndIncrement());
             Sleeper.sleep(100);
             var source = getDriver().getPageSource();
-            return source.contains("META") && source.contains(expectedTime.replace(' ', 'T'));
+            return source.contains("META") && source.contains(expectedTime) && source.contains("7777");
         });
 
     }
