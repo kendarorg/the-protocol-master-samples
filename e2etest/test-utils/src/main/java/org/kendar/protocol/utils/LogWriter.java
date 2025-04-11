@@ -1,7 +1,5 @@
 package org.kendar.protocol.utils;
 
-import org.kendar.protocol.utils.Sleeper;
-
 import java.io.BufferedWriter;
 import java.io.IOException;
 import java.nio.file.Files;

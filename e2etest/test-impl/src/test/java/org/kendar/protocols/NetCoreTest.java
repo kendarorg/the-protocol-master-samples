@@ -8,7 +8,8 @@ import java.nio.file.Files;
 import java.nio.file.Path;
 import java.sql.DriverManager;
 
-import static org.junit.jupiter.api.Assertions.*;
+import static org.junit.jupiter.api.Assertions.assertNotNull;
+import static org.junit.jupiter.api.Assertions.assertTrue;
 
 @TestMethodOrder(MethodOrderer.MethodName.class)
 public class NetCoreTest extends BasicTest {
@@ -246,7 +247,7 @@ public class NetCoreTest extends BasicTest {
         alertWhenHumanDriven("Recording completed");
         var fileContent = httpGetBinaryFile("http://net-core-tpm:8081/api/global/storage");
         try {
-            Files.write(Path.of("NetCoreTests.zip"),fileContent);
+            Files.write(Path.of("NetCoreTests.zip"), fileContent);
         } catch (IOException e) {
             throw new RuntimeException(e);
         }

@@ -8,15 +8,13 @@ import java.nio.file.Files;
 import java.nio.file.Path;
 import java.sql.DriverManager;
 import java.sql.ResultSet;
-import java.time.Instant;
 import java.time.LocalDateTime;
 import java.time.ZoneId;
 import java.time.ZonedDateTime;
 import java.time.format.DateTimeFormatter;
-import java.util.Date;
 import java.util.concurrent.atomic.AtomicInteger;
 
-import static org.junit.jupiter.api.Assertions.*;
+import static org.junit.jupiter.api.Assertions.assertTrue;
 
 @TestMethodOrder(MethodOrderer.MethodName.class)
 public class JavaTest extends BasicTest {
@@ -91,11 +89,11 @@ public class JavaTest extends BasicTest {
         Sleeper.sleep(1000);
         navigateTo("http://java-rest/single.html?symbol=META");
 
-        for(var i=0; i<60; i++) {
+        for (var i = 0; i < 60; i++) {
             Sleeper.sleep(1000);
             var ci = countItems();
-            if(ci>5)break;
-            alertWhenHumanDriven("Waited "+i+" seconds - items: "+ci);
+            if (ci > 5) break;
+            alertWhenHumanDriven("Waited " + i + " seconds - items: " + ci);
         }
 
         alertWhenHumanDriven("Verify the DB content");
@@ -104,7 +102,7 @@ public class JavaTest extends BasicTest {
         System.out.println("Counted items: " + ci);
         assertTrue(ci >= 5);
 
-        alertWhenHumanDriven("Navigation concluded with "+ci);
+        alertWhenHumanDriven("Navigation concluded with " + ci);
     }
 
     private void cleanUpDb() {
@@ -125,10 +123,10 @@ public class JavaTest extends BasicTest {
         }
     }
 
-    private int countItems(String dateTime){
+    private int countItems(String dateTime) {
         try {
             var query = "SELECT COUNT(*) FROM quotation";
-            if(dateTime!=null){
+            if (dateTime != null) {
                 query = query + " WHERE `date` >= '" + dateTime + "'";
             }
             var mySqlHost = getEnvironment().getServiceHost("java-mysql", 3306);
@@ -228,7 +226,7 @@ public class JavaTest extends BasicTest {
         alertWhenHumanDriven("Recording completed");
         var fileContent = httpGetBinaryFile("http://java-tpm:8081/api/global/storage");
         try {
-            Files.write(Path.of("target","JavaTests.zip"),fileContent);
+            Files.write(Path.of("target", "JavaTests.zip"), fileContent);
         } catch (IOException e) {
             throw new RuntimeException(e);
         }
@@ -255,8 +253,8 @@ public class JavaTest extends BasicTest {
         var body = "{ \"symbol\" : \"META\", \"date\" : " +
                 millis +
                 ",\"price\" : 2000,  \"volume\" : 2000 }";
-        fillItem("body",body);
-        fillItem("topic","quotations");
+        fillItem("body", body);
+        fillItem("topic", "quotations");
         cleanUpDb();
         executeScript("sendQueueData()");
         Sleeper.sleep(1000);
@@ -264,12 +262,12 @@ public class JavaTest extends BasicTest {
         alertWhenHumanDriven("Waiting for META values to update");
 
         switchToTab("main");
-        AtomicInteger reload=new AtomicInteger(0);
+        AtomicInteger reload = new AtomicInteger(0);
         Sleeper.sleep(6000, () -> {
-            navigateTo("http://java-rest/api/quotation/quotes/META?ld="+reload.getAndIncrement());
+            navigateTo("http://java-rest/api/quotation/quotes/META?ld=" + reload.getAndIncrement());
             Sleeper.sleep(100);
             var source = getDriver().getPageSource();
-            return source.contains("META") && source.contains(expectedTime.replace(' ','T'));
+            return source.contains("META") && source.contains(expectedTime.replace(' ', 'T'));
         });
 
     }

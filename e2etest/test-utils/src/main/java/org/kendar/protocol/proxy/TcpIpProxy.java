@@ -25,7 +25,7 @@ public class TcpIpProxy {
         this.port = port;
     }
 
-    public void stop(){
+    public void stop() {
         try {
             serverSocket.close();
             serverSocket = null;

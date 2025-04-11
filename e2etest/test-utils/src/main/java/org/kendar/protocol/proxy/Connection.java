@@ -11,12 +11,11 @@ import java.net.Socket;
  */
 public class Connection implements Runnable {
 
+    private static final Logger LOGGER = LoggerFactory.getLogger(Connection.class);
     private final Socket clientsocket;
     private final String remoteIp;
     private final int remotePort;
     private Socket serverConnection = null;
-
-    private static final Logger LOGGER = LoggerFactory.getLogger(Connection.class);
 
     public Connection(Socket clientsocket, String remoteIp, int remotePort) {
         this.clientsocket = clientsocket;
@@ -48,7 +47,8 @@ public class Connection implements Runnable {
 
                 try {
                     Thread.sleep(1000);
-                } catch (InterruptedException ignored) {}
+                } catch (InterruptedException ignored) {
+                }
             }
         }).start();
     }
