@@ -243,8 +243,8 @@ public class JavaTest extends BasicTest {
         cleanUpDb();
         Sleeper.sleep(1000);
         var ld = LocalDateTime.now();
-        var expectedTime = ld.format(DateTimeFormatter.ofPattern("yyyy-MM-dd HH:mm:ss"));
-        var millis = ZonedDateTime.of(ld, getServerTimeZone()).toInstant().toEpochMilli();
+        var expectedTime = ld.atZone(getServerTimeZone()).format(DateTimeFormatter.ofPattern("yyyy-MM-dd HH:mm:ss"));
+        var millis = ZonedDateTime.of(ld, ZoneId.systemDefault()).toInstant().toEpochMilli();
         switchToTab("main");
         navigateTo("about:blank");//itemUpdateMETA
         navigateTo("http://java-rest/index.html");//itemUpdateMETA
