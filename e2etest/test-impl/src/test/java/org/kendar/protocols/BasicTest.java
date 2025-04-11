@@ -56,7 +56,7 @@ public class BasicTest {
             }
         }
 
-        tcpIpProxy.stop();
+        if(tcpIpProxy!=null)tcpIpProxy.stop();
     }
 
     public static ComposeContainer getEnvironment() {
