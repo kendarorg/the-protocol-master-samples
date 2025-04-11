@@ -243,6 +243,7 @@ public class PyTest extends BasicTest {
         Sleeper.sleep(1000);
         var ld = LocalDateTime.now();
         var expectedTime = ld.format(DateTimeFormatter.ofPattern(":mm:ss"));
+        var insertedTime = ld.format(DateTimeFormatter.ofPattern("yyyy-MM-dd HH:mm:ss"));
         switchToTab("main");
         navigateTo("about:blank");//itemUpdateMETA
         navigateTo("http://py-rest/index.html");//itemUpdateMETA
@@ -254,7 +255,7 @@ public class PyTest extends BasicTest {
         executeScript("openAccordion('collapseSpecificPlugin')");
         selectItem("contentType", "application/json");
         var body = "{ \"symbol\" : \"META\", \"date\" : \"" +
-                expectedTime +
+                insertedTime +
                 "\",\"price\" : 7777,  \"volume\" : 8888 }";
         fillItem("body", body);
         fillItem("queue", "quotations");
