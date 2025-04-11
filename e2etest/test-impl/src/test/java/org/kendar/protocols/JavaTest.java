@@ -232,6 +232,11 @@ public class JavaTest extends BasicTest {
         }
     }
 
+    private ZoneId getServerTimeZone() {
+        var data = httpGet("http://java-rest/api/timezone");
+        return ZoneId.of(data);
+    }
+
 
     private void sendFakeMessages() {
         cleanBrowserCache();
@@ -239,7 +244,7 @@ public class JavaTest extends BasicTest {
         Sleeper.sleep(1000);
         var ld = LocalDateTime.now();
         var expectedTime = ld.format(DateTimeFormatter.ofPattern("yyyy-MM-dd HH:mm:ss"));
-        var millis = ZonedDateTime.of(ld, ZoneId.systemDefault()).toInstant().toEpochMilli();
+        var millis = ZonedDateTime.of(ld, getServerTimeZone()).toInstant().toEpochMilli();
         switchToTab("main");
         navigateTo("about:blank");//itemUpdateMETA
         navigateTo("http://java-rest/index.html");//itemUpdateMETA

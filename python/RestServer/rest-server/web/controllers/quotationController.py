@@ -1,3 +1,4 @@
+import datetime
 from urllib.parse import parse_qs
 
 import jsons
@@ -19,6 +20,12 @@ class MessagesController(Controller):
         data = list(Quotation.select(Quotation.symbol).group_by(Quotation.symbol).dicts())
         response.content_type = 'application/json'
         return jsons.dumps(data)
+
+    @qroute("/api/timezone")
+    def get_timezone(self):
+        tz_string = datetime.datetime.now(datetime.timezone.utc).astimezone().tzname()
+        response.content_type = 'text/plain'
+        return tz_string
 
 
     @qroute("/api/quotation/symbols", verb='DELETE')

@@ -9,6 +9,7 @@ import java.nio.file.Path;
 import java.sql.DriverManager;
 import java.sql.ResultSet;
 import java.time.LocalDateTime;
+import java.time.ZoneId;
 import java.time.format.DateTimeFormatter;
 import java.util.concurrent.atomic.AtomicInteger;
 
@@ -228,6 +229,11 @@ public class PyTest extends BasicTest {
         } catch (IOException e) {
             throw new RuntimeException(e);
         }
+    }
+
+    private ZoneId getServerTimeZone() {
+        var data = httpGet("http://py-rest/api/timezone");
+        return ZoneId.of(data);
     }
 
 
