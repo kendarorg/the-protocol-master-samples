@@ -47,11 +47,13 @@ public class BasicTest {
 
     public static void tearDownAfterClassBase() {
         environment.stop();
-        for(var network : networks.keySet()) {
-            var commandRunner = new CommandRunner(
-                    getProjectRoot(),
-                    "docker", "network","rm", network,"-f");
-            commandRunner.run();
+        if(networks!=null) {
+            for (var network : networks.keySet()) {
+                var commandRunner = new CommandRunner(
+                        getProjectRoot(),
+                        "docker", "network", "rm", network, "-f");
+                commandRunner.run();
+            }
         }
 
         tcpIpProxy.stop();
