@@ -3,11 +3,18 @@ package org.kendar.protocols;
 import org.junit.jupiter.api.*;
 import org.kendar.protocol.utils.Sleeper;
 
-import java.io.ByteArrayOutputStream;
+import java.io.IOException;
+import java.nio.file.Files;
+import java.nio.file.Path;
 import java.sql.DriverManager;
 import java.sql.ResultSet;
+import java.time.LocalDateTime;
+import java.time.ZoneId;
+import java.time.ZonedDateTime;
+import java.time.format.DateTimeFormatter;
+import java.util.concurrent.atomic.AtomicInteger;
 
-import static org.junit.jupiter.api.Assertions.*;
+import static org.junit.jupiter.api.Assertions.assertTrue;
 
 @TestMethodOrder(MethodOrderer.MethodName.class)
 public class JavaTest extends BasicTest {
@@ -82,9 +89,11 @@ public class JavaTest extends BasicTest {
         Sleeper.sleep(1000);
         navigateTo("http://java-rest/single.html?symbol=META");
 
-        for(var i=0; i<60; i++) {
+        for (var i = 0; i < 60; i++) {
             Sleeper.sleep(1000);
-            alertWhenHumanDriven("Waited "+i+" seconds");
+            var ci = countItems();
+            if (ci > 5) break;
+            alertWhenHumanDriven("Waited " + i + " seconds - items: " + ci);
         }
 
         alertWhenHumanDriven("Verify the DB content");
@@ -93,7 +102,7 @@ public class JavaTest extends BasicTest {
         System.out.println("Counted items: " + ci);
         assertTrue(ci >= 5);
 
-        alertWhenHumanDriven("Navigation concluded");
+        alertWhenHumanDriven("Navigation concluded with " + ci);
     }
 
     private void cleanUpDb() {
@@ -114,8 +123,12 @@ public class JavaTest extends BasicTest {
         }
     }
 
-    private int countItems() {
+    private int countItems(String dateTime) {
         try {
+            var query = "SELECT COUNT(*) FROM quotation";
+            if (dateTime != null) {
+                query = query + " WHERE `date` >= '" + dateTime + "'";
+            }
             var mySqlHost = getEnvironment().getServiceHost("java-mysql", 3306);
             var mySqlPort = getEnvironment().getServicePort("java-mysql", 3306);
             Class.forName("com.mysql.cj.jdbc.Driver");
@@ -123,7 +136,7 @@ public class JavaTest extends BasicTest {
                     .getConnection(String.format("jdbc:mysql://%s:%d/db", mySqlHost, mySqlPort),
                             "root", "password");
             var stmt = c.createStatement();
-            ResultSet rs = stmt.executeQuery("SELECT COUNT(*) FROM quotation");
+            ResultSet rs = stmt.executeQuery(query);
             //Retrieving the result
             rs.next();
             int count = rs.getInt(1);
@@ -136,6 +149,11 @@ public class JavaTest extends BasicTest {
         }
     }
 
+    private int countItems() {
+        return countItems(null);
+
+    }
+
     @Test
     void C_testRecording() throws Exception {
 
@@ -143,7 +161,6 @@ public class JavaTest extends BasicTest {
             recordingData();
 
             replayWithoutContainer("java-quote-generator");
-
             sendFakeMessages();
         } catch (Exception ex) {
             System.out.println(ex.getMessage());
@@ -155,6 +172,11 @@ public class JavaTest extends BasicTest {
         stopContainer(container);
         alertWhenHumanDriven("Stopped " + container + " container");
         Sleeper.sleep(1000);
+        switchToTab("main");
+        navigateTo("about:blank");
+        switchToTab("chart");
+        navigateTo("about:blank");
+        switchToTab("tpm");
         scrollFind("mqtt01panel");
         executeScript("closeAccordion('collapseWildcard')");
         executeScript("openAccordion('collapsemqtt01')");
@@ -189,6 +211,7 @@ public class JavaTest extends BasicTest {
         Sleeper.sleep(1000);
 
         executeScript("openAccordion('collapseWildcard')");
+        cleanUpDb();
         executeScript("getData('/api/protocols/all/plugins/record-plugin/start','GET',reloadAllPlugins)");
         Sleeper.sleep(1000);
         alertWhenHumanDriven("Executing operations to record");
@@ -201,30 +224,53 @@ public class JavaTest extends BasicTest {
         cleanUpDb();
 
         alertWhenHumanDriven("Recording completed");
+        var fileContent = httpGetBinaryFile("http://java-tpm:8081/api/global/storage");
+        try {
+            Files.write(Path.of("target", "JavaTests.zip"), fileContent);
+        } catch (IOException e) {
+            throw new RuntimeException(e);
+        }
     }
 
 
     private void sendFakeMessages() {
         cleanBrowserCache();
         cleanUpDb();
+        Sleeper.sleep(1000);
+        var ld = LocalDateTime.now();
+        var expectedTime = ld.format(DateTimeFormatter.ofPattern(":mm:ss"));
+        var millis = ZonedDateTime.of(ld, ZoneId.systemDefault()).toInstant().toEpochMilli();
+        switchToTab("main");
+        navigateTo("about:blank");//itemUpdateMETA
+        navigateTo("http://java-rest/index.html");//itemUpdateMETA
         switchToTab("tpm");
         //Open tpm
         navigateTo("http://java-tpm:8081/plugins/mqtt-01/publish-plugin");
+        executeScript("getData('/api/protocols/mqtt-01/plugins/publish-plugin/start','GET',()=>location.reload())");
         Sleeper.sleep(1000);
         executeScript("openAccordion('collapseSpecificPlugin')");
         selectItem("contentType", "application/json");
         var body = "{ \"symbol\" : \"META\", \"date\" : " +
-                System.currentTimeMillis() +
-                ",\"price\" : 2000,  \"volume\" : 2000 }";
-        fillItem("body",body);
-        fillItem("topic","quotations");
+                millis +
+                ",\"price\" : 7777,  \"volume\" : 8888 }";
+        fillItem("body", body);
+        fillItem("topic", "quotations");
+        cleanUpDb();
         executeScript("sendQueueData()");
         Sleeper.sleep(1000);
         //Check on the quotations
-        switchToTab("main");
-        navigateTo("http://java-rest/index.html");//itemUpdateMETA
         alertWhenHumanDriven("Waiting for META values to update");
-        Sleeper.sleep(6000, () -> getDriver().getPageSource().contains("META"));
+
+        switchToTab("main");
+        System.out.println("[EXPECTED TIME] "+expectedTime);
+        AtomicInteger reload = new AtomicInteger(0);
+        Sleeper.sleep(6000, () -> {
+            navigateTo("http://java-rest/api/quotation/quotes/META?ld=" + reload.getAndIncrement());
+            Sleeper.sleep(100);
+            var source = getDriver().getPageSource();
+            System.out.println("[TEST SOURCE] "+source);
+            return source.contains("META") && source.contains(expectedTime) && source.contains("7777");
+        });
 
     }
 }

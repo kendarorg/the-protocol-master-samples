@@ -1,6 +1,9 @@
+import datetime
+from urllib.parse import parse_qs
+
 import jsons
 from autowired import component
-from bottle import abort
+from bottle import abort, request
 from bottle import response
 from playhouse.shortcuts import model_to_dict
 
@@ -18,6 +21,13 @@ class MessagesController(Controller):
         response.content_type = 'application/json'
         return jsons.dumps(data)
 
+    @qroute("/api/timezone")
+    def get_timezone(self):
+        tz_string = datetime.datetime.now(datetime.timezone.utc).astimezone().tzname()
+        response.content_type = 'text/plain'
+        return tz_string
+
+
     @qroute("/api/quotation/symbols", verb='DELETE')
     def delete_all(self):
         Quotation.delete()
@@ -25,10 +35,10 @@ class MessagesController(Controller):
         return "OK"
 
     @qroute("/api/quotation/quotes/<identifier>")
-    def get_by_id(self, identifier: str):
+    def get_by_id_all(self, identifier: str):
         data = list(Quotation.select().
                     where(Quotation.symbol == identifier).
-                    order_by(Quotation.date.desc()))
+                    order_by(Quotation.date.asc()).dicts())
         response.content_type = 'application/json'
         return jsons.dumps(data)
 

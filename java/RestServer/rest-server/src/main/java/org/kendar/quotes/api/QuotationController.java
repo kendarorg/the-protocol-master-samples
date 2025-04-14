@@ -4,6 +4,7 @@ import org.kendar.quotes.data.Quotation;
 import org.kendar.quotes.data.QuotationsRepository;
 import org.springframework.web.bind.annotation.*;
 
+import java.time.ZoneId;
 import java.util.List;
 import java.util.stream.Collectors;
 
@@ -32,6 +33,12 @@ public class QuotationController {
                     res.setSymbol(s);
                     return res;
                 }).collect(Collectors.toList());
+    }
+
+    @GetMapping(value = "/timezone", produces = "text/plain")
+    String getTimezone() {
+
+        return ZoneId.systemDefault().getId();
     }
 
     @GetMapping(value = "/quotes/{identifier}", produces = "application/json")

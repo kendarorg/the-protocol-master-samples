@@ -46,7 +46,20 @@ class RabbitMQ(Autostart):
 
     def consume(self, queue_name, callback, exchange_name=''):
         self.log.info("Initializing queue "+queue_name)
-        with Connection(self.rabbit_url, userid=self.user, password=self.password, heartbeat=60) as conn:
+        with Connection(self.rabbit_url,
+                        userid=self.user,
+                        password=self.password,
+                        heartbeat=20) as conn:
+
+            # conn_retry_opts = {
+            #     'max_retries': 30,  # Retry forever
+            #     'interval_start': 1,  # First retry after 1 second
+            #     'interval_step': 1,  # Increase interval by 1 second each retry
+            #     'interval_max': 30,  # Maximum wait is 30 seconds
+            # }
+
+            # Ensure connection with retry
+            # conn.ensure_connection(**conn_retry_opts)
             worker = Worker(conn, queue_name, exchange_name, callback)
             worker.run()
 
@@ -54,7 +67,7 @@ class RabbitMQ(Autostart):
         self.log.info("Publish on "+queue_name)
         try:
             if self.connection is None:
-                self.connection = Connection(self.rabbit_url, userid=self.user, password=self.password)
+                self.connection = Connection(self.rabbit_url, userid=self.user, password=self.password, heartbeat=20)
             channel = self.connection.channel()
             producer = Producer(channel)
             producer.publish(

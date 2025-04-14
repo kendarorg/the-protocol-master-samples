@@ -1,11 +1,9 @@
 import logging
 
-from kombu import Queue, Consumer
 import jsons
+from kombu import Queue, Consumer
 from kombu.mixins import ConsumerMixin
 
-
-from kombu import Connection, Exchange, Queue, Consumer, Producer
 
 class Worker(ConsumerMixin):
     def __init__(self, connection, queue_name, exchange_name, callback):
@@ -15,9 +13,13 @@ class Worker(ConsumerMixin):
         self.exchange_name = exchange_name
         self.callback = callback
 
-    def consume(self, *args, **kwargs):
-        consume = self.connection.ensure(self.connection, super().consume)
-        return consume(*args, **kwargs)
+    def on_connection_error(self, exc, interval):
+        self.log.error("Connection closed")
+        self.should_stop = True
+
+    # def consume(self, *args, **kwargs):
+    #    consume = self.connection.ensure(self.connection, super().consume)
+    #    return consume(*args, **kwargs)
 
     def get_consumers(self, consumer, channel):
         return [Consumer(queues=[Queue(self.queue_name,

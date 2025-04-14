@@ -7,8 +7,12 @@ import org.apache.hc.client5.http.impl.classic.HttpClients;
 import org.apache.hc.client5.http.impl.routing.DefaultProxyRoutePlanner;
 import org.apache.hc.core5.http.HttpHost;
 import org.junit.jupiter.api.TestInfo;
+import org.kendar.protocol.proxy.TcpIpProxy;
 import org.kendar.protocol.utils.*;
-import org.openqa.selenium.*;
+import org.openqa.selenium.By;
+import org.openqa.selenium.JavascriptExecutor;
+import org.openqa.selenium.WebDriver;
+import org.openqa.selenium.WebElement;
 import org.openqa.selenium.support.ui.Select;
 import org.testcontainers.containers.ComposeContainer;
 import org.testcontainers.containers.output.OutputFrame;
@@ -37,6 +41,8 @@ public class BasicTest {
     private static HashMap<String, Integer> toWaitFor;
     private static int defaultTimeout = 5000;
     private static Map<String, ContainerNetwork> networks;
+    private static TcpIpProxy tcpIpProxy;
+    private static ConcurrentLinkedQueue logs = new ConcurrentLinkedQueue();
     private Path storage;
     private SeleniumIntegration selenium;
     private WebDriver driver;
@@ -45,12 +51,16 @@ public class BasicTest {
 
     public static void tearDownAfterClassBase() {
         environment.stop();
-        for(var network : networks.keySet()) {
-            var commandRunner = new CommandRunner(
-                    getProjectRoot(),
-                    "docker", "network","rm", network,"-f");
-            commandRunner.run();
+        if (networks != null) {
+            for (var network : networks.keySet()) {
+                var commandRunner = new CommandRunner(
+                        getProjectRoot(),
+                        "docker", "network", "rm", network, "-f");
+                commandRunner.run();
+            }
         }
+
+        if (tcpIpProxy != null) tcpIpProxy.stop();
     }
 
     public static ComposeContainer getEnvironment() {
@@ -87,8 +97,6 @@ public class BasicTest {
         return environment;
     }
 
-    private static ConcurrentLinkedQueue logs = new ConcurrentLinkedQueue();
-
     protected static void startContainers() {
         for (var item : toWaitFor.entrySet()) {
             environment.withLogConsumer(item.getKey(), new Consumer<OutputFrame>() {
@@ -112,6 +120,13 @@ public class BasicTest {
         networks = container.get().getContainerInfo().getNetworkSettings().getNetworks();
 
         System.out.println("Containers started");
+        var proxyHost = getEnvironment().getServiceHost(tpmHost, 9000);
+        var debugPort = getEnvironment().getServicePort(tpmHost, 5005);
+        tcpIpProxy = new TcpIpProxy(proxyHost, debugPort, 5005);
+        new Thread(() -> {
+
+            tcpIpProxy.listen();
+        }).start();
     }
 
     public static ComposeContainer withExposedService(String host, int ports) throws Exception {
@@ -206,7 +221,7 @@ public class BasicTest {
     }
 
     protected void writeScenario() {
-        var data = httpGetBinaryFile("http://localhost:5005/api/global/storage");
+        var data = httpGetBinaryFile("http://" + tpmHost + ":8081/api/global/storage");
         if (!Files.exists(getStorage())) {
             getStorage().toFile().mkdirs();
         }
@@ -247,6 +262,7 @@ public class BasicTest {
         Utils.getCache().clear();
         proxyHost = getEnvironment().getServiceHost(tpmHost, 9000);
         proxyPort = getEnvironment().getServicePort(tpmHost, 9000);
+        var debugPort = getEnvironment().getServicePort(tpmHost, 5005);
 
 
         selenium = new SeleniumIntegration(storage, proxyHost, proxyPort);
@@ -448,8 +464,8 @@ public class BasicTest {
                 }
             }
             Sleeper.sleep(1000);
-        }else{
-            ((JavascriptExecutor)getDriver()).executeScript("document.title='" + message + "'");
+        } else {
+            ((JavascriptExecutor) getDriver()).executeScript("document.title='" + message + "'");
 
         }
     }
@@ -457,21 +473,6 @@ public class BasicTest {
     protected void cleanBrowserCache() {
         navigateTo("about:blank");
         getSelenium().clearStatus();
-//        //driver.manage().deleteAllCookies();
-//
-//
-//        var currentTab = getCurrentTab();
-//        if(!existsTab("settings")) {
-//            newTab("settings");
-//        }else{
-//            switchToTab("settings");
-//        }
-//        driver.get("chrome://settings/clearBrowserData");
-//        driver.findElement(By.xpath("//settings-ui")).sendKeys(Keys.ENTER);
-//        Sleeper.sleep(500);
-//        navigateTo("about:blank");
-//        switchToTab(currentTab);
-
     }
 
     private boolean existsTab(String id) {

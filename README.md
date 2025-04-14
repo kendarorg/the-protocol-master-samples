@@ -30,7 +30,7 @@ application. We will mock without a line of code the database and a rest api of 
 * All needed docker images loaded (if you wanna pre-setup everything)
 
 `
-docker image pull mysql:8
+docker image pull mysql:8.0.40
 docker image pull mcr.microsoft.com/dotnet/aspnet:8.0
 docker image pull amazoncorretto:17.0.7-alpine
 docker image pull docker.io/library/node:18-alpine
@@ -184,7 +184,7 @@ Now your environment is ready for a real test!
 * Message body to the following with the `UNIXTIMESTAMP` being current time in milliseconds
 
 ```
-{ "symbol" : "META","date" : [UNIXTIMESTAMP]999,"price" : 1000,  "volume" : 1000 }
+{ "symbol" : "META","date" : 1744030940999,"price" : 1000.00,  "volume" : 1000 }
 ```
 
 * Look on your message on the graph! Here it is your fake message
@@ -235,22 +235,23 @@ Now your environment is ready for a real test!
 * Amqp simulation... done!
 * Stop on Amqp the [replay-plugin](http://py-tpm:8081/plugins/amqp-01/replay-plugin)
 
-<!--
 ### Faking a message
 
 * Activate the Amqp  [publish-plugin](http://py-tpm:8081/plugins/amqp-01/publish-plugin)
 * Restart Mosquitto
 * Open the publish plugin "[Publish Section](http://py-tpm:8081/plugins/amqp-01/publish-plugin?accordion=collapseSpecificPlugin)"
-* Set the `content-type` to `JSON`
-* Topic to `quotations`
-* Message body to the following with the `UNIXTIMESTAMP` being current time in milliseconds
+* Set the connection to "ALL"
+* Set the `app-id` to `test`
+* Queue to `quotations`
+* Exchange to `stock`
+* Message body to the following with a time after "now"
 
 ```
-{ "symbol" : "META","date" : [UNIXTIMESTAMP]999,"price" : 1000,  "volume" : 1000 }
+{ "symbol" : "META","date" :"2025-04-07 15:11:11","price" : 1000.1,  "volume" : 1000 }
 ```
 
 * Look on your message on the graph! Here it is your fake message
--->
+
 
 <a id="gca"></a>
 
