@@ -15,6 +15,19 @@ application. We will mock without a line of code the database and a rest api of 
 
 * The documentation for the protocol master is [here](https://github.com/kendarorg/the-protocol-master)
 
+### Notes for macOs Users
+
+Should set the following on your .zprofile see [here](https://github.com/testcontainers/testcontainers-rs/pull/800):
+
+```
+export DOCKER_DEFAULT_PLATFORM=linux/arm64v8
+export TESTCONTAINERS_RYUK_DISABLED=true
+export DOCKER_HOST=tcp://localhost:2375
+```
+
+Check [here](https://podman-desktop.io/docs/migrating-from-docker/using-the-docker_host-environment-variable) for Podman
+
+
 ### If you like it Buy me a coffee :)
 
 [![paypal](https://www.paypalobjects.com/en_US/i/btn/btn_donateCC_LG.gif)](https://www.paypal.com/paypalme/kendarorg/1)
