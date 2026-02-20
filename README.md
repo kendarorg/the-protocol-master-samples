@@ -23,6 +23,8 @@ On the various applications you can find a start.sh script that will start every
 If the protocol master compiled source is in the directory parallel to the samples it will use
 the jar from there.
 
+You can also run the applications via the tests in the e2etest project.
+
 ### Notes for macOs Users
 
 Should set the following on your .zprofile see [here](https://github.com/testcontainers/testcontainers-rs/pull/800):

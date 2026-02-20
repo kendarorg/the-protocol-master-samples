@@ -24,6 +24,7 @@ import java.io.File;
 import java.io.IOException;
 import java.nio.file.Files;
 import java.nio.file.Path;
+import java.nio.file.StandardCopyOption;
 import java.time.Duration;
 import java.util.HashMap;
 import java.util.List;
@@ -83,6 +84,17 @@ public class BasicTest {
     }
 
     protected static ComposeContainer setupContainer(String tpmHostExternal) throws Exception {
+        var protocolMasterDir = Path.of(
+                getProjectRoot().getParent().getParent().toString(),"the-protocol-master",
+                "protocol-runner",
+                "target",
+                "protocol-runner.jar");
+        if(!Files.exists(protocolMasterDir)){
+            Files.copy(
+                    protocolMasterDir,
+                    Path.of(getProjectRoot().toString(),"Tpm","protocol-runner.jar"),
+                    StandardCopyOption.REPLACE_EXISTING);
+        }
         tpmHost = tpmHostExternal;
         toWaitFor = new HashMap<>();
         environment = new ComposeContainer(
