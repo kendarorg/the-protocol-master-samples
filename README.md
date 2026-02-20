@@ -17,9 +17,9 @@ application. We will mock without a line of code the database and a rest api of 
 
 ### Running the applications
 
-First run the start.sh script in the root directory of the project to enable all scripts to run.
+First run the start.sh/ps1 script in the root directory of the project to enable all scripts to run.
 
-On the various applications you can find a start.sh script that will start everything for you.
+On the various applications you can find a start.sh/ps1 script that will start everything for you.
 If the protocol master compiled source is in the directory parallel to the samples it will use
 the jar from there.
 
