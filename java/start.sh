@@ -11,5 +11,5 @@ then
      echo "Copying protocol-runner"
      cp -f "$PROTOCOL_RUNNER_SRC" "$SCRIPT_DIR/Tpm/protocol-runner.jar"
 fi
-
+cd $SCRIPT_DIR
 docker-compose up
