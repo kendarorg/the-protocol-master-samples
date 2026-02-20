@@ -7,7 +7,11 @@ $ScriptDir = Split-Path -Parent $MyInvocation.MyCommand.Path
 $ProtocolRunnerSrc = Join-Path $ScriptDir "../../the-protocol-master/protocol-runner/target/protocol-runner.jar"
 $ProtocolRunnerSrc = Resolve-Path -Path $ProtocolRunnerSrc -ErrorAction SilentlyContinue
 
+$ProtocolRunnerDns = Join-Path $ScriptDir "../../the-protocol-master/protocol-dns-plugin/target/protocol-dns-plugin.jar"
+$ProtocolRunnerDns = Resolve-Path -Path $ProtocolRunnerDns -ErrorAction SilentlyContinue
+
 Write-Host $ProtocolRunnerSrc
+Write-Host $ProtocolRunnerDns
 
 # Check if file exists and is not empty
 if ($ProtocolRunnerSrc -and (Test-Path $ProtocolRunnerSrc)) {
@@ -16,6 +20,8 @@ if ($ProtocolRunnerSrc -and (Test-Path $ProtocolRunnerSrc)) {
         Write-Host "Copying protocol-runner"
         $destination = Join-Path $ScriptDir "Tpm/protocol-runner.jar"
         Copy-Item -Path $ProtocolRunnerSrc -Destination $destination -Force
+        $destination = Join-Path $ScriptDir "Tpm/protocol-dns-plugin.jar"
+        Copy-Item -Path $ProtocolRunnerDns -Destination $destination -Force
     }
 }
 
