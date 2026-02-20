@@ -59,7 +59,7 @@ docker image pull amazoncorretto:17.0.7-alpine
 docker image pull docker.io/library/node:18-alpine
 docker image pull docker.io/library/node:lts-alpine
 docker image pull eclipse-mosquitto:2.0.20
-docker image pull adoptopenjdk/openjdk11:jdk-11.0.11_9-alpine-slim
+docker image pull eclipse-temurin:25-jdk-alpine
 docker image pull postgres:9.6.18
 docker image pull golang:1.18-bullseye
 docker image pull python:3.9.13

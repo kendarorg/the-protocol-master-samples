@@ -1,11 +1,11 @@
-FROM adoptopenjdk/openjdk11:jdk-11.0.11_9-alpine-slim AS build
+FROM eclipse-temurin:25-jdk-alpine AS build
 
 WORKDIR /app
 RUN apk add --no-cache maven
 ADD quote-generator /app
 RUN mvn clean package -DskipTests
 
-FROM adoptopenjdk/openjdk11:jdk-11.0.11_9-alpine-slim
+FROM eclipse-temurin:25-jdk-alpine
 RUN apk add --no-cache curl
 
 WORKDIR /app

@@ -1,4 +1,4 @@
-FROM adoptopenjdk/openjdk11:jdk-11.0.11_9-alpine-slim AS build
+FROM eclipse-temurin:25-jdk-alpine AS build
 
 WORKDIR /app
 RUN apk add --no-cache maven
@@ -7,7 +7,7 @@ ADD rest-server /app
 
 RUN mvn clean install -DskipTests
 
-FROM adoptopenjdk/openjdk11:jdk-11.0.11_9-alpine-slim
+FROM eclipse-temurin:25-jdk-alpine
 RUN apk add --no-cache curl bash
 
 WORKDIR /app
