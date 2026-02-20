@@ -55,7 +55,7 @@ Check [here](https://podman-desktop.io/docs/migrating-from-docker/using-the-dock
 `
 docker image pull mysql:8.0.40
 docker image pull mcr.microsoft.com/dotnet/aspnet:8.0
-docker image pull amazoncorretto:17.0.7-alpine
+docker image pull eclipse-temurin:25-jdk-alpine
 docker image pull docker.io/library/node:18-alpine
 docker image pull docker.io/library/node:lts-alpine
 docker image pull eclipse-mosquitto:2.0.20
