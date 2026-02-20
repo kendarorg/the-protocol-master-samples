@@ -15,6 +15,14 @@ application. We will mock without a line of code the database and a rest api of 
 
 * The documentation for the protocol master is [here](https://github.com/kendarorg/the-protocol-master)
 
+### Running the applications
+
+First run the start.sh script in the root directory of the project to enable all scripts to run.
+
+On the various applications you can find a start.sh script that will start everything for you.
+If the protocol master compiled source is in the directory parallel to the samples it will use
+the jar from there.
+
 ### Notes for macOs Users
 
 Should set the following on your .zprofile see [here](https://github.com/testcontainers/testcontainers-rs/pull/800):
@@ -80,6 +88,8 @@ further info on the subject)
 * Target Architecture: arm64
 
 <a id="nme"></a>
+
+
 
 ## Simple TODO app (mysql,http,.NET)
 
