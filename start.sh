@@ -8,6 +8,10 @@ chmod +x $SCRIPT_DIR/golang/Tpm/start.sh
 chmod +x $SCRIPT_DIR/net-core/Tpm/start.sh
 chmod +x $SCRIPT_DIR/mitm/Tpm/start.sh
 
+export PROTOCOL_RUNNER_SRC="$SCRIPT_DIR/../the-protocol-master/protocol-runner/target/protocol-runner.jar"
+export PROTOCOL_DNS_SRC="$SCRIPT_DIR/../the-protocol-master/protocol-dns-plugin/target/protocol-dns-plugin.jar"
+
+
 
 # Optional override:
 # FORCE_ARCH=amd64 sh build.sh
@@ -64,6 +68,13 @@ update_env_platform() {
     mv "$TMP_FILE" "$ENV_FILE"
 
     echo "Updated $ENV_FILE"
+
+    if [ -s $PROTOCOL_RUNNER_SRC ]
+    then
+         echo "Copying protocol-runner"
+         cp -f "$PROTOCOL_RUNNER_SRC" "$TARGET_DIR/Tpm/protocol-runner.jar"
+         cp -f "$PROTOCOL_DNS_SRC" "$TARGET_DIR/Tpm/protocol-dns-plugin.jar"
+    fi
 }
 
 update_env_platform "$SCRIPT_DIR/python"

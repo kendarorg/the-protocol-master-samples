@@ -1,3 +1,5 @@
 /target/
 /e2etest/.idea/copilot.data.migration.ask2agent.xml
 /**/.env
+/**/Tpm/protocol-dns-plugin.jar
+/**/Tpm/protocol-runner.jar
