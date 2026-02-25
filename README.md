@@ -27,17 +27,9 @@ You can also run the applications via the tests in the e2etest project.
 
 ### Notes for macOs Users
 
-It would work ONLY IF YOU CAN RUN DOCKER IN DOCKER!
+The only way i have seen to run testcontainers on macOs supporting networks, linked containers
+and docker in docker is to use or an external docker server or [OrbStack](https://orbstack.dev/).
 
-Should set the following on your .zprofile see [here](https://github.com/testcontainers/testcontainers-rs/pull/800):
-
-```
-export DOCKER_DEFAULT_PLATFORM=linux/arm64
-export TESTCONTAINERS_RYUK_DISABLED=true
-export DOCKER_HOST=tcp://localhost:2375
-```
-
-Check [here](https://podman-desktop.io/docs/migrating-from-docker/using-the-docker_host-environment-variable) for Podman
 
 
 ### If you like it Buy me a coffee :)
