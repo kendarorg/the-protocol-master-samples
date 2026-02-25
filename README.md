@@ -25,6 +25,8 @@ the jar from there.
 
 You can also run the applications via the tests in the e2etest project.
 
+PS For the e2etest to run you need to be able to run a privileged container
+
 ### Notes for macOs Users
 
 The only way i have seen to run testcontainers on macOs supporting networks, linked containers
