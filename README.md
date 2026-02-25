@@ -27,10 +27,12 @@ You can also run the applications via the tests in the e2etest project.
 
 ### Notes for macOs Users
 
+It would work ONLY IF YOU CAN RUN DOCKER IN DOCKER!
+
 Should set the following on your .zprofile see [here](https://github.com/testcontainers/testcontainers-rs/pull/800):
 
 ```
-export DOCKER_DEFAULT_PLATFORM=linux/arm64v8
+export DOCKER_DEFAULT_PLATFORM=linux/arm64
 export TESTCONTAINERS_RYUK_DISABLED=true
 export DOCKER_HOST=tcp://localhost:2375
 ```

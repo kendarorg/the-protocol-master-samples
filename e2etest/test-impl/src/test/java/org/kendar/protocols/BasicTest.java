@@ -16,6 +16,7 @@ import org.openqa.selenium.WebElement;
 import org.openqa.selenium.support.ui.Select;
 import org.testcontainers.containers.ComposeContainer;
 import org.testcontainers.containers.ContainerState;
+import org.testcontainers.containers.DockerComposeContainer;
 import org.testcontainers.containers.output.OutputFrame;
 import org.testcontainers.containers.wait.strategy.FakeStrategy;
 import org.testcontainers.containers.wait.strategy.PortWaitStrategy;
@@ -38,7 +39,7 @@ import java.util.function.Consumer;
 public class BasicTest {
     private static Path root;
     private static Path projectRoot;
-    private static ComposeContainer environment;
+    private static ContainerWrapper environment;
     private static String tpmHost;
     private static HashMap<String, Integer> toWaitFor;
     private static int defaultTimeout = 5000;
@@ -65,7 +66,7 @@ public class BasicTest {
         if (tcpIpProxy != null) tcpIpProxy.stop();
     }
 
-    public static ComposeContainer getEnvironment() {
+    public static ContainerWrapper getEnvironment() {
         return environment;
     }
 
@@ -84,13 +85,13 @@ public class BasicTest {
         System.out.println(projectRoot);
     }
 
-    protected static ComposeContainer setupContainer(String tpmHostExternal) throws Exception {
+    protected static ContainerWrapper setupContainer(String tpmHostExternal) throws Exception {
         var protocolMasterDir = Path.of(
                 getProjectRoot().getParent().getParent().toString(),"the-protocol-master",
                 "protocol-runner",
                 "target",
                 "protocol-runner.jar");
-        if(!Files.exists(protocolMasterDir)){
+        if(Files.exists(protocolMasterDir)){
             Files.copy(
                     protocolMasterDir,
                     Path.of(getProjectRoot().toString(),"Tpm","protocol-runner.jar"),
@@ -98,13 +99,14 @@ public class BasicTest {
         }
         tpmHost = tpmHostExternal;
         toWaitFor = new HashMap<>();
-        environment = new ComposeContainer(
+        environment = new ContainerWrapper(new ComposeContainer(
                 Path.of(getProjectRoot().toString(), "docker-compose-testcontainers.yml").toFile()
-        );
-//        environment = new DoclerComposeContainer<>(
-//                Path.of(getProjectRoot().toString(), "docker-compose-testcontainers.yml").toFile()
-//        ).withLocalCompose(true)
-//                .withTailChildContainers(true);
+        ));
+        //      .withOptions("--privileged");
+//        var dc = new DockerComposeContainer(
+//                Path.of(getProjectRoot().toString(), "docker-compose-testcontainers.yml").toFile());
+//        //dc.with
+//        environment = new ContainerWrapper(dc);
 
         toWaitFor.put(tpmHost, 8081);
         withExposedServiceHidden(tpmHost, 5005);
@@ -134,7 +136,7 @@ public class BasicTest {
             waitPortAvailable(item.getKey(), item.getValue());
         }
         var container = environment.getContainerByServiceName(toWaitFor.keySet().stream().toList().get(0));
-        networks = ((ContainerState)container.get()).getContainerInfo().getNetworkSettings().getNetworks();
+        networks = container.get().getContainerInfo().getNetworkSettings().getNetworks();
 
         System.out.println("Containers started");
         var proxyHost = getEnvironment().getServiceHost(tpmHost, 9000);
@@ -146,7 +148,7 @@ public class BasicTest {
         }).start();
     }
 
-    public static ComposeContainer withExposedService(String host, int ports) throws Exception {
+    public static ContainerWrapper withExposedService(String host, int ports) throws Exception {
         //environment.withExposedService(host, mainPort);
         environment.withExposedService(host, ports,
                 new PortWaitStrategy().
@@ -157,7 +159,7 @@ public class BasicTest {
         return environment;
     }
 
-    public static ComposeContainer withExposedServiceHidden(String host, int ports) throws Exception {
+    public static ContainerWrapper withExposedServiceHidden(String host, int ports) throws Exception {
         //environment.withExposedService(host, mainPort);
         environment.withExposedService(host, ports,
                 new FakeStrategy());
@@ -295,7 +297,7 @@ public class BasicTest {
     }
 
     public void stopContainer(String host) throws Exception {
-        var containerName = ((ContainerState)getEnvironment().getContainerByServiceName(host).get()).getContainerInfo().getName().substring(1);
+        var containerName = getEnvironment().getContainerByServiceName(host).get().getContainerInfo().getName().substring(1);
         var commandRunner = new CommandRunner(
                 getProjectRoot(),
                 "docker", "stop", containerName);
@@ -303,7 +305,7 @@ public class BasicTest {
     }
 
     public void startContainer(String host) throws Exception {
-        var containerName = ((ContainerState)getEnvironment().getContainerByServiceName(host).get()).getContainerInfo().getName().substring(1);
+        var containerName = getEnvironment().getContainerByServiceName(host).get().getContainerInfo().getName().substring(1);
         var commandRunner = new CommandRunner(
                 getProjectRoot(),
                 "docker", "start", containerName);

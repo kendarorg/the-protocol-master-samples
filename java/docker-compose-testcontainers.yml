@@ -1,4 +1,3 @@
-
 services:
   java-tpm:
     build:
