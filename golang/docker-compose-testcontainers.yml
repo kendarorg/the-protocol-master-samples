@@ -1,0 +1,47 @@
+
+services:
+  go-tpm:
+    build:
+      context: Tpm/.
+      dockerfile: Dockerfile
+    image: "go-tpm"
+    hostname: go-tpm
+    depends_on:
+      go-postgres:
+        condition: service_started
+      go-redis:
+        condition: service_started
+  go-rest:
+    build:
+      context: RestServer/.
+      dockerfile: Dockerfile
+    image: "go-rest"
+    hostname: go-rest
+    depends_on:
+      go-postgres:
+        condition: service_started
+      go-tpm:
+        condition: service_healthy
+      go-redis:
+        condition: service_started
+  go-postgres:
+    build:
+      context: Postgres/.
+      dockerfile: Dockerfile
+    hostname: go-postgres
+    image: "go-postgres"
+    restart: always
+    environment:
+      POSTGRES_DB: 'db'
+      POSTGRES_USER: "postgres"
+      POSTGRES_PASSWORD: 'password'
+    healthcheck:
+      test: ['CMD-SHELL', 'pg_isready -U postgres'] # <<<---
+      interval: 1s
+      timeout: 5s
+      retries: 10
+  go-redis:
+    image: "redis:6.2-alpine"
+    hostname: go-redis
+    restart: always
+    command: redis-server --save 20 1 --loglevel warning

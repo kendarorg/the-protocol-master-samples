@@ -15,6 +15,8 @@ import org.openqa.selenium.WebDriver;
 import org.openqa.selenium.WebElement;
 import org.openqa.selenium.support.ui.Select;
 import org.testcontainers.containers.ComposeContainer;
+import org.testcontainers.containers.ContainerState;
+import org.testcontainers.containers.DockerComposeContainer;
 import org.testcontainers.containers.output.OutputFrame;
 import org.testcontainers.containers.wait.strategy.FakeStrategy;
 import org.testcontainers.containers.wait.strategy.PortWaitStrategy;
@@ -24,6 +26,7 @@ import java.io.File;
 import java.io.IOException;
 import java.nio.file.Files;
 import java.nio.file.Path;
+import java.nio.file.StandardCopyOption;
 import java.time.Duration;
 import java.util.HashMap;
 import java.util.List;
@@ -36,7 +39,7 @@ import java.util.function.Consumer;
 public class BasicTest {
     private static Path root;
     private static Path projectRoot;
-    private static ComposeContainer environment;
+    private static ContainerWrapper environment;
     private static String tpmHost;
     private static HashMap<String, Integer> toWaitFor;
     private static int defaultTimeout = 5000;
@@ -63,7 +66,7 @@ public class BasicTest {
         if (tcpIpProxy != null) tcpIpProxy.stop();
     }
 
-    public static ComposeContainer getEnvironment() {
+    public static ContainerWrapper getEnvironment() {
         return environment;
     }
 
@@ -82,12 +85,28 @@ public class BasicTest {
         System.out.println(projectRoot);
     }
 
-    protected static ComposeContainer setupContainer(String tpmHostExternal) throws Exception {
+    protected static ContainerWrapper setupContainer(String tpmHostExternal) throws Exception {
+        var protocolMasterDir = Path.of(
+                getProjectRoot().getParent().getParent().toString(),"the-protocol-master",
+                "protocol-runner",
+                "target",
+                "protocol-runner.jar");
+        if(Files.exists(protocolMasterDir)){
+            Files.copy(
+                    protocolMasterDir,
+                    Path.of(getProjectRoot().toString(),"Tpm","protocol-runner.jar"),
+                    StandardCopyOption.REPLACE_EXISTING);
+        }
         tpmHost = tpmHostExternal;
         toWaitFor = new HashMap<>();
-        environment = new ComposeContainer(
+        environment = new ContainerWrapper(new ComposeContainer(
                 Path.of(getProjectRoot().toString(), "docker-compose-testcontainers.yml").toFile()
-        );
+        ));
+        //      .withOptions("--privileged");
+//        var dc = new DockerComposeContainer(
+//                Path.of(getProjectRoot().toString(), "docker-compose-testcontainers.yml").toFile());
+//        //dc.with
+//        environment = new ContainerWrapper(dc);
 
         toWaitFor.put(tpmHost, 8081);
         withExposedServiceHidden(tpmHost, 5005);
@@ -129,7 +148,7 @@ public class BasicTest {
         }).start();
     }
 
-    public static ComposeContainer withExposedService(String host, int ports) throws Exception {
+    public static ContainerWrapper withExposedService(String host, int ports) throws Exception {
         //environment.withExposedService(host, mainPort);
         environment.withExposedService(host, ports,
                 new PortWaitStrategy().
@@ -140,7 +159,7 @@ public class BasicTest {
         return environment;
     }
 
-    public static ComposeContainer withExposedServiceHidden(String host, int ports) throws Exception {
+    public static ContainerWrapper withExposedServiceHidden(String host, int ports) throws Exception {
         //environment.withExposedService(host, mainPort);
         environment.withExposedService(host, ports,
                 new FakeStrategy());

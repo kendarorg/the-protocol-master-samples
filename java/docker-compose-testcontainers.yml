@@ -1,4 +1,3 @@
-
 services:
   java-tpm:
     build:
@@ -53,5 +52,3 @@ services:
       dockerfile: Dockerfile
     image: "java-mosquitto"
     hostname: "java-mosquitto"
-    ports:
-      - '21883:1883'

@@ -3,7 +3,8 @@
 #EDR FROM --platform=$BUILDPLATFORM mcr.microsoft.com/dotnet/sdk:9.0 AS build
 FROM --platform=linux/amd64 mcr.microsoft.com/dotnet/sdk:8.0 AS build
 #EDR ARG TARGETARCH
-ENV TARGETARCH=amd64
+ARG TARG_ARCH=amd64
+ENV TARGETARCH=$TARG_ARCH
 WORKDIR /source
 
 # Copy project file and restore as distinct layers

@@ -15,17 +15,21 @@ application. We will mock without a line of code the database and a rest api of 
 
 * The documentation for the protocol master is [here](https://github.com/kendarorg/the-protocol-master)
 
+### Running the applications
+
+First run the start.sh/ps1 script in the root directory of the project to enable all scripts to run.
+
+On the various applications you can find a start.sh/ps1 script that will start everything for you.
+If the protocol master compiled source is in the directory parallel to the samples it will use
+the jar from there.
+
+You can also run the applications via the tests in the e2etest project.
+
 ### Notes for macOs Users
 
-Should set the following on your .zprofile see [here](https://github.com/testcontainers/testcontainers-rs/pull/800):
+The only way i have seen to run testcontainers on macOs supporting networks, linked containers
+and docker in docker is to use or an external docker server or [OrbStack](https://orbstack.dev/).
 
-```
-export DOCKER_DEFAULT_PLATFORM=linux/arm64v8
-export TESTCONTAINERS_RYUK_DISABLED=true
-export DOCKER_HOST=tcp://localhost:2375
-```
-
-Check [here](https://podman-desktop.io/docs/migrating-from-docker/using-the-docker_host-environment-variable) for Podman
 
 
 ### If you like it Buy me a coffee :)
@@ -45,11 +49,11 @@ Check [here](https://podman-desktop.io/docs/migrating-from-docker/using-the-dock
 `
 docker image pull mysql:8.0.40
 docker image pull mcr.microsoft.com/dotnet/aspnet:8.0
-docker image pull amazoncorretto:17.0.7-alpine
+docker image pull eclipse-temurin:25-jdk-alpine
 docker image pull docker.io/library/node:18-alpine
 docker image pull docker.io/library/node:lts-alpine
 docker image pull eclipse-mosquitto:2.0.20
-docker image pull adoptopenjdk/openjdk11:jdk-11.0.11_9-alpine-slim
+docker image pull eclipse-temurin:25-jdk-alpine
 docker image pull postgres:9.6.18
 docker image pull golang:1.18-bullseye
 docker image pull python:3.9.13
@@ -80,6 +84,8 @@ further info on the subject)
 * Target Architecture: arm64
 
 <a id="nme"></a>
+
+
 
 ## Simple TODO app (mysql,http,.NET)
 

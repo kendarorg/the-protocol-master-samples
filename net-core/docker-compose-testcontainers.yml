@@ -15,6 +15,8 @@ services:
     build:
       context: HttpServer/.
       dockerfile: Dockerfile
+      args:
+        TARG_ARCH: ${TARG_ARCH}
     image: "net-core-http"
     hostname: "net-core-http"
     depends_on:
@@ -25,6 +27,8 @@ services:
     build:
       context: RestServer/.
       dockerfile: Dockerfile
+      args:
+        TARG_ARCH: ${TARG_ARCH}
     image: "net-core-rest"
     hostname: "net-core-rest"
     depends_on:
