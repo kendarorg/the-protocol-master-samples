@@ -32,7 +32,16 @@ PS For the e2etest to run you need to be able to run a privileged container
 The only way i have seen to run testcontainers on macOs supporting networks, linked containers
 and docker in docker is to use or an external docker server or [OrbStack](https://orbstack.dev/).
 
+Remember to set the docker context to OrbStack `docker context use orbstack`
 
+And to set the `DOCKER_HOST` environment variable to the docker endpoint specified in the OrbStack
+configuration, adding it to .zshrc
+
+```
+export DOCKER_CONTEXT=orbstack
+docker context use $DOCKER_CONTEXT
+export DOCKER_HOST=unix:///Users/edaros/.orbstack/run/docker.sock
+```
 
 ### If you like it Buy me a coffee :)
 
