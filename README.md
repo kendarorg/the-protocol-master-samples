@@ -27,9 +27,9 @@ You can also run the applications via the tests in the e2etest project.
 
 PS For the e2etest to run you need to be able to run a privileged container
 
-### Notes for macOs Users
+### Notes for MacOs Users
 
-The only way i have seen to run testcontainers on macOs supporting networks, linked containers
+The only way i have seen to run testcontainers on MacOs supporting networks, linked containers
 and docker in docker is to use or an external docker server or [OrbStack](https://orbstack.dev/).
 
 Remember to set the docker context to OrbStack `docker context use orbstack`
